@@ -1,0 +1,1936 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title></title>
+</head>
+<script src="jquery.min.js"></script>
+<body>
+	<canvas id="game" width="1600" height="800"></canvas>
+	<script>
+var canvas = document.getElementById('game');
+var con = canvas.getContext('2d');
+
+var img = new Image();
+img.src = 'Dungeon_B_Freem7.png';
+var img2 = new Image();
+img2.src = 'fighting_fantasy_icons.png';
+
+var LX = 25;
+var LY = 25;
+var PX = 32;
+var PY = 32;
+
+var E_RAT = 0;
+var E_BAT = 1;
+var E_CARACAL = 2;
+var E_WOLF = 3;
+var E_SLIME = 4;
+var E_SPIDER = 5;
+var E_SNAKE = 6;
+var E_GOBLIN = 7;
+
+var E_INFO = [];
+E_INFO[E_RAT] = {
+	dname: 'ラット', 
+	hp: 6, 
+	atk: 4, 
+	def: 4, 
+	exp: 1, 
+	point: 10
+};
+E_INFO[E_BAT] = {
+	dname: 'バット', 
+	hp: 8, 
+	atk: 5, 
+	def: 5, 
+	exp: 2, 
+	point: 15
+};
+E_INFO[E_CARACAL] = {
+	dname: 'カラカル', 
+	hp: 12, 
+	atk: 6, 
+	def: 6, 
+	exp: 3, 
+	point: 25
+};
+E_INFO[E_WOLF] = {
+	dname: 'ウルフ', 
+	hp: 16, 
+	atk: 8, 
+	def: 7, 
+	exp: 4, 
+	point: 30
+};
+
+var I_APPLE = 0;
+var I_DAGGER = 1;
+var I_SHORT_SWORD = 2;
+var I_RAPIER = 3;
+var I_FALCHION = 4;
+var I_LONG_SWORD = 5;
+var I_LEATHER_ARMOR = 6;
+var I_RIVET_ARMOR = 7;
+var I_SCALE_ARMOR = 8;
+var I_CHAIN_MAIL = 9;
+var I_PLATE_ARMOR = 10;
+var I_HEALTH_POTION = 11;
+var I_CLEAR = 12;
+
+var I_CAT_FOOD = 0;
+var I_CAT_WEAPON = 1;
+var I_CAT_ARMOR = 2;
+var I_CAT_POTION = 3;
+var I_CAT_JEWEL = 4;
+var I_CAT_INFO = [];
+I_CAT_INFO[I_CAT_FOOD] = {
+	actions: [
+		{ name: 'eat', dname: '食べる' }, 
+		{ name: 'drop', dname: '置く' }
+	]
+};
+I_CAT_INFO[I_CAT_WEAPON] = {
+	actions: [
+		{ name: 'equip', dname: '装備する', name2: 'unequip', dname2: '外す' }, 
+		{ name: 'drop', dname: '置く' }
+	]
+};
+I_CAT_INFO[I_CAT_ARMOR] = {
+	actions: [
+		{ name: 'equip', dname: '装備する', name2: 'unequip', dname2: '外す' }, 
+		{ name: 'drop', dname: '置く' }
+	]
+};
+I_CAT_INFO[I_CAT_POTION] = {
+	actions: [
+		{ name: 'equip', dname: '飲む' }, 
+		{ name: 'drop', dname: '置く' }
+	]
+};
+
+var I_INFO = [];
+I_INFO[I_APPLE] = {
+	level: 1, 
+	dname: 'リンゴ', 
+	cat: I_CAT_FOOD, 
+	wgt: 0.1, 
+	desc: function (i) { return 'ENG +50, WGT +0.1'; }
+};
+I_INFO[I_DAGGER] = {
+	level: 1, 
+	dname: 'ダガー', 
+	cat: I_CAT_WEAPON, 
+	wgt: 0.3, 
+	atk: 1, 
+	desc: function (i) { return 'ATK +' + (1 + i.level - 1) + ', WGT +0.3'; }
+};
+I_INFO[I_SHORT_SWORD] = {
+	level: 2, 
+	dname: 'ショートソード', 
+	cat: I_CAT_WEAPON, 
+	wgt: 0.5, 
+	atk: 2, 
+	desc: function (i) { return 'ATK +' + (2 + i.level - 1) + ', WGT +0.5'; }
+};
+I_INFO[I_RAPIER] = {
+	level: 3, 
+	dname: 'レイピア', 
+	cat: I_CAT_WEAPON, 
+	wgt: 0.5, 
+	atk: 3, 
+	desc: function (i) { return 'ATK +' + (3 + i.level - 1) + ', WGT +0.5'; }
+};
+I_INFO[I_FALCHION] = {
+	level: 4, 
+	dname: 'ファルシオン', 
+	cat: I_CAT_WEAPON, 
+	wgt: 0.8, 
+	atk: 4, 
+	desc: function (i) { return 'ATK +' + (4 + i.level - 1) + ', WGT +0.8'; }
+};
+I_INFO[I_LONG_SWORD] = {
+	level: 5, 
+	dname: 'ロングソード', 
+	cat: I_CAT_WEAPON, 
+	wgt: 0.7, 
+	atk: 5, 
+	desc: function (i) { return 'ATK +' + (5 + i.level - 1) + ', WGT +0.7'; }
+};
+I_INFO[I_LEATHER_ARMOR] = {
+	level: 1, 
+	dname: 'レザーアーマー', 
+	cat: I_CAT_ARMOR, 
+	wgt: 0.4, 
+	def: 1, 
+	desc: function (i) { return 'DEF +' + (1 + i.level - 1) + ', WGT +0.4'; }
+};
+I_INFO[I_RIVET_ARMOR] = {
+	level: 2, 
+	dname: 'リベットアーマー', 
+	cat: I_CAT_ARMOR, 
+	wgt: 0.6, 
+	def: 2, 
+	desc: function (i) { return 'DEF +' + (2 + i.level - 1) + ', WGT +0.6'; }
+};
+I_INFO[I_SCALE_ARMOR] = {
+	level: 3, 
+	dname: 'スケールアーマー', 
+	cat: I_CAT_ARMOR, 
+	wgt: 0.7, 
+	def: 3, 
+	desc: function (i) { return 'DEF +' + (3 + i.level - 1) + ', WGT +0.7'; }
+};
+I_INFO[I_CHAIN_MAIL] = {
+	level: 4, 
+	dname: 'チェーンメール', 
+	cat: I_CAT_ARMOR, 
+	wgt: 0.8, 
+	def: 4, 
+	desc: function (i) { return 'DEF +' + (4 + i.level - 1) + ', WGT +0.8'; }
+};
+I_INFO[I_PLATE_ARMOR] = {
+	level: 5, 
+	dname: 'プレートアーマー', 
+	cat: I_CAT_ARMOR, 
+	wgt: 0.8, 
+	def: 5, 
+	desc: function (i) { return 'DEF +' + (5 + i.level - 1) + ', WGT +0.8'; }
+};
+I_INFO[I_HEALTH_POTION] = {
+	level: 1, 
+	dname: '回復薬', 
+	cat: I_CAT_POTION, 
+	wgt: 0.1, 
+	desc: function (i) { return 'HP +' + (i.level * 10) + ', WGT +0.1'; }
+};
+I_INFO[I_CLEAR] = {
+	level: 1, 
+	dname: '緑色の宝珠', 
+	cat: I_CAT_JEWEL, 
+	wgt: 0.5, 
+	desc: function (i) { return ''; }
+};
+
+var B_FLOOR = 0;
+var B_WALL = 1;
+var B_WEAKWALL = 2;
+var B_DOWNSTAIR = 3;
+var B_UPSTAIR = 4;
+
+var B_CAN_STAND = [];
+B_CAN_STAND[B_FLOOR] = true;
+B_CAN_STAND[B_WEAKWALL] = false;
+B_CAN_STAND[B_WALL] = false;
+B_CAN_STAND[B_DOWNSTAIR] = true;
+B_CAN_STAND[B_UPSTAIR] = true;
+
+var startf = true;
+var invf = false;
+var invindex = 0;
+var invoffset = 0;
+var invactf = false;
+var invactindex = 0;
+var gameover = false;
+var turn = 0;
+var point = 0;
+
+var fields = [];
+var npcs = [];
+var player = {};
+var messages = [];
+
+
+draw(fields, player);
+
+
+
+function init () {
+	startf = false;
+	invf = false;
+	invindex = 0;
+	invoffset = 0;
+	invactf = false;
+	invactindex = 0;
+	gameover = false;
+	turn = 0;
+	point = 0;
+
+	var fn0 = create_field_0();
+
+	fields = [];
+	fields[0] = [];
+	fields[0][0] = [];
+	fields[0][0][0] = fn0.field;
+
+	npcs = [];
+	npcs[0] = [];
+	npcs[0][0] = [];
+	npcs[0][0][0] = fn0.npc;
+
+	player = {
+		depth: 0, 
+		maxdepth: 0, 
+		fx: 0, 
+		fy: 0, 
+		x: 12, 
+		y: 17, 
+		level: 1, 
+		hpfull: 16, 
+		hp: 16, 
+		hpfrac: 0, 
+		eng: 100, 
+		engfull: 100, 
+		engturn: 0, 
+		wgt: 0.0, 
+		wgtfull: 10.0, 
+		atkfull: 4, 
+		atk: 4, 
+		deffull: 4, 
+		def: 4, 
+		expfull: 4, 
+		exp: 0, 
+		items: []
+	};
+
+	messages = [{
+		text: 'あなたは目覚めました。', 
+		type: 'special'
+	}];
+}
+
+function add_message (message) {
+	var l = messages[messages.length - 1];
+	if (message.text === l.text && message.type === l.type) {
+		if (!l.repeat) {
+			l.repeat = 2;
+		}
+		else {
+			l.repeat++;
+		}
+	}
+	else {
+		messages.push(message);
+		while (messages.length > 8) {
+			messages.shift();
+		}
+	}
+}
+
+function create_field_0 () {
+	var field = [];
+	for (var i = 0; i < LX; i++) {
+		field[i] = [];
+		for (var j = 0; j < LY; j++) {
+			if ((i === 0 || j === 0) || (i === LX -1 || j === LY - 1)) {
+				field[i][j] = {
+					base: B_WALL
+				};
+			}
+			else if (i === 12 && j === 5) {
+				field[i][j] = {
+					base: B_DOWNSTAIR
+				};
+			}
+			else {
+				field[i][j] = {
+					base: B_FLOOR
+				};
+			}
+		}
+	}
+
+	return {
+		field: field, 
+		npc: []
+	};
+}
+
+function create_field_n (depth, upstairs) {
+	var field = [];
+	for (var i = 0; i < LX; i++) {
+		field[i] = [];
+		for (var j = 0; j < LY; j++) {
+			if ((i === 0 || j === 0) || (i === LX -1 || j === LY - 1)) {
+				field[i][j] = {
+					base: B_WALL
+				};
+			}
+			else {
+				field[i][j] = {
+					base: B_FLOOR
+				};
+			}
+		}
+	}
+
+	if (depth === 5) {
+		for (var i = 0; i < upstairs.length; i++) {
+			field[upstairs[i].x][upstairs[i].y].base = B_UPSTAIR;
+		}
+
+		field[12][5].items = [{
+			type: I_CLEAR, 
+			cat: I_CAT_JEWEL, 
+			level: 1
+		}];
+
+		return {
+			field: field, 
+			npc: []
+		};
+	}
+
+	var rs = [{
+		x1: 1, 
+		x2: LX - 2, 
+		y1: 1, 
+		y2: LY - 2
+	}];
+	var ers = [];
+	var dps = [1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5];
+	while (rs.length > 0 && dps.length > 0) {
+		var r = rs.shift();
+		var nrs = split_room(field, r.x1, r.x2, r.y1, r.y2, dps.shift());
+		for (var i = 0; i < nrs.length; i++) {
+			rs.push(nrs[i]);
+		}
+		if (nrs.length === 0) {
+			ers.push(r);
+		}
+	}
+	while (rs.length > 0) {
+		ers.push(rs.shift());
+	}
+
+	for (var i = 0; i < upstairs.length; i++) {
+		field[upstairs[i].x][upstairs[i].y].base = B_UPSTAIR;
+	}
+
+	var nds = 1;
+	while (nds > 0) {
+		var x = Math.floor(Math.random() * (LX - 2)) + 1;
+		var y = Math.floor(Math.random() * (LY - 2)) + 1;
+		var f = true;
+		for (var i = 0; i < upstairs.length; i++) {
+			if (x === upstairs[i].x && y === upstairs[i].y) {
+				f = false;
+				break;
+			}
+		}
+		if (f) {
+			field[x][y].base = B_DOWNSTAIR;
+			nds--;
+		}
+	}
+
+	var npc = [];
+	for (var i = 0; i < ers.length; i++) {
+		var num = Math.floor(Math.random() * 3);
+		for (var j = 0; j < num; j++) {
+			var x = Math.floor(Math.random() * (ers[i].x2 - ers[i].x1)) + ers[i].x1;
+			var y = Math.floor(Math.random() * (ers[i].y2 - ers[i].y1)) + ers[i].y1;
+
+			var type = 0;
+			var r = Math.random();
+			if (depth === 1) {
+				if (r < 0.3) {
+					type = E_RAT;
+				}
+				else {
+					type = E_BAT;
+				}
+			}
+			else if (depth === 2) {
+				if (r < 0.1) {
+					type = E_RAT;
+				}
+				else if (r < 0.4) {
+					type = E_BAT;
+				}
+				else {
+					type = E_CARACAL;
+				}
+
+			}
+			else if (depth === 3) {
+				if (r < 0.05) {
+					type = E_RAT;
+				}
+				else if (r < 0.2) {
+					type = E_BAT;
+				}
+				else if (r < 0.4) {
+					type = E_CARACAL;
+				}
+				else {
+					type = E_WOLF;
+				}
+
+			}
+			else if (depth === 4) {
+				if (r < 0.03) {
+					type = E_RAT;
+				}
+				else if (r < 0.1) {
+					type = E_BAT;
+				}
+				else if (r < 0.2) {
+					type = E_CARACAL;
+				}
+				else {
+					type = E_WOLF;
+				}
+			}
+			var info = E_INFO[type];
+
+			npc.push({
+				type: type, 
+				x: x, 
+				y: y, 
+				level: 1, 
+				hpfull: info.hp, 
+				hp: info.hp, 
+				atk: info.atk, 
+				def: info.def, 
+				exp: info.exp
+			});
+		}
+
+		var pii = Math.random();
+		if (pii < 0.5) {
+			var xii = Math.floor(Math.random() * (ers[i].x2 - ers[i].x1)) + ers[i].x1;
+			var yii = Math.floor(Math.random() * (ers[i].y2 - ers[i].y1)) + ers[i].y1;
+
+			var baselevel = Math.ceil(depth / 4);
+
+			var cat = 0;
+			var item = 0;
+			var level = 0;
+			var pcat = Math.random();
+			if (pcat < 0.25) {
+				cat = I_CAT_FOOD;
+				item = I_APPLE;
+			}
+			else if (pcat < 0.5) {
+				var plevel = Math.random();
+
+				cat = I_CAT_WEAPON;
+				if (plevel < 0.7) {
+					level = Math.floor(Math.random() * baselevel) + 1;
+				}
+				else if (plevel < 0.95) {
+					level = baselevel + 1;
+				}
+				else {
+					level = baselevel + 2;
+				}
+
+				if (level === 1) {
+					item = I_DAGGER;
+				}
+				else if (level === 2) {
+					item = I_SHORT_SWORD;
+				}
+				else if (level === 3) {
+					item = I_RAPIER;
+				}
+				else if (level === 4) {
+					item = I_FALCHION;
+				}
+				else {
+					item = I_LONG_SWORD;
+				}
+
+				level = 1;
+			}
+			else if (pcat < 0.75) {
+				var plevel = Math.random();
+
+				cat = I_CAT_ARMOR;
+				if (plevel < 0.7) {
+					level = Math.floor(Math.random() * baselevel) + 1;
+				}
+				else if (plevel < 0.95) {
+					level = baselevel + 1;
+				}
+				else {
+					level = baselevel + 2;
+				}
+
+				if (level === 1) {
+					item = I_LEATHER_ARMOR;
+				}
+				else if (level === 2) {
+					item = I_RIVET_ARMOR;
+				}
+				else if (level === 3) {
+					item = I_SCALE_ARMOR;
+				}
+				else if (level === 4) {
+					item = I_CHAIN_MAIL;
+				}
+				else {
+					item = I_PLATE_ARMOR;
+				}
+
+				level = 1;
+			}
+			else {
+				var plevel = Math.random();
+
+				cat = I_CAT_POTION;
+				item = I_HEALTH_POTION;
+				if (plevel < 0.7) {
+					level = Math.floor(Math.random() * baselevel) + 1;
+				}
+				else if (plevel < 0.95) {
+					level = baselevel + 1;
+				}
+				else {
+					level = baselevel + 2;
+				}
+			}
+
+			if (!field[xii][yii].items) {
+				field[xii][yii].items = [];
+			}
+			field[xii][yii].items.push({
+				type: item, 
+				cat: cat, 
+				level: level, 
+				atk: I_INFO[item].atk, 
+				def: I_INFO[item].def
+			});
+		}
+	}
+
+	return {
+		field: field, 
+		npc: npc
+	};
+}
+
+function split_room (field, x1, x2, y1, y2, dp) {
+	var ap = Math.random();
+	if (ap <= dp) {
+		var dir = Math.floor(Math.random() * 2);
+		if (x2 - x1 > (y2 - y1) * 2) {
+			dir = 0;
+		}
+		else if ((x2 - x1) * 2 < y2 - y1) {
+			dir = 1;
+		}
+
+		if (dir === 0) {
+			if (x2 - x1 < 6) {
+				return [];
+			}
+
+			var x = Math.floor(Math.random() * (x2 - x1 - 6)) + 3 + x1;
+			if (field[x][y1 - 1].base !== B_WALL && field[x][y1 - 1].base !== B_WEAKWALL) {
+				return [];
+			}
+			if (field[x][y2 + 1].base !== B_WALL && field[x][y2 + 1].base !== B_WEAKWALL) {
+				return [];
+			}
+			var y = Math.floor(Math.random() * (y2 - y1)) + y1;
+			for (var i = y1; i <= y2; i++) {
+				if (i !== y) {
+					field[x][i].base = B_WEAKWALL;
+				}
+			}
+
+			var r = Math.floor(Math.random() * 2);
+			if (r === 0) {
+				return [{
+					x1: x1, 
+					x2: x - 1, 
+					y1: y1, 
+					y2: y2
+				}, {
+					x1: x + 1, 
+					x2: x2, 
+					y1: y1, 
+					y2: y2
+				}];
+			}
+			else {
+				return [{
+					x1: x + 1, 
+					x2: x2, 
+					y1: y1, 
+					y2: y2
+				}, {
+					x1: x1, 
+					x2: x - 1, 
+					y1: y1, 
+					y2: y2
+				}];
+			}
+		}
+		else {
+			if (y2 - y1 < 6) {
+				return [];
+			}
+
+			var x = Math.floor(Math.random() * (x2 - x1)) + x1;
+			var y = Math.floor(Math.random() * (y2 - y1 - 6)) + 3 + y1;
+			if (field[x1 - 1][y].base !== B_WALL && field[x1 - 1][y].base !== B_WEAKWALL) {
+				return [];
+			}
+			if (field[x2 + 1][y].base !== B_WALL && field[x2 + 1][y].base !== B_WEAKWALL) {
+				return [];
+			}
+			for (var i = x1; i <= x2; i++) {
+				if (i !== x) {
+					field[i][y].base = B_WEAKWALL;
+				}
+			}
+
+			var r = Math.floor(Math.random() * 2);
+			if (r === 0) {
+				return [{
+					x1: x1, 
+					x2: x2, 
+					y1: y1, 
+					y2: y - 1
+				}, {
+					x1: x1, 
+					x2: x2, 
+					y1: y + 1, 
+					y2: y2
+				}];
+			}
+			else {
+				return [{
+					x1: x1, 
+					x2: x2, 
+					y1: y + 1, 
+					y2: y2
+				}, {
+					x1: x1, 
+					x2: x2, 
+					y1: y1, 
+					y2: y - 1
+				}];
+			}
+		}
+	}
+	return [];
+}
+
+function downstair () {
+	player.depth++;
+	if (!fields[player.depth]) {
+		fields[player.depth] = [];
+		npcs[player.depth] = [];
+	}
+	var dfields = fields[player.depth];
+	var dnpcs = npcs[player.depth];
+	if (!dfields[player.fx]) {
+		dfields[player.fx] = [];
+		dnpcs[player.fx] = [];
+	}
+	if (!dfields[player.fx][player.fy]) {
+		var fnn = create_field_n(player.depth, [{
+			x: player.x, 
+			y: player.y
+		}]);
+		dfields[player.fx][player.fy] = fnn.field;
+		dnpcs[player.fx][player.fy] = fnn.npc;
+	}
+
+	if (player.maxdepth < player.depth) {
+		point += 30;
+	}
+	player.maxdepth = player.depth;
+
+	add_message({
+		text: '降り階段を降りました。', 
+		type: 'normal'
+	});
+}
+
+function upstair () {
+	player.depth--;
+	if (!fields[player.depth]) {
+		fields[player.depth] = [];
+		npcs[player.depth] = [];
+	}
+	var dfields = fields[player.depth];
+	var dnpcs = npcs[player.depth];
+	if (!dfields[player.fx]) {
+		dfields[player.fx] = [];
+		dnpcs[player.fx] = [];
+	}
+	if (!dfields[player.fx][player.fy]) {
+		var fnn = create_field_n(player.depth, [{
+			x: player.x, 
+			y: player.y
+		}]);
+		dfields[player.fx][player.fy] = fnn.field;
+		npcs[player.fx][player.fy] = fnn.npc;
+	}
+
+	add_message({
+		text: '昇り階段を昇りました。', 
+		type: 'normal'
+	});
+}
+
+function pickup (field) {
+	var item = field[player.x][player.y].items[0];
+	var info = I_INFO[item.type];
+
+	if (player.wgt + info.wgt <= player.wgtfull) {
+		player.items.push(item);
+		player.wgt += info.wgt;
+
+		field[player.x][player.y].items.shift();
+
+		if (!item.put) {
+			point += 10;
+		}
+
+		var name = info.dname;
+		if (item.type === I_HEALTH_POTION) {
+			name += item.level * 10;
+		}
+
+		add_message({
+			text: name + 'を拾いました。', 
+			type: 'normal'
+		});
+
+		if (item.type === I_CLEAR) {
+			gameover = true;
+
+			add_message({
+				text: 'あなたはゲームをクリアしました。', 
+				type: 'special'
+			});
+		}
+	}
+	else {
+		var name = info.dname;
+		if (item.type === I_HEALTH_POTION) {
+			name += item.level * 10;
+		}
+
+		add_message({
+			text: name + 'を拾おうとしましたが、持ちきれませんでした。', 
+			type: 'imp'
+		});
+	}
+}
+
+function put (field) {
+	var item = player.items[invindex];
+	var info = I_INFO[item.type];
+
+	item.put = true;
+	if (!field[player.x][player.y].items) {
+		field[player.x][player.y].items = [];
+	}
+	field[player.x][player.y].items.push(item);
+
+	var name = info.dname;
+	if (item.type === I_HEALTH_POTION) {
+		name += item.level * 10;
+	}
+
+	add_message({
+		text: name + 'を置きました。', 
+		type: 'normal'
+	});
+
+	player.items.splice(invindex, 1);
+	player.wgt -= info.wgt;
+}
+
+function eat () {
+	var info = I_INFO[player.items[invindex].type];
+	if (player.items[invindex].type === I_APPLE) {
+		var eng = player.eng;
+		player.eng += 50;
+		if (player.eng >= player.engfull) {
+			player.eng = player.engfull;
+			player.engturn = 0;
+		}
+
+		add_message({
+			text: info.dname + 'を食べました。' + 'ENGが' + (player.eng - eng) + '回復しました。', 
+			type: 'normal'
+		});
+	}
+
+	player.items.splice(invindex, 1);
+	player.wgt -= info.wgt;
+}
+
+function drink () {
+	var info = I_INFO[player.items[invindex].type];
+	if (player.items[invindex].type === I_HEALTH_POTION) {
+		var hp = player.hp;
+		player.hp += player.items[invindex].level * 10;
+		if (player.hp >= player.hpfull) {
+			player.hp = player.hpfull;
+			player.hpfrac = 0;
+		}
+
+		add_message({
+			text: info.dname + (player.items[invindex].level * 10) + 'を飲みました。' + 'HPが' + (player.hp - hp) + '回復しました。', 
+			type: 'normal'
+		});
+	}
+
+	player.items.splice(invindex, 1);
+	player.wgt -= info.wgt;
+}
+
+function equip_weapon () {
+	var info = I_INFO[player.items[invindex].type];
+	for (var i = 0; i < player.items.length; i++) {
+		if (player.items[i].cat === I_CAT_WEAPON && player.items[i].equipped) {
+			var info2 = I_INFO[player.items[i].type];
+			player.items[i].equipped = false;
+			player.atk -= player.items[i].atk;
+
+			add_message({
+				text: info2.dname + 'を外しました。' + 'ATKが' + player.items[i].atk + '減少しました。', 
+				type: 'normal'
+			});
+
+			break;
+		}
+	}
+	player.items[invindex].equipped = true;
+	player.atk += player.items[invindex].atk;
+	player.weapon = player.items[invindex];
+
+	add_message({
+		text: info.dname + 'を装備しました。' + 'ATKが' + player.items[invindex].atk + '増加しました。', 
+		type: 'normal'
+	});
+}
+
+function unequip_weapon () {
+	var info = I_INFO[player.items[invindex].type];
+	player.items[invindex].equipped = false;
+	player.atk -= player.items[invindex].atk;
+	player.weapon = undefined;
+
+	add_message({
+		text: info.dname + 'を外しました。' + 'ATKが' + player.items[invindex].atk + '減少しました。', 
+		type: 'normal'
+	});
+}
+
+function equip_armor () {
+	var info = I_INFO[player.items[invindex].type];
+	for (var i = 0; i < player.items.length; i++) {
+		if (player.items[i].cat === I_CAT_ARMOR && player.items[i].equipped) {
+			var info2 = I_INFO[player.items[i].type];
+			player.items[i].equipped = false;
+			player.def -= player.items[i].def;
+
+			add_message({
+				text: info2.dname + 'を外しました。' + 'DEFが' + player.items[i].def + '減少しました。', 
+				type: 'normal'
+			});
+
+			break;
+		}
+	}
+	player.items[invindex].equipped = true;
+	player.def += player.items[invindex].def;
+	player.armor = player.items[invindex];
+
+	add_message({
+		text: info.dname + 'を装備しました。' + 'DEFが' + player.items[invindex].def + '増加しました。', 
+		type: 'normal'
+	});
+}
+
+function unequip_armor () {
+	var info = I_INFO[player.items[invindex].type];
+	player.items[invindex].equipped = false;
+	player.def -= player.items[invindex].def;
+	player.armor = undefined;
+
+	add_message({
+		text: info.dname + 'を外しました。' + 'DEFが' + player.items[invindex].def + '減少しました。', 
+		type: 'normal'
+	});
+}
+
+
+
+
+
+
+$(function(){
+	var keyl = false;
+	var keyu = false;
+	var keyr = false;
+	var keyd = false;
+	var c = $('body');
+	c.on('keydown', function (e) {
+		if (e.keyCode === 37) {
+			keyl = true;
+		}
+		else if (e.keyCode === 38) {
+			keyu = true;
+		}
+		else if (e.keyCode === 39) {
+			keyr = true;
+		}
+		else if (e.keyCode === 40) {
+			keyd = true;
+		}
+		else {
+			keyl = false;
+			keyu = false;
+			keyr = false;
+			keyd = false;
+		}
+	});
+	c.on('keyup', function (e) {
+		if (e.keyCode === 37) {
+			keyl = false;
+		}
+		else if (e.keyCode === 38) {
+			keyu = false;
+		}
+		else if (e.keyCode === 39) {
+			keyr = false;
+		}
+		else if (e.keyCode === 40) {
+			keyd = false;
+		}
+	});
+	c.on('keydown', function (e) {
+		if (startf) {
+			if (e.keyCode === 90) {
+				startf = false;
+
+				init();
+
+				draw(fields, player);
+			}
+
+			return;
+		}
+
+		if (gameover) {
+			if (e.keyCode === 90) {
+				startf = true;
+
+				draw(fields, player);
+			}
+
+			return;
+		}
+
+		var field = fields[player.depth][player.fx][player.fy];
+		var npc = npcs[player.depth][player.fx][player.fy];
+
+		if (invf) {
+			if (invactf) {
+				if (e.keyCode === 38) {
+					invactindex--;
+					if (invactindex < 0) {
+						var info = I_INFO[player.items[invindex].type];
+						var cinfo = I_CAT_INFO[info.cat];
+						invactindex = cinfo.actions.length - 1;
+					}
+				}
+				else if (e.keyCode === 40) {
+					invactindex++;
+					var info = I_INFO[player.items[invindex].type];
+					var cinfo = I_CAT_INFO[info.cat];
+					if (invactindex >= cinfo.actions.length) {
+						invactindex = 0;
+					}
+				}
+				else if (e.keyCode === 88) {
+					invactf = !invactf;
+				}
+				else if (e.keyCode === 90) {
+					var info = I_INFO[player.items[invindex].type];
+
+					if (info.cat === I_CAT_FOOD) {
+						if (invactindex === 0) {
+							eat();
+						}
+						else if (invactindex === 1) {
+							put(field);
+						}
+					}
+					else if (info.cat === I_CAT_WEAPON) {
+						if (invactindex === 0) {
+							if (player.items[invindex].equipped) {
+								unequip_weapon();
+							}
+							else {
+								equip_weapon();
+							}
+						}
+						else if (invactindex === 1) {
+							if (player.items[invindex].equipped) {
+								unequip_weapon();
+							}
+							put(field);
+						}
+					}
+					else if (info.cat === I_CAT_ARMOR) {
+						if (invactindex === 0) {
+							if (player.items[invindex].equipped) {
+								unequip_armor();
+							}
+							else {
+								equip_armor();
+							}
+						}
+						else if (invactindex === 1) {
+							if (player.items[invindex].equipped) {
+								unequip_armor();
+							}
+							put(field);
+						}
+					}
+					else if (info.cat === I_CAT_POTION) {
+						if (invactindex === 0) {
+							drink();
+						}
+						else if (invactindex === 1) {
+							put(field);
+						}
+					}
+
+					invactf = !invactf;
+					invf = !invf;
+
+					next_turn(field, npc);
+				}
+
+				draw(fields, player);
+
+				return;
+			}
+
+			if (e.keyCode === 38) {
+				invindex--;
+				if (invindex < 0) {
+					invindex = player.items.length - 1;
+					if (invoffset + 10 <= invindex) {
+						invoffset = invindex - 10 + 1;
+					}
+				}
+				else {
+					if (invoffset > invindex) {
+						invoffset = invindex;
+					}
+				}
+			}
+			else if (e.keyCode === 40) {
+				invindex++;
+				if (invindex >= player.items.length) {
+					invindex = 0;
+					if (invoffset > invindex) {
+						invoffset = invindex;
+					}
+				}
+				else {
+					if (invoffset + 10 <= invindex) {
+						invoffset = invindex - 10 + 1;
+					}
+				}
+			}
+			else if (e.keyCode === 88) {
+				invf = !invf;
+			}
+			else if (e.keyCode === 90) {
+				invactf = !invactf;
+				invactindex = 0;
+			}
+
+			draw(fields, player);
+
+			return;
+		}
+
+		var tf = false;
+
+		if (e.keyCode >= 37 && e.keyCode <= 40) {
+			var x = player.x;
+			var y = player.y;
+			if (e.shiftKey) {
+				if (keyl && keyu) {
+					x--;
+					y--;
+				}
+				else if (keyr && keyu) {
+					x++;
+					y--;
+				}
+				else if (keyl && keyd) {
+					x--;
+					y++;
+				}
+				else if (keyr && keyd) {
+					x++;
+					y++;
+				}
+				else {
+					return;
+				}
+			}
+			else {
+				if (e.keyCode === 37) {
+					x--;
+				}
+				else if (e.keyCode === 38) {
+					y--;
+				}
+				else if (e.keyCode === 39) {
+					x++;
+				}
+				else if (e.keyCode === 40) {
+					y++;
+				}
+			}
+			var b = field[x][y];
+			if (B_CAN_STAND[b.base]) {
+				var c = undefined;
+				var index = 0;
+				for (var i = 0; i < npc.length; i++) {
+					if (npc[i].x === x && npc[i].y === y) {
+						c = npc[i];
+						index = i;
+						break;
+					}
+				}
+				if (!c) {
+					player.x = x;
+					player.y = y;
+				}
+				else {
+					var dam = Math.ceil(player.atk * player.atk / c.def);
+					c.attacked = true;
+					c.hp -= dam;
+					add_message({
+						text: E_INFO[c.type].dname + 'に' + dam + 'のダメージを与えました。' + '（' + c.hp + '/' + c.hpfull + '）', 
+						type: 'pattack'
+					});
+					if (c.hp <= 0) {
+						player.exp += c.exp;
+						npc.splice(index, 1);
+
+						point += E_INFO[c.type].point;
+
+						add_message({
+							text: E_INFO[c.type].dname + 'を倒しました。' + c.exp + 'の経験値を得ました。', 
+							type: 'imp'
+						});
+
+						if (player.exp >= player.expfull) {
+							player.level++;
+							player.hpfull = Math.ceil(player.hpfull * 1.2);
+							player.atkfull = Math.ceil(player.atkfull * 1.1);
+							player.atk = player.atkfull;
+							if (player.weapon) {
+								player.atk += player.weapon.atk;
+							}
+							player.deffull = Math.ceil(player.deffull * 1.1);
+							player.def = player.deffull;
+							if (player.armor) {
+								player.def += player.armor.def;
+							}
+							player.exp -= player.expfull;
+							player.expfull = Math.ceil(player.expfull * 1.4);
+							add_message({
+								text: 'おめでとうございます。あなたはレベル' + player.level + 'になりました。', 
+								type: 'imp'
+							});
+						}
+					}
+				}
+				tf = true;
+			}
+			else {
+				if (b.base === B_WALL || b.base === B_WEAKWALL) {
+					add_message({
+						text: '壁に阻まれました。', 
+						type: 'normal'
+					});
+				}
+			}
+		}
+
+		if (e.keyCode === 32) {
+			var b = field[player.x][player.y];
+			if (b.items && b.items.length > 0) {
+				pickup(field);
+
+				tf = true;
+			}
+			else if (b.base === B_DOWNSTAIR) {
+				downstair();
+
+				field = fields[player.depth][player.fx][player.fy];
+				npc = npcs[player.depth][player.fx][player.fy];
+
+				tf = true;
+			}
+			else if (b.base === B_UPSTAIR) {
+				upstair();
+
+				field = fields[player.depth][player.fx][player.fy];
+				npc = npcs[player.depth][player.fx][player.fy];
+
+				tf = true;
+			}
+		}
+		else if (e.keyCode === 88) {
+			if (player.items.length === 0) {
+				add_message({
+					text: '何も持っていません。', 
+					type: 'normal'
+				});
+			}
+			else {
+				invf = !invf;
+				if (invindex < 0) {
+					invindex = 0;
+				}
+				else if (invindex >= player.items.length) {
+					invindex = player.items.length - 1;
+				}
+			}
+		}
+		else if (e.keyCode === 80) {
+			var b = field[player.x][player.y];
+			if (b.items && b.items.length > 0) {
+				pickup(field);
+
+				tf = true;
+			}	
+		}
+		else if (e.keyCode === 190) {
+			if (e.shiftKey) {
+				var b = field[player.x][player.y];
+				if (b.base === B_DOWNSTAIR) {
+					downstair();
+
+					field = fields[player.depth][player.fx][player.fy];
+					npc = npcs[player.depth][player.fx][player.fy];
+
+					tf = true;
+				}
+			}
+		}
+		else if (e.keyCode === 188) {
+			if (e.shiftKey) {
+				var b = field[player.x][player.y];
+				if (b.base === B_UPSTAIR) {
+					upstair();
+
+					field = fields[player.depth][player.fx][player.fy];
+					npc = npcs[player.depth][player.fx][player.fy];
+
+					tf = true;
+				}
+			}
+		}
+
+		if (tf) {
+			next_turn(field, npc);
+		}
+
+		draw(fields, player);
+	});
+});
+
+function next_turn (field, npc) {
+			turn++;
+
+			if (field[player.x][player.y].items) {
+				for (var i = 0; i < field[player.x][player.y].items.length; i++) {
+					var name = I_INFO[field[player.x][player.y].items[i].type].dname;
+					if (field[player.x][player.y].items[i].type === I_HEALTH_POTION) {
+						name += field[player.x][player.y].items[i].level * 10;
+					}
+
+					add_message({
+						text: '足元に' + name + 'があります。', 
+						type: 'normal'
+					});
+				}
+			}
+
+			if (field[player.x][player.y].base === B_DOWNSTAIR) {
+				add_message({
+					text: '足元に降り階段があります。', 
+					type: 'normal'
+				});
+			}
+			if (field[player.x][player.y].base === B_UPSTAIR) {
+				add_message({
+					text: '足元に昇り階段があります。', 
+					type: 'normal'
+				});
+			}
+
+			for (var i = 0; i < npc.length; i++) {
+				if (!gameover) {
+					if (npc[i].type === E_RAT) {
+						act_rat(field, npc, npc[i]);
+					}
+					else if (npc[i].type === E_BAT) {
+						act_bat(field, npc, npc[i]);
+					}
+					else  {
+						act_normal(field, npc, npc[i]);
+					}
+				}
+			}
+
+			if (!gameover) {
+				var delta = player.hpfull * 0.005;
+				if (player.eng === 0) {
+					player.engturn = 0;
+					player.hpfrac -= delta;
+					if (player.hpfrac < 0) {
+						player.hp--;
+						player.hpfrac += 1;
+					}
+					if (player.hp <= 0) {
+						gameover = true;
+						add_message({
+							text: 'あなたは倒れました。', 
+							type: 'special'
+						});
+					}
+				}
+				else {
+					player.engturn++;
+					if (player.engturn === 10) {
+						player.eng--;
+						player.engturn = 0;
+						if (player.eng === 20) {
+							add_message({
+								text: 'お腹が減ってきました。', 
+								type: 'imp'
+							});
+						}
+						else if (player.eng === 10) {
+							add_message({
+								text: 'お腹がペコペコです。', 
+								type: 'imp'
+							});
+						}
+						else if (player.eng === 0) {
+							add_message({
+								text: 'お腹が減って死にそうです。', 
+								type: 'imp'
+							});
+						}
+					}
+
+					if (player.hp < player.hpfull) {
+						player.hpfrac += delta;
+						if (player.hpfrac > 1) {
+							player.hp++;
+							player.hpfrac -= 1;
+						}
+					}
+					else {
+						player.hpfrac = 0;
+					}
+				}
+			}
+}
+
+function act_rat (field, npc, c) {
+	if (c.attacked) {
+		c.attacked = false;
+
+		var l = player.x === c.x - 1 && player.y === c.y;
+		var u = player.x === c.x && player.y === c.y - 1;
+		var r = player.x === c.x + 1 && player.y === c.y;
+		var d = player.x === c.x && player.y === c.y + 1;
+		var lu = player.x === c.x - 1 && player.y === c.y - 1;
+		var ru = player.x === c.x + 1 && player.y === c.y - 1;
+		var ld = player.x === c.x - 1 && player.y === c.y + 1;
+		var rd = player.x === c.x + 1 && player.y === c.y + 1;
+		if (l || u || r || d || lu || ru || ld || rd) {
+			var dam = Math.ceil(c.atk * c.atk / player.def);
+			player.hp -= dam;
+
+			add_message({
+				text: E_INFO[c.type].dname + 'から' + dam + 'のダメージを受けました。', 
+				type: 'eattack'
+			});
+
+			if (player.hp <= 0) {
+				gameover = true;
+
+				add_message({
+					text: 'あなたは倒れました。', 
+					type: 'special'
+				});
+			}
+		}
+
+		return;
+	}
+
+	var m = Math.random();
+	if (m < 0.5) {
+		return;
+	}
+
+	move_random(field, npc, c);
+}
+
+function act_bat (field, npc, c) {
+	if (c.attacked) {
+		var l = player.x === c.x - 1 && player.y === c.y;
+		var u = player.x === c.x && player.y === c.y - 1;
+		var r = player.x === c.x + 1 && player.y === c.y;
+		var d = player.x === c.x && player.y === c.y + 1;
+		var lu = player.x === c.x - 1 && player.y === c.y - 1;
+		var ru = player.x === c.x + 1 && player.y === c.y - 1;
+		var ld = player.x === c.x - 1 && player.y === c.y + 1;
+		var rd = player.x === c.x + 1 && player.y === c.y + 1;
+		if (l || u || r || d || lu || ru || ld || rd) {
+			var dam = Math.ceil(c.atk * c.atk / player.def);
+			player.hp -= dam;
+
+			add_message({
+				text: E_INFO[c.type].dname + 'から' + dam + 'のダメージを受けました。', 
+				type: 'eattack'
+			});
+
+			if (player.hp <= 0) {
+				gameover = true;
+
+				add_message({
+					text: 'あなたは倒れました。', 
+					type: 'special'
+				});
+			}
+		}
+		else {
+			var x = c.x;
+			var y = c.y;
+			if (c.x > player.x) {
+				x--;
+			}
+			else if (c.x < player.x) {
+				x++;
+			}
+			if (c.y > player.y) {
+				y--;
+			}
+			else if (c.y < player.y) {
+				y++;
+			}
+			var b = field[x][y];
+			var c2 = undefined;
+			for (var i = 0; i < npc.length; i++) {
+				if (npc[i].x === x && npc[i].y === y) {
+					c2 = npc[i];
+					break;
+				}
+			}
+			if (B_CAN_STAND[b.base] && !c2 && (player.x !== x || player.y !== y)) {
+				c.x = x;
+				c.y = y;
+			}
+		}
+
+		return;
+	}
+
+	var m = Math.random();
+	if (m < 0.5) {
+		return;
+	}
+
+	move_random(field, npc, c);
+}
+
+function act_normal (field, npc, c) {
+	var l = player.x === c.x - 1 && player.y === c.y;
+	var u = player.x === c.x && player.y === c.y - 1;
+	var r = player.x === c.x + 1 && player.y === c.y;
+	var d = player.x === c.x && player.y === c.y + 1;
+	var lu = player.x === c.x - 1 && player.y === c.y - 1;
+	var ru = player.x === c.x + 1 && player.y === c.y - 1;
+	var ld = player.x === c.x - 1 && player.y === c.y + 1;
+	var rd = player.x === c.x + 1 && player.y === c.y + 1;
+	if (l || u || r || d || lu || ru || ld || rd) {
+		var dam = Math.ceil(c.atk * c.atk / player.def);
+		player.hp -= dam;
+
+		add_message({
+			text: E_INFO[c.type].dname + 'から' + dam + 'のダメージを受けました。', 
+			type: 'eattack'
+		});
+
+		if (player.hp <= 0) {
+			gameover = true;
+
+			add_message({
+				text: 'あなたは倒れました。', 
+				type: 'special'
+			});
+		}
+	}
+	else {
+		var x = c.x;
+		var y = c.y;
+		if (c.x > player.x) {
+			x--;
+		}
+		else if (c.x < player.x) {
+			x++;
+		}
+		if (c.y > player.y) {
+			y--;
+		}
+		else if (c.y < player.y) {
+			y++;
+		}
+		var b = field[x][y];
+		var c2 = undefined;
+		for (var i = 0; i < npc.length; i++) {
+			if (npc[i].x === x && npc[i].y === y) {
+				c2 = npc[i];
+				break;
+			}
+		}
+		if (B_CAN_STAND[b.base] && !c2 && (player.x !== x || player.y !== y)) {
+			c.x = x;
+			c.y = y;
+
+			return;
+		}
+
+		var b2 = field[x][c.y];
+		var c3 = undefined;
+		for (var i = 0; i < npc.length; i++) {
+			if (npc[i].x === x && npc[i].y === c.y) {
+				c3 = npc[i];
+				break;
+			}
+		}
+		if (B_CAN_STAND[b2.base] && !c3 && (player.x !== x || player.y !== c.y)) {
+			c.x = x;
+
+			return;
+		}
+
+		var b3 = field[c.x][y];
+		var c4 = undefined;
+		for (var i = 0; i < npc.length; i++) {
+			if (npc[i].x === c.x && npc[i].y === y) {
+				c4 = npc[i];
+				break;
+			}
+		}
+		if (B_CAN_STAND[b3.base] && !c4 && (player.x !== c.x || player.y !== y)) {
+			c.y = y;
+
+			return;
+		}
+	}
+}
+
+function move_random (field, npc, c) {
+	var dir = Math.floor(Math.random() * 8);
+	var x = c.x;
+	var y = c.y;
+	if (dir === 0) {
+		x--;
+	}
+	else if (dir === 1) {
+		y--;
+	}
+	else if (dir === 2) {
+		x++;
+	}
+	else if (dir === 3) {
+		y++;
+	}
+	else if (dir === 4) {
+		x--;
+		y--;
+	}
+	else if (dir === 5) {
+		x++;
+		y--;
+	}
+	else if (dir === 6) {
+		x--;
+		y++;
+	}
+	else if (dir === 7) {
+		x++;
+		y++;
+	}
+	var b = field[x][y];
+	var c2 = undefined;
+	for (var i = 0; i < npc.length; i++) {
+		if (npc[i].x === x && npc[i].y === y) {
+			c2 = npc[i];
+			break;
+		}
+	}
+	if (B_CAN_STAND[b.base] && !c2 && (player.x !== x || player.y !== y)) {
+		c.x = x;
+		c.y = y;
+	}
+}
+
+
+
+
+
+
+
+function draw (fields, player) {
+	if (startf) {
+		con.fillStyle = 'black';
+		con.fillRect(0, 0, LX * PX * 2, LY * PY);
+
+		con.font = "48px consolas";
+		con.textAlign = 'center';
+		con.fillStyle = 'white';
+		con.fillText('シンプルローグライク', LX * PX * 2 / 2, LY * PY / 4);
+
+		con.font = "32px consolas";
+		con.textAlign = 'center';
+		con.fillStyle = 'white';
+		con.fillText('> はじめる', LX * PX * 2 / 2, LY * PY / 4 * 3);
+
+		return;
+	}
+
+	var field = fields[player.depth][player.fx][player.fy];
+	var npc = npcs[player.depth][player.fx][player.fy];
+	for (var i = 0; i < LX; i++) {
+		for (var j = 0; j < LY; j++) {
+			if (field[i][j].base === B_FLOOR) {
+				con.fillStyle = 'black';
+				con.fillRect(i * PX, j * PY, PX, PY);
+				con.fillStyle = 'white';
+				con.beginPath();
+				con.arc((i + 0.5) * PX, (j + 0.5) * PY, 1, 0, Math.PI * 2);
+				con.closePath();
+				con.fill();
+			}
+			else if (field[i][j].base === B_WALL) {
+				con.fillStyle = 'black';
+				con.fillRect(i * PX, j * PY, PX, PY);
+				con.strokeStyle = 'white';
+				con.strokeRect(i * PX, j * PY, PX, PY);
+				con.lineWidth = 1;
+				con.beginPath();
+				con.moveTo(i * PX, j * PY);
+				con.lineTo((i + 1) * PX, (j + 1) * PY);
+				con.moveTo((i + 1) * PX, j * PY);
+				con.lineTo(i * PX, (j + 1) * PY);
+				con.closePath();
+				con.stroke();
+			}
+			else if (field[i][j].base === B_WEAKWALL) {
+				con.fillStyle = 'black';
+				con.fillRect(i * PX, j * PY, PX, PY);
+				con.strokeStyle = 'white';
+				con.strokeRect(i * PX, j * PY, PX, PY);
+				con.lineWidth = 1;
+				con.beginPath();
+				con.moveTo(i * PX, j * PY);
+				con.lineTo((i + 1) * PX, (j + 1) * PY);
+				con.moveTo((i + 1) * PX, j * PY);
+				con.lineTo(i * PX, (j + 1) * PY);
+				con.closePath();
+				con.stroke();
+			}
+			else if (field[i][j].base === B_DOWNSTAIR) {
+				con.fillStyle = 'black';
+				con.fillRect(i * PX, j * PY, PX, PY);
+				con.drawImage(img, 4 * 32, 5 * 32, 32, 32, i * PX, j * PY, PX, PY);
+			}
+			else if (field[i][j].base === B_UPSTAIR) {
+				con.fillStyle = 'black';
+				con.fillRect(i * PX, j * PY, PX, PY);
+				con.drawImage(img, 4 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
+			}
+
+			if (field[i][j].items) {
+				for (var k = 0; k < field[i][j].items.length; k++) {
+					if (field[i][j].items[k].type === I_APPLE) {
+						con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
+					}
+					else if (field[i][j].items[k].type === I_CLEAR) {
+						con.drawImage(img, 10 * 32, 7 * 32, 32, 32, i * PX, j * PY, PX, PY);
+					}
+					else if (field[i][j].items[k].cat === I_CAT_WEAPON) {
+						con.drawImage(img2, 2 * 32, 10 * 32, 32, 32, i * PX, j * PY, PX, PY);
+					}
+					else if (field[i][j].items[k].cat === I_CAT_ARMOR) {
+						con.drawImage(img2, 10 * 32, 7 * 32, 32, 32, i * PX, j * PY, PX, PY);
+					}
+					else if (field[i][j].items[k].cat === I_CAT_POTION) {
+						con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
+					}
+				}
+			}
+		}
+	}
+
+	con.font = "24px consolas";
+	con.textAlign = 'center';
+	for (var i = 0; i < npc.length; i++) {
+		if (npc[i].type === E_RAT) {
+			con.fillStyle = 'brown';
+			con.fillText('ρ', npc[i].x * PX + (PX / 2), npc[i].y * PY + (PY / 2));
+		}
+		else if (npc[i].type === E_BAT) {
+			con.fillStyle = 'brown';
+			con.fillText('β', npc[i].x * PX + (PX / 2), npc[i].y * PY + (PY / 2));
+		}
+		else if (npc[i].type === E_CARACAL) {
+			con.fillStyle = 'brown';
+			con.fillText('κ', npc[i].x * PX + (PX / 2), npc[i].y * PY + (PY / 2));
+		}
+		else if (npc[i].type === E_WOLF) {
+			con.fillStyle = 'gray';
+			con.fillText('ϝ', npc[i].x * PX + (PX / 2), npc[i].y * PY + (PY / 2));
+		}
+	}
+
+	con.fillStyle = 'red';
+	con.strokeStyle = 'red';
+//	con.beginPath();
+//	con.arc((player.x + 0.5) * PX, (player.y + 0.5) * PY, 8, 0, Math.PI * 2);
+//	con.closePath();
+	con.fillText('@', player.x * PX + (PX / 2), player.y * PY + (PY / 2));
+	con.fill();
+
+	con.fillStyle = 'black';
+	con.fillRect(LX * PX, 0, LX * PX, LY * PY);
+
+	con.font = "24px consolas";
+	con.textAlign = 'left';
+	con.fillStyle = 'white';
+	con.fillText('DEPTH: ' + player.depth, LX * PX + 8, PY * 1 * 0.8);
+	con.fillText('LEVEL: ' + player.level, LX * PX + 8, PY * 2 * 0.8);
+	con.fillText('HP: ' + player.hp + '/' + player.hpfull, LX * PX + 8, PY * 3 * 0.8);
+	con.fillText('ENG: ' + player.eng + '/' + player.engfull, LX * PX + 8, PY * 4 * 0.8);
+	con.fillText('WGT: ' + (Math.round(player.wgt * 10) / 10) + '/' + player.wgtfull, LX * PX + 8, PY * 5 * 0.8);
+	con.fillText('ATK: ' + player.atk, LX * PX + 8, PY * 6 * 0.8);
+	con.fillText('DEF: ' + player.def, LX * PX + 8, PY * 7 * 0.8);
+	con.fillText('EXP: ' + player.exp + '/' + player.expfull, LX * PX + 8, PY * 8 * 0.8);
+	con.fillText('TURN: ' + turn, LX * PX + 8, PY * 9 * 0.8);
+	con.fillText('POINT: ' + point, LX * PX + 8, PY * 10 * 0.8);
+	con.fillText('PERF: ' + (turn === 0 ? 0 : Math.round(point / turn * 1000) / 1000), LX * PX + 8, PY * 11 * 0.8);
+
+	con.font = "24px consolas";
+	con.textAlign = 'left';
+	if (!invactf) {
+		for (var i = invoffset; i < invoffset + 10 && i < player.items.length; i++) {
+			if (player.items[i].type === I_APPLE) {
+				con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, LX * PX + 8 + 12, PY * (13 + i - invoffset) * 0.8 - 24, PX, PY);
+			}
+			else if (player.items[i].type === I_CLEAR) {
+				con.drawImage(img, 10 * 32, 7 * 32, 32, 32, LX * PX + 8 + 12, PY * (13 + i - invoffset) * 0.8 - 24, PX, PY);
+			}
+			else if (player.items[i].cat === I_CAT_WEAPON) {
+				con.drawImage(img2, 2 * 32, 10 * 32, 32, 32, LX * PX + 8 + 12, PY * (13 + i - invoffset) * 0.8 - 24, PX, PY);
+			}
+			else if (player.items[i].cat === I_CAT_ARMOR) {
+				con.drawImage(img2, 10 * 32, 7 * 32, 32, 32, LX * PX + 8 + 12, PY * (13 + i - invoffset) * 0.8 - 24, PX, PY);
+			}
+			else if (player.items[i].cat === I_CAT_POTION) {
+				con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, LX * PX + 8 + 12, PY * (13 + i - invoffset) * 0.8 - 24, PX, PY);
+			}
+
+			var name = I_INFO[player.items[i].type].dname;
+			if (player.items[i].type === I_HEALTH_POTION) {
+				name += player.items[i].level * 10;
+			}
+			else if (player.items[i].cat === I_CAT_WEAPON) {
+				if (player.items[i].equipped) {
+					name += '[装]';
+				}
+			}
+			else if (player.items[i].cat === I_CAT_ARMOR) {
+				if (player.items[i].equipped) {
+					name += '[装]';
+				}
+			}
+			con.fillText(name, LX * PX + 8 + 12 + LX + 4, PY * (13 + i - invoffset) * 0.8);
+			con.fillText(I_INFO[player.items[i].type].desc(player.items[i]), LX * PX + 8 + 12 + LX + 4 + 256, PY * (13 + i - invoffset) * 0.8);
+
+			if (invf && i === invindex) {
+				con.fillText('>', LX * PX + 8, PY * (13 + i - invoffset) * 0.8);
+			}
+		}
+	}
+	else {
+		var info = I_INFO[player.items[invindex].type];
+		var cinfo = I_CAT_INFO[info.cat];
+		for (var i = 0; i < cinfo.actions.length; i++) {
+			var name = cinfo.actions[i].dname;
+			if (player.items[invindex].cat === I_CAT_WEAPON && i == 0) {
+				if (player.items[invindex].equipped) {
+					name = cinfo.actions[i].dname2;
+				}
+			}
+			else if (player.items[invindex].cat === I_CAT_ARMOR && i == 0) {
+				if (player.items[invindex].equipped) {
+					name = cinfo.actions[i].dname2;
+				}
+			}
+			con.fillText(name, LX * PX + 8 + 12, PY * (13 + i - invoffset) * 0.8);
+			if (i === invactindex) {
+				con.fillText('>', LX * PX + 8, PY * (13 + i - invoffset) * 0.8);
+			}
+		}
+	}
+
+	con.font = "16px consolas";
+	con.textAlign = 'left';
+	for (var i = 0; i < messages.length; i++) {
+		if (messages[i].type === 'normal') {
+			con.fillStyle = 'white';
+		}
+		else if (messages[i].type === 'special') {
+			con.fillStyle = 'yellow';
+		}
+		else if (messages[i].type === 'pattack') {
+			con.fillStyle = 'green';
+		}
+		else if (messages[i].type === 'eattack') {
+			con.fillStyle = 'aqua';
+		}
+		else if (messages[i].type === 'imp') {
+			con.fillStyle = 'red';
+		}
+		var text = messages[i].text;
+		if (messages[i].repeat) {
+			text += '（' + 'x' + messages[i].repeat + '）';
+		}
+		con.fillText(text, LX * PX + 8, (LY - (-3 - i)) * PY * 0.7);
+	}
+}
+
+	</script>
+</body>
+</html>
