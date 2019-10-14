@@ -29,6 +29,10 @@ $(function(){
 	var keyr = false;
 	var keyd = false;
 
+	var env = {
+		diagonal: false
+	};
+
 	var c = $('body');
 	c.on('keydown', function (e) {
 		if (e.keyCode === 37) {
@@ -71,7 +75,17 @@ $(function(){
 
 				init();
 
-				draw(con);
+				draw(con, env);
+			}
+
+			return;
+		}
+
+		if (e.keyCode === 16) {
+			if (!env.diagonal) {
+				env.diagonal = true;
+
+				draw(con, env);
 			}
 
 			return;
@@ -146,13 +160,29 @@ $(function(){
 					player.x = x;
 					player.y = y;
 
-					draw(con);
+					draw(con, env);
 				}
 			}
 		}
 	});
+	c.on('keyup', function (e) {
+		if (e.keyCode === 16) {
+			if (env.diagonal) {
+				env.diagonal = false;
 
-	draw(con);
+				draw(con, env);
+			}
+		}
+	});
+	c.on('focusout', function (e) {
+		if (env.diagonal) {
+			env.diagonal = false;
+
+			draw(con, env);
+		}
+	});
+
+	draw(con, env);
 });
 
 function init () {
@@ -184,7 +214,7 @@ function create_field () {
 	return f;
 }
 
-function draw (con) {
+function draw (con, env) {
 	con.fillStyle = 'black';
 	con.fillRect(0, 0, SCREEN_X, SCREEN_Y);
 
@@ -229,4 +259,57 @@ function draw (con) {
 	con.textAlign = 'center';
 	con.fillStyle = 'red';
 	con.fillText('🚶\uFE0E', player.x * PX + (PX / 2), player.y * PY + (PY / 2));
+
+	if (env.diagonal) {
+		con.save();
+
+		con.strokeStyle = 'white';
+		con.translate(player.x * PX + (PX / 2), player.y * PY + (PY / 2));
+		con.rotate(Math.PI / 4);
+		con.beginPath();
+		con.moveTo((PX / 2) + 4, -4);
+		con.lineTo((PX / 2) + 4 + 8, -4);
+		con.lineTo((PX / 2) + 4 + 8, -4 - 4);
+		con.lineTo((PX / 2) + 4 + 8 + 8, 0);
+		con.lineTo((PX / 2) + 4 + 8, 4 + 4);
+		con.lineTo((PX / 2) + 4 + 8, 4);
+		con.lineTo((PX / 2) + 4, 4);
+		con.closePath();
+		con.stroke();
+		con.rotate(Math.PI / 4 * 2);
+		con.beginPath();
+		con.moveTo((PX / 2) + 4, -4);
+		con.lineTo((PX / 2) + 4 + 8, -4);
+		con.lineTo((PX / 2) + 4 + 8, -4 - 4);
+		con.lineTo((PX / 2) + 4 + 8 + 8, 0);
+		con.lineTo((PX / 2) + 4 + 8, 4 + 4);
+		con.lineTo((PX / 2) + 4 + 8, 4);
+		con.lineTo((PX / 2) + 4, 4);
+		con.closePath();
+		con.stroke();
+		con.rotate(Math.PI / 4 * 2);
+		con.beginPath();
+		con.moveTo((PX / 2) + 4, -4);
+		con.lineTo((PX / 2) + 4 + 8, -4);
+		con.lineTo((PX / 2) + 4 + 8, -4 - 4);
+		con.lineTo((PX / 2) + 4 + 8 + 8, 0);
+		con.lineTo((PX / 2) + 4 + 8, 4 + 4);
+		con.lineTo((PX / 2) + 4 + 8, 4);
+		con.lineTo((PX / 2) + 4, 4);
+		con.closePath();
+		con.stroke();
+		con.rotate(Math.PI / 4 * 2);
+		con.beginPath();
+		con.moveTo((PX / 2) + 4, -4);
+		con.lineTo((PX / 2) + 4 + 8, -4);
+		con.lineTo((PX / 2) + 4 + 8, -4 - 4);
+		con.lineTo((PX / 2) + 4 + 8 + 8, 0);
+		con.lineTo((PX / 2) + 4 + 8, 4 + 4);
+		con.lineTo((PX / 2) + 4 + 8, 4);
+		con.lineTo((PX / 2) + 4, 4);
+		con.closePath();
+		con.stroke();
+
+		con.restore();
+	}
 }
