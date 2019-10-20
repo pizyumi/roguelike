@@ -10,14 +10,21 @@ var PY = 32;
 
 var B_FLOOR = 0;
 var B_WALL = 1;
+var B_DOWNSTAIR = 2;
 
 var B_CAN_STAND = [];
 B_CAN_STAND[B_FLOOR] = true;
 B_CAN_STAND[B_WALL] = false;
+B_CAN_STAND[B_DOWNSTAIR] = true;
+
+var img = new Image();
+img.src = 'Dungeon_B_Freem7.png';
+
+var seed = 'yurina'; //Date.now().toString(10);
 
 var startf = false;
 
-var field = null;
+var fields = null;
 var player = null;
 
 $(function(){
@@ -155,13 +162,27 @@ $(function(){
 			}
 
 			if (x !== player.x || y !== player.y) {
-				var b = field[x][y];
-				if (B_CAN_STAND[b.base]) {
+				var block = fields[player.depth][x][y];
+				if (B_CAN_STAND[block.base]) {
 					player.x = x;
 					player.y = y;
 
 					draw(con, env);
 				}
+			}
+		}
+		else if (e.keyCode === 32) {
+			var block = fields[player.depth][player.x][player.y];
+			if (block.base === B_DOWNSTAIR) {
+				player.depth++;
+				if (!fields[player.depth]) {
+					fields[player.depth] = create_field(player.depth, [{
+						x: player.x,
+						y: player.y
+					}], seed);
+				}
+
+				draw(con, env);
 			}
 		}
 	});
@@ -186,32 +207,182 @@ $(function(){
 });
 
 function init () {
-	field = create_field();
+	fields = [];
+	fields[0] = create_field(0, [], seed);
 	player = {
+		depth: 0,
 		x: 12,
 		y: 17
 	};
 }
 
-function create_field () {
-	var f = [];
+function create_field (depth, upstairs, base_seed) {
+	var random = new Random(base_seed + ',' + depth.toString(10));
+
+	var field = [];
 	for (var i = 0; i < LX; i++) {
-		f[i] = [];
+		field[i] = [];
 		for (var j = 0; j < LY; j++) {
 			if ((i === 0 || j === 0) || (i === LX -1 || j === LY - 1)) {
-				f[i][j] = {
+				field[i][j] = {
 					base: B_WALL
 				};
 			}
 			else {
-				f[i][j] = {
+				field[i][j] = {
 					base: B_FLOOR
 				};
 			}
 		}
 	}
 
-	return f;
+	if (depth === 0) {
+		field[12][5] = {
+			base: B_DOWNSTAIR
+		};
+
+		return field;
+	}
+
+	var rs = [{
+		x1: 1,
+		x2: LX - 2,
+		y1: 1,
+		y2: LY - 2
+	}];
+	var ers = [];
+	var dps = [1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5];
+	while (rs.length > 0 && dps.length > 0) {
+		var r = rs.shift();
+		var nrs = split_room(field, r.x1, r.x2, r.y1, r.y2, dps.shift(), random);
+		for (var i = 0; i < nrs.length; i++) {
+			rs.push(nrs[i]);
+		}
+		if (nrs.length === 0) {
+			ers.push(r);
+		}
+	}
+	while (rs.length > 0) {
+		ers.push(rs.shift());
+	}
+
+	var nds = 1;
+	while (nds > 0) {
+		var x = random.num(LX - 2) + 1;
+		var y = random.num(LY - 2) + 1;
+		var f = true;
+		for (var i = 0; i < upstairs.length; i++) {
+			if (x === upstairs[i].x && y === upstairs[i].y) {
+				f = false;
+				break;
+			}
+		}
+		if (f) {
+			field[x][y].base = B_DOWNSTAIR;
+			nds--;
+		}
+	}
+
+	for (var i = 0; i < upstairs.length; i++) {
+		if (field[upstairs[i].x][upstairs[i].y].base = B_WALL) {
+			field[upstairs[i].x][upstairs[i].y].base = B_FLOOR;
+		}
+	}
+
+	return field;
+}
+
+function split_room (field, x1, x2, y1, y2, dp, random) {
+	var ap = random.fraction();
+	if (ap <= dp) {
+		var dir = random.num(2);
+		if (x2 - x1 > (y2 - y1) * 2) {
+			dir = 0;
+		}
+		else if ((x2 - x1) * 2 < y2 - y1) {
+			dir = 1;
+		}
+
+		if (dir === 0) {
+			if (x2 - x1 <= 6) {
+				return [];
+			}
+
+			var x = random.num(x2 - x1 - 6) + 3 + x1;
+			if (field[x][y1 - 1].base !== B_WALL) {
+				return [];
+			}
+			if (field[x][y2 + 1].base !== B_WALL) {
+				return [];
+			}
+			var y = random.num(y2 - y1) + y1;
+			for (var i = y1; i <= y2; i++) {
+				if (i !== y) {
+					field[x][i].base = B_WALL;
+				}
+			}
+
+			var r1 = {
+				x1: x1,
+				x2: x - 1,
+				y1: y1,
+				y2: y2
+			};
+			var r2 = {
+				x1: x + 1,
+				x2: x2,
+				y1: y1,
+				y2: y2
+			};
+			var r = random.num(2);
+			if (r === 0) {
+				return [r1, r2];
+			}
+			else {
+				return [r2, r1];
+			}
+		}
+		else if (dir === 1) {
+			if (y2 - y1 <= 6) {
+				return [];
+			}
+
+			var y = random.num(y2 - y1 - 6) + 3 + y1;
+			if (field[x1 - 1][y].base !== B_WALL) {
+				return [];
+			}
+			if (field[x2 + 1][y].base !== B_WALL) {
+				return [];
+			}
+			var x = random.num(x2 - x1) + x1;
+			for (var i = x1; i <= x2; i++) {
+				if (i !== x) {
+					field[i][y].base = B_WALL;
+				}
+			}
+
+			var r1 = {
+				x1: x1,
+				x2: x2,
+				y1: y1,
+				y2: y - 1
+			};
+			var r2 = {
+				x1: x1,
+				x2: x2,
+				y1: y + 1,
+				y2: y2
+			};
+			var r = random.num(2);
+			if (r === 0) {
+				return [r1, r2];
+			}
+			else {
+				return [r2, r1];
+			}
+		}
+	}
+	return [];
 }
 
 function draw (con, env) {
@@ -234,14 +405,15 @@ function draw (con, env) {
 
 	for (var i = 0; i < LX; i++) {
 		for (var j = 0; j < LY; j++) {
-			if (field[i][j].base === B_FLOOR) {
+			var block = fields[player.depth][i][j];
+			if (block.base === B_FLOOR) {
 				con.fillStyle = 'white';
 				con.beginPath();
 				con.arc((i + 0.5) * PX, (j + 0.5) * PY, 1, 0, Math.PI * 2);
 				con.closePath();
 				con.fill();
 			}
-			else if (field[i][j].base === B_WALL) {
+			else if (block.base === B_WALL) {
 				con.strokeStyle = 'white';
 				con.strokeRect(i * PX, j * PY, PX, PY);
 				con.beginPath();
@@ -251,6 +423,9 @@ function draw (con, env) {
 				con.lineTo(i * PX, (j + 1) * PY);
 				con.closePath();
 				con.stroke();
+			}
+			else if (block.base === B_DOWNSTAIR) {
+				con.drawImage(img, 4 * 32, 5 * 32, 32, 32, i * PX, j * PY, PX, PY);
 			}
 		}
 	}
@@ -311,5 +486,69 @@ function draw (con, env) {
 		con.stroke();
 
 		con.restore();
+	}
+}
+
+function hash (seed) {
+	var sha256 = new jsSHA('SHA-256', 'TEXT');
+	sha256.update(seed);
+	return sha256.getHash('HEX');
+}
+
+class Random {
+	constructor (seed) {
+		this.seed = seed;
+		this.hash = hash(seed);
+		this.pointer = 0;
+	}
+
+	byte () {
+		if (this.pointer === 64) {
+			this.hash = hash(this.hash);
+			this.pointer = 0;
+		}
+		var value = this.hash.substring(this.pointer, this.pointer + 2);
+		this.pointer += 2;
+		return parseInt(value, 16);
+	}
+
+	num (max) {
+		if (max <= 0) {
+			throw new Error('max of random.num must be positive.');
+		}
+		else if (max <= 256) {
+			return this.byte() % max;
+		}
+		else {
+			throw new Error('not supported.');
+		}
+	}
+
+	fraction () {
+		return this.byte() / 256;
+	}
+}
+
+function test_random_class_byte () {
+	var a = [68, 9, 150, 66, 71, 184, 42, 152,
+		84, 31, 148, 195, 79, 121, 253, 235,
+		87, 142, 108, 87, 64, 95, 18, 186,
+		184, 92, 200, 43, 179, 155, 117, 136,
+		209, 241, 173, 107, 190, 11, 178, 50];
+	var r = new Random('yurina');
+	for (var i = 0; i < a.length; i++) {
+		if (r.byte() !== a[i]) {
+			throw new Error('test_random_class_byte');
+		}
+	}
+}
+
+function test_random_class_num () {
+	var a = [0, 1, 0, 2, 1, 4, 0, 0, 3, 1, 5, 3, 1, 9, 13, 11];
+	var r = new Random('yurina');
+	for (var i = 0; i < a.length; i++) {
+		if (r.num(i + 1) !== a[i]) {
+			throw new Error('test_random_class_num');
+		}
 	}
 }
