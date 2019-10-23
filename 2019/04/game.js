@@ -20,7 +20,7 @@ B_CAN_STAND[B_DOWNSTAIR] = true;
 var img = new Image();
 img.src = 'Dungeon_B_Freem7.png';
 
-var seed = 'yurina'; //Date.now().toString(10);
+var seed = Date.now().toString(10);
 
 var startf = false;
 
@@ -162,7 +162,7 @@ $(function(){
 			}
 
 			if (x !== player.x || y !== player.y) {
-				var block = fields[player.depth][x][y];
+				var block = fields[player.depth].blocks[x][y];
 				if (B_CAN_STAND[block.base]) {
 					player.x = x;
 					player.y = y;
@@ -172,7 +172,7 @@ $(function(){
 			}
 		}
 		else if (e.keyCode === 32) {
-			var block = fields[player.depth][player.x][player.y];
+			var block = fields[player.depth].blocks[player.x][player.y];
 			if (block.base === B_DOWNSTAIR) {
 				player.depth++;
 				if (!fields[player.depth]) {
@@ -195,7 +195,7 @@ $(function(){
 			}
 		}
 	});
-	c.on('focusout', function (e) {
+	$(window).on('blur', function (e) {
 		if (env.diagonal) {
 			env.diagonal = false;
 
@@ -219,17 +219,17 @@ function init () {
 function create_field (depth, upstairs, base_seed) {
 	var random = new Random(base_seed + ',' + depth.toString(10));
 
-	var field = [];
+	var blocks = [];
 	for (var i = 0; i < LX; i++) {
-		field[i] = [];
+		blocks[i] = [];
 		for (var j = 0; j < LY; j++) {
 			if ((i === 0 || j === 0) || (i === LX -1 || j === LY - 1)) {
-				field[i][j] = {
+				blocks[i][j] = {
 					base: B_WALL
 				};
 			}
 			else {
-				field[i][j] = {
+				blocks[i][j] = {
 					base: B_FLOOR
 				};
 			}
@@ -237,11 +237,13 @@ function create_field (depth, upstairs, base_seed) {
 	}
 
 	if (depth === 0) {
-		field[12][5] = {
+		blocks[12][5] = {
 			base: B_DOWNSTAIR
 		};
 
-		return field;
+		return {
+			blocks: blocks
+		};
 	}
 
 	var rs = [{
@@ -254,7 +256,7 @@ function create_field (depth, upstairs, base_seed) {
 	var dps = [1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5];
 	while (rs.length > 0 && dps.length > 0) {
 		var r = rs.shift();
-		var nrs = split_room(field, r.x1, r.x2, r.y1, r.y2, dps.shift(), random);
+		var nrs = split_room(blocks, r.x1, r.x2, r.y1, r.y2, dps.shift(), random);
 		for (var i = 0; i < nrs.length; i++) {
 			rs.push(nrs[i]);
 		}
@@ -278,21 +280,23 @@ function create_field (depth, upstairs, base_seed) {
 			}
 		}
 		if (f) {
-			field[x][y].base = B_DOWNSTAIR;
+			blocks[x][y].base = B_DOWNSTAIR;
 			nds--;
 		}
 	}
 
 	for (var i = 0; i < upstairs.length; i++) {
-		if (field[upstairs[i].x][upstairs[i].y].base = B_WALL) {
-			field[upstairs[i].x][upstairs[i].y].base = B_FLOOR;
+		if (blocks[upstairs[i].x][upstairs[i].y].base = B_WALL) {
+			blocks[upstairs[i].x][upstairs[i].y].base = B_FLOOR;
 		}
 	}
 
-	return field;
+	return {
+		blocks: blocks
+	};
 }
 
-function split_room (field, x1, x2, y1, y2, dp, random) {
+function split_room (blocks, x1, x2, y1, y2, dp, random) {
 	var ap = random.fraction();
 	if (ap <= dp) {
 		var dir = random.num(2);
@@ -309,16 +313,16 @@ function split_room (field, x1, x2, y1, y2, dp, random) {
 			}
 
 			var x = random.num(x2 - x1 - 6) + 3 + x1;
-			if (field[x][y1 - 1].base !== B_WALL) {
+			if (blocks[x][y1 - 1].base !== B_WALL) {
 				return [];
 			}
-			if (field[x][y2 + 1].base !== B_WALL) {
+			if (blocks[x][y2 + 1].base !== B_WALL) {
 				return [];
 			}
 			var y = random.num(y2 - y1) + y1;
 			for (var i = y1; i <= y2; i++) {
 				if (i !== y) {
-					field[x][i].base = B_WALL;
+					blocks[x][i].base = B_WALL;
 				}
 			}
 
@@ -348,16 +352,16 @@ function split_room (field, x1, x2, y1, y2, dp, random) {
 			}
 
 			var y = random.num(y2 - y1 - 6) + 3 + y1;
-			if (field[x1 - 1][y].base !== B_WALL) {
+			if (blocks[x1 - 1][y].base !== B_WALL) {
 				return [];
 			}
-			if (field[x2 + 1][y].base !== B_WALL) {
+			if (blocks[x2 + 1][y].base !== B_WALL) {
 				return [];
 			}
 			var x = random.num(x2 - x1) + x1;
 			for (var i = x1; i <= x2; i++) {
 				if (i !== x) {
-					field[i][y].base = B_WALL;
+					blocks[i][y].base = B_WALL;
 				}
 			}
 
@@ -405,7 +409,7 @@ function draw (con, env) {
 
 	for (var i = 0; i < LX; i++) {
 		for (var j = 0; j < LY; j++) {
-			var block = fields[player.depth][i][j];
+			var block = fields[player.depth].blocks[i][j];
 			if (block.base === B_FLOOR) {
 				con.fillStyle = 'white';
 				con.beginPath();
