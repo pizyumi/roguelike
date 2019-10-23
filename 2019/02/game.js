@@ -45,24 +45,26 @@ function init () {
 }
 
 function create_field () {
-	var f = [];
+	var blocks = [];
 	for (var i = 0; i < LX; i++) {
-		f[i] = [];
+		blocks[i] = [];
 		for (var j = 0; j < LY; j++) {
 			if ((i === 0 || j === 0) || (i === LX -1 || j === LY - 1)) {
-				f[i][j] = {
+				blocks[i][j] = {
 					base: B_WALL
 				};
 			}
 			else {
-				f[i][j] = {
+				blocks[i][j] = {
 					base: B_FLOOR
 				};
 			}
 		}
 	}
 
-	return f;
+	return {
+		blocks: blocks
+	};
 }
 
 function draw (con) {
@@ -85,14 +87,15 @@ function draw (con) {
 
 	for (var i = 0; i < LX; i++) {
 		for (var j = 0; j < LY; j++) {
-			if (field[i][j].base === B_FLOOR) {
+			var block = field.blocks[i][j];
+			if (block.base === B_FLOOR) {
 				con.fillStyle = 'white';
 				con.beginPath();
 				con.arc((i + 0.5) * PX, (j + 0.5) * PY, 1, 0, Math.PI * 2);
 				con.closePath();
 				con.fill();
 			}
-			else if (field[i][j].base === B_WALL) {
+			else if (block.base === B_WALL) {
 				con.strokeStyle = 'white';
 				con.strokeRect(i * PX, j * PY, PX, PY);
 				con.beginPath();
