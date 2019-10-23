@@ -174,7 +174,7 @@ $(function(){
 			}
 		}
 	});
-	c.on('focusout', function (e) {
+	$(window).on('blur', function (e) {
 		if (env.diagonal) {
 			env.diagonal = false;
 
