@@ -155,8 +155,8 @@ $(function(){
 			}
 
 			if (x !== player.x || y !== player.y) {
-				var b = field[x][y];
-				if (B_CAN_STAND[b.base]) {
+				var block = field.blocks[x][y];
+				if (B_CAN_STAND[block.base]) {
 					player.x = x;
 					player.y = y;
 
