@@ -99,6 +99,8 @@ $(function(){
 		}
 
 		if (e.keyCode >= 37 && e.keyCode <= 40) {
+			var nx = fields[player.depth].nx;
+			var ny = fields[player.depth].ny;
 			var x = player.x;
 			var y = player.y;
 			if (e.shiftKey) {
@@ -110,21 +112,21 @@ $(function(){
 					y--;
 				}
 				else if (keyr && keyu) {
-					if (x === LX - 1 || y === 0) {
+					if (x === nx - 1 || y === 0) {
 						return;
 					}
 					x++;
 					y--;
 				}
 				else if (keyl && keyd) {
-					if (x === 0 || y === LY - 1) {
+					if (x === 0 || y === ny - 1) {
 						return;
 					}
 					x--;
 					y++;
 				}
 				else if (keyr && keyd) {
-					if (x === LX - 1 || y === LY - 1) {
+					if (x === nx - 1 || y === ny - 1) {
 						return;
 					}
 					x++;
@@ -148,13 +150,13 @@ $(function(){
 					y--;
 				}
 				else if (e.keyCode === 39) {
-					if (x === LX - 1) {
+					if (x === nx - 1) {
 						return;
 					}
 					x++;
 				}
 				else if (e.keyCode === 40) {
-					if (y === LY - 1) {
+					if (y === ny - 1) {
 						return;
 					}
 					y++;
