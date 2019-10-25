@@ -219,11 +219,18 @@ function init () {
 function create_field (depth, upstairs, base_seed) {
 	var random = new Random(base_seed + ',' + depth.toString(10));
 
+	var nx = 25;
+	var ny = 25;
+	if (depth > 0) {
+		nx = 50;
+		ny = 50;
+	}
+
 	var blocks = [];
-	for (var i = 0; i < LX; i++) {
+	for (var i = 0; i < nx; i++) {
 		blocks[i] = [];
-		for (var j = 0; j < LY; j++) {
-			if ((i === 0 || j === 0) || (i === LX -1 || j === LY - 1)) {
+		for (var j = 0; j < ny; j++) {
+			if ((i === 0 || j === 0) || (i === nx - 1 || j === ny - 1)) {
 				blocks[i][j] = {
 					base: B_WALL
 				};
@@ -242,15 +249,17 @@ function create_field (depth, upstairs, base_seed) {
 		};
 
 		return {
+			nx: nx,
+			ny: ny,
 			blocks: blocks
 		};
 	}
 
 	var rs = [{
 		x1: 1,
-		x2: LX - 2,
+		x2: nx - 2,
 		y1: 1,
-		y2: LY - 2
+		y2: ny - 2
 	}];
 	var ers = [];
 	var dps = [1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5];
@@ -270,8 +279,8 @@ function create_field (depth, upstairs, base_seed) {
 
 	var nds = 1;
 	while (nds > 0) {
-		var x = random.num(LX - 2) + 1;
-		var y = random.num(LY - 2) + 1;
+		var x = random.num(nx - 2) + 1;
+		var y = random.num(ny - 2) + 1;
 		var f = true;
 		for (var i = 0; i < upstairs.length; i++) {
 			if (x === upstairs[i].x && y === upstairs[i].y) {
@@ -292,6 +301,8 @@ function create_field (depth, upstairs, base_seed) {
 	}
 
 	return {
+		nx: nx,
+		ny: ny,
 		blocks: blocks
 	};
 }
