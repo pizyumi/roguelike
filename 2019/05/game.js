@@ -3,8 +3,8 @@
 var SCREEN_X = 1600;
 var SCREEN_Y = 800;
 
-var LX = 25;
-var LY = 25;
+var SX = 25;
+var SY = 25;
 var PX = 32;
 var PY = 32;
 
@@ -420,9 +420,34 @@ function draw (con, env) {
 		return;
 	}
 
-	for (var i = 0; i < LX; i++) {
-		for (var j = 0; j < LY; j++) {
-			var block = fields[player.depth].blocks[i][j];
+	var nx = fields[player.depth].nx;
+	var ny = fields[player.depth].ny;
+
+	var ox = 0;
+	if (player.x <= Math.floor(SX / 2)) {
+		ox = 0;
+	}
+	else if (player.x >= nx - Math.floor(SX / 2)) {
+		ox = nx - SX;
+	}
+	else {
+		ox = player.x - Math.floor(SX / 2);
+	}
+
+	var oy = 0;
+	if (player.y <= Math.floor(SY / 2)) {
+		oy = 0;
+	}
+	else if (player.y >= ny - Math.floor(SY / 2)) {
+		oy = ny - SY;
+	}
+	else {
+		oy = player.y - Math.floor(SY / 2);
+	}
+
+	for (var i = 0; i < SX; i++) {
+		for (var j = 0; j < SY; j++) {
+			var block = fields[player.depth].blocks[ox + i][oy + j];
 			if (block.base === B_FLOOR) {
 				con.fillStyle = 'white';
 				con.beginPath();
@@ -447,16 +472,19 @@ function draw (con, env) {
 		}
 	}
 
+	var px = player.x - ox;
+	var py = player.y - oy;
+
 	con.textBaseline = 'middle';
 	con.textAlign = 'center';
 	con.fillStyle = 'red';
-	con.fillText('🚶\uFE0E', player.x * PX + (PX / 2), player.y * PY + (PY / 2));
+	con.fillText('🚶\uFE0E', px * PX + (PX / 2), py * PY + (PY / 2));
 
 	if (env.diagonal) {
 		con.save();
 
 		con.strokeStyle = 'white';
-		con.translate(player.x * PX + (PX / 2), player.y * PY + (PY / 2));
+		con.translate(px * PX + (PX / 2), py * PY + (PY / 2));
 		con.rotate(Math.PI / 4);
 		con.beginPath();
 		con.moveTo((PX / 2) + 4, -4);
