@@ -256,7 +256,7 @@ function create_field (depth, upstairs, base_seed) {
 	var dps = [1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5];
 	while (rs.length > 0 && dps.length > 0) {
 		var r = rs.shift();
-		var nrs = split_room(blocks, r.x1, r.x2, r.y1, r.y2, dps.shift(), random);
+		var nrs = split_room(blocks, r, dps.shift(), random);
 		for (var i = 0; i < nrs.length; i++) {
 			rs.push(nrs[i]);
 		}
@@ -296,50 +296,50 @@ function create_field (depth, upstairs, base_seed) {
 	};
 }
 
-function split_room (blocks, x1, x2, y1, y2, dp, random) {
+function split_room (blocks, r, dp, random) {
 	var ap = random.fraction();
 	if (ap <= dp) {
 		var dir = random.num(2);
-		if (x2 - x1 > (y2 - y1) * 2) {
+		if (r.x2 - r.x1 > (r.y2 - r.y1) * 2) {
 			dir = 0;
 		}
-		else if ((x2 - x1) * 2 < y2 - y1) {
+		else if ((r.x2 - r.x1) * 2 < r.y2 - r.y1) {
 			dir = 1;
 		}
 
 		if (dir === 0) {
-			if (x2 - x1 <= 6) {
+			if (r.x2 - r.x1 <= 6) {
 				return [];
 			}
 
-			var x = random.num(x2 - x1 - 6) + 3 + x1;
-			if (blocks[x][y1 - 1].base !== B_WALL) {
+			var x = random.num(r.x2 - r.x1 - 6) + 3 + r.x1;
+			if (blocks[x][r.y1 - 1].base !== B_WALL) {
 				return [];
 			}
-			if (blocks[x][y2 + 1].base !== B_WALL) {
+			if (blocks[x][r.y2 + 1].base !== B_WALL) {
 				return [];
 			}
-			var y = random.num(y2 - y1) + y1;
-			for (var i = y1; i <= y2; i++) {
+			var y = random.num(r.y2 - r.y1) + r.y1;
+			for (var i = r.y1; i <= r.y2; i++) {
 				if (i !== y) {
 					blocks[x][i].base = B_WALL;
 				}
 			}
 
 			var r1 = {
-				x1: x1,
+				x1: r.x1,
 				x2: x - 1,
-				y1: y1,
-				y2: y2
+				y1: r.y1,
+				y2: r.y2
 			};
 			var r2 = {
 				x1: x + 1,
-				x2: x2,
-				y1: y1,
-				y2: y2
+				x2: r.x2,
+				y1: r.y1,
+				y2: r.y2
 			};
-			var r = random.num(2);
-			if (r === 0) {
+			var ord = random.num(2);
+			if (ord === 0) {
 				return [r1, r2];
 			}
 			else {
@@ -347,38 +347,38 @@ function split_room (blocks, x1, x2, y1, y2, dp, random) {
 			}
 		}
 		else if (dir === 1) {
-			if (y2 - y1 <= 6) {
+			if (r.y2 - r.y1 <= 6) {
 				return [];
 			}
 
-			var y = random.num(y2 - y1 - 6) + 3 + y1;
-			if (blocks[x1 - 1][y].base !== B_WALL) {
+			var y = random.num(r.y2 - r.y1 - 6) + 3 + r.y1;
+			if (blocks[r.x1 - 1][y].base !== B_WALL) {
 				return [];
 			}
-			if (blocks[x2 + 1][y].base !== B_WALL) {
+			if (blocks[r.x2 + 1][y].base !== B_WALL) {
 				return [];
 			}
-			var x = random.num(x2 - x1) + x1;
-			for (var i = x1; i <= x2; i++) {
+			var x = random.num(r.x2 - r.x1) + r.x1;
+			for (var i = r.x1; i <= r.x2; i++) {
 				if (i !== x) {
 					blocks[i][y].base = B_WALL;
 				}
 			}
 
 			var r1 = {
-				x1: x1,
-				x2: x2,
-				y1: y1,
+				x1: r.x1,
+				x2: r.x2,
+				y1: r.y1,
 				y2: y - 1
 			};
 			var r2 = {
-				x1: x1,
-				x2: x2,
+				x1: r.x1,
+				x2: r.x2,
 				y1: y + 1,
-				y2: y2
+				y2: r.y2
 			};
-			var r = random.num(2);
-			if (r === 0) {
+			var ord = random.num(2);
+			if (ord === 0) {
 				return [r1, r2];
 			}
 			else {
