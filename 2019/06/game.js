@@ -602,6 +602,17 @@ function draw (con, env) {
 	}
 
 	con.restore();
+
+	con.save();
+
+	con.textBaseline = 'top';
+	con.textAlign = 'left';
+	con.font = '24px consolas';
+	con.fillStyle = 'white';
+	con.translate(SX * PX, 0);
+	con.fillText(player.depth + '階', 8, (24 + 6) * 0 + 8);
+
+	con.restore();
 }
 
 function hash (seed) {
