@@ -1,5 +1,9 @@
 ﻿var TITLE = 'シンプルローグライク';
 
+var MSG_INIT = 'あなたは目覚めました。';
+var MSG_DOWNSTAIR = '下り階段を降りました。';
+var MSG_WALL = '壁に阻まれました。';
+
 var SCREEN_X = 1600;
 var SCREEN_Y = 800;
 
@@ -174,6 +178,16 @@ $(function(){
 
 					draw(con, env);
 				}
+				else {
+					if (block.base === B_WALL) {
+						add_message({
+							text: MSG_WALL,
+							type: 'normal'
+						});
+
+						draw(con, env);
+					}
+				}
 			}
 		}
 		else if (e.keyCode === 32) {
@@ -186,6 +200,11 @@ $(function(){
 						y: player.y
 					}], seed);
 				}
+
+				add_message({
+					text: MSG_DOWNSTAIR,
+					type: 'normal'
+				});
 
 				draw(con, env);
 			}
@@ -219,6 +238,10 @@ function init () {
 		x: 12,
 		y: 17
 	};
+	messages = [{
+		text: MSG_INIT,
+		type: 'special'
+	}];
 }
 
 function add_message (message) {
