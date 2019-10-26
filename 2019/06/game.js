@@ -17,6 +17,8 @@ B_CAN_STAND[B_FLOOR] = true;
 B_CAN_STAND[B_WALL] = false;
 B_CAN_STAND[B_DOWNSTAIR] = true;
 
+var NUM_MESSAGE = 8;
+
 var img = new Image();
 img.src = 'Dungeon_B_Freem7.png';
 
@@ -26,6 +28,7 @@ var startf = false;
 
 var fields = null;
 var player = null;
+var messages = null;
 
 $(function(){
 	var canvas = document.getElementById('game');
@@ -216,6 +219,24 @@ function init () {
 		x: 12,
 		y: 17
 	};
+}
+
+function add_message (message) {
+	var l = messages[messages.length - 1];
+	if (message.text === l.text && message.type === l.type) {
+		if (!l.repeat) {
+			l.repeat = 2;
+		}
+		else {
+			l.repeat++;
+		}
+	}
+	else {
+		messages.push(message);
+		while (messages.length > NUM_MESSAGE) {
+			messages.shift();
+		}
+	}
 }
 
 function create_field (depth, upstairs, base_seed) {
@@ -533,6 +554,31 @@ function draw (con, env) {
 
 		con.restore();
 	}
+
+	con.save();
+
+	con.textBaseline = 'top';
+	con.textAlign = 'left';
+	con.font = '16px consolas';
+	con.translate(SX * PX, SCREEN_Y - ((16 + 6) * NUM_MESSAGE + 8 * 2));
+	for (var i = 0; i < messages.length; i++) {
+		if (messages[i].type === 'normal') {
+			con.fillStyle = 'white';
+		}
+		else if (messages[i].type === 'special') {
+			con.fillStyle = 'yellow';
+		}
+		else {
+			throw new Error('not supported.');
+		}
+		var text = messages[i].text;
+		if (messages[i].repeat) {
+			text += '（' + 'x' + messages[i].repeat + '）';
+		}
+		con.fillText(text, 8, (16 + 6) * i + 8);
+	}
+
+	con.restore();
 }
 
 function hash (seed) {
