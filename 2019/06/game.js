@@ -411,10 +411,10 @@ function draw (con, env) {
 		con.textAlign = 'center';
 		con.fillStyle = 'white';
 
-		con.font = "48px consolas";
+		con.font = '48px consolas';
 		con.fillText(TITLE, SCREEN_X / 2, SCREEN_Y / 4);
 
-		con.font = "32px consolas";
+		con.font = '32px consolas';
 		con.fillText('> はじめる', SCREEN_X / 2, SCREEN_Y / 4 * 3);
 
 		return;
@@ -478,6 +478,7 @@ function draw (con, env) {
 	con.textBaseline = 'middle';
 	con.textAlign = 'center';
 	con.fillStyle = 'red';
+	con.font = '24px consolas';
 	con.fillText('🚶\uFE0E', px * PX + (PX / 2), py * PY + (PY / 2));
 
 	if (env.diagonal) {
