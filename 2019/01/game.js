@@ -14,9 +14,9 @@ $(function(){
 		if (!startf) {
 			if (e.keyCode === 90) {
 				startf = true;
-	
+
 				init();
-	
+
 				draw(con);
 			}
 		}
@@ -39,8 +39,8 @@ function draw (con) {
 
 		con.font = "48px consolas";
 		con.fillText(TITLE, SCREEN_X / 2, SCREEN_Y / 4);
-	
+
 		con.font = "32px consolas";
-		con.fillText('> はじめる', SCREEN_X / 2, SCREEN_Y / 4 * 3);	
+		con.fillText('> はじめる', SCREEN_X / 2, SCREEN_Y / 4 * 3);
 	}
 }
