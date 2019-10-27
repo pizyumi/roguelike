@@ -1,5 +1,7 @@
 ﻿var TITLE = 'シンプルローグライク';
 
+var TEXT_START = 'はじめる';
+
 var SCREEN_X = 1600;
 var SCREEN_Y = 800;
 
@@ -168,9 +170,13 @@ $(function(){
 				if (B_CAN_STAND[block.base]) {
 					player.x = x;
 					player.y = y;
-
-					draw(con, env);
 				}
+				else {
+					return;
+				}
+			}
+			else {
+				return;
 			}
 		}
 		else if (e.keyCode === 32) {
@@ -183,10 +189,13 @@ $(function(){
 						y: player.y
 					}], seed);
 				}
-
-				draw(con, env);
 			}
 		}
+		else {
+			return;
+		}
+
+		draw(con, env);
 	});
 	c.on('keyup', function (e) {
 		if (e.keyCode === 16) {
@@ -415,7 +424,7 @@ function draw (con, env) {
 		con.fillText(TITLE, SCREEN_X / 2, SCREEN_Y / 4);
 
 		con.font = "32px consolas";
-		con.fillText('> はじめる', SCREEN_X / 2, SCREEN_Y / 4 * 3);
+		con.fillText('> ' + TEXT_START, SCREEN_X / 2, SCREEN_Y / 4 * 3);
 
 		return;
 	}
@@ -478,6 +487,7 @@ function draw (con, env) {
 	con.textBaseline = 'middle';
 	con.textAlign = 'center';
 	con.fillStyle = 'red';
+	con.font = '24px consolas';
 	con.fillText('🚶\uFE0E', px * PX + (PX / 2), py * PY + (PY / 2));
 
 	if (env.diagonal) {

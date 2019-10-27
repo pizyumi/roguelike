@@ -1,5 +1,7 @@
 ﻿var TITLE = 'シンプルローグライク';
 
+var TEXT_START = 'はじめる';
+
 var SCREEN_X = 1600;
 var SCREEN_Y = 800;
 
@@ -19,6 +21,8 @@ $(function(){
 
 				draw(con);
 			}
+
+			return;
 		}
 	});
 
@@ -41,6 +45,8 @@ function draw (con) {
 		con.fillText(TITLE, SCREEN_X / 2, SCREEN_Y / 4);
 
 		con.font = "32px consolas";
-		con.fillText('> はじめる', SCREEN_X / 2, SCREEN_Y / 4 * 3);
+		con.fillText('> ' + TEXT_START, SCREEN_X / 2, SCREEN_Y / 4 * 3);
+
+		return;
 	}
 }

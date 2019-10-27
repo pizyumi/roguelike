@@ -1,5 +1,7 @@
 ﻿var TITLE = 'シンプルローグライク';
 
+var TEXT_START = 'はじめる';
+
 var MSG_INIT = 'あなたは目覚めました。';
 var MSG_DOWNSTAIR = '下り階段を降りました。';
 var MSG_WALL = '壁に阻まれました。';
@@ -175,8 +177,6 @@ $(function(){
 				if (B_CAN_STAND[block.base]) {
 					player.x = x;
 					player.y = y;
-
-					draw(con, env);
 				}
 				else {
 					if (block.base === B_WALL) {
@@ -187,7 +187,12 @@ $(function(){
 
 						draw(con, env);
 					}
+
+					return;
 				}
+			}
+			else {
+				return;
 			}
 		}
 		else if (e.keyCode === 32) {
@@ -200,15 +205,20 @@ $(function(){
 						y: player.y
 					}], seed);
 				}
-
 				add_message({
 					text: MSG_DOWNSTAIR,
 					type: 'normal'
 				});
-
-				draw(con, env);
+			}
+			else {
+				return;
 			}
 		}
+		else {
+			return;
+		}
+
+		draw(con, env);
 	});
 	c.on('keyup', function (e) {
 		if (e.keyCode === 16) {
@@ -459,7 +469,7 @@ function draw (con, env) {
 		con.fillText(TITLE, SCREEN_X / 2, SCREEN_Y / 4);
 
 		con.font = '32px consolas';
-		con.fillText('> はじめる', SCREEN_X / 2, SCREEN_Y / 4 * 3);
+		con.fillText('> ' + TEXT_START, SCREEN_X / 2, SCREEN_Y / 4 * 3);
 
 		return;
 	}
@@ -527,7 +537,6 @@ function draw (con, env) {
 
 	if (env.diagonal) {
 		con.save();
-
 		con.strokeStyle = 'white';
 		con.translate(px * PX + (PX / 2), py * PY + (PY / 2));
 		con.rotate(Math.PI / 4);
@@ -574,12 +583,19 @@ function draw (con, env) {
 		con.lineTo((PX / 2) + 4, 4);
 		con.closePath();
 		con.stroke();
-
 		con.restore();
 	}
 
 	con.save();
+	con.textBaseline = 'top';
+	con.textAlign = 'left';
+	con.font = '24px consolas';
+	con.fillStyle = 'white';
+	con.translate(SX * PX, 0);
+	con.fillText(player.depth + 'F', 8, (24 + 6) * 0 + 8);
+	con.restore();
 
+	con.save();
 	con.textBaseline = 'top';
 	con.textAlign = 'left';
 	con.font = '16px consolas';
@@ -600,18 +616,6 @@ function draw (con, env) {
 		}
 		con.fillText(text, 8, (16 + 6) * i + 8);
 	}
-
-	con.restore();
-
-	con.save();
-
-	con.textBaseline = 'top';
-	con.textAlign = 'left';
-	con.font = '24px consolas';
-	con.fillStyle = 'white';
-	con.translate(SX * PX, 0);
-	con.fillText(player.depth + '階', 8, (24 + 6) * 0 + 8);
-
 	con.restore();
 }
 
