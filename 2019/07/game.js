@@ -10,6 +10,9 @@ var TEXT_EXP = '経験値';
 var MSG_INIT = 'あなたは目覚めました。';
 var MSG_DOWNSTAIR = '下り階段を降りました。';
 var MSG_WALL = '壁に阻まれました。';
+var MSG_PATTACK = ({name, dam}) => `${name}に${dam}のダメージを与えました。`;
+var MSG_KILL = ({name, exp}) => `${name}を倒しました。${exp}の経験値を得ました。`;
+var MSG_LEVELUP = ({level}) => `おめでとうございます。あなたはレベル${level}になりました。`
 
 var E_RAT_NAME = 'ラット';
 
@@ -192,22 +195,61 @@ $(function(){
 			}
 
 			if (x !== player.x || y !== player.y) {
-				var block = fields[player.depth].blocks[x][y];
-				if (B_CAN_STAND[block.base]) {
-					player.x = x;
-					player.y = y;
+				var c = undefined;
+				var index = 0;
+				for (var i = 0; i < npcs.length; i++) {
+					if (npcs[i].x === x && npcs[i].y === y) {
+						c = npcs[i];
+						index = i;
+						break;
+					}
 				}
-				else {
-					if (block.base === B_WALL) {
+				if (c) {
+					var dam = calculate_damage(player.atk, c.def);
+					c.hp -= dam;
+					add_message({
+						text: MSG_PATTACK({name: c.dname, dam}),
+						type: 'pattack'
+					});
+					if (c.hp <= 0) {
+						npcs.splice(index, 1);
+						player.exp += c.exp;
 						add_message({
-							text: MSG_WALL,
-							type: 'normal'
+							text: MSG_KILL({name: c.dname, exp: c.exp}),
+							type: 'important'
 						});
 
-						draw(con, env);
+						while (player.exp >= player.expfull) {
+							player.level++;
+							player.hpbase = Math.ceil(player.hpbase * 1.2);
+							player.atkbase = Math.ceil(player.atkbase * 1.1);
+							player.defbase = Math.ceil(player.defbase * 1.1);
+							player.expfull = Math.ceil(player.expfull * 2.4);
+							add_message({
+								text: MSG_LEVELUP({level: player.level}),
+								type: 'important'
+							});
+						}
 					}
+				}
+				else {
+					var block = fields[player.depth].blocks[x][y];
+					if (B_CAN_STAND[block.base]) {
+						player.x = x;
+						player.y = y;
+					}
+					else {
+						if (block.base === B_WALL) {
+							add_message({
+								text: MSG_WALL,
+								type: 'normal'
+							});
 
-					return;
+							draw(con, env);
+						}
+
+						return;
+					}
 				}
 			}
 			else {
@@ -285,6 +327,14 @@ function add_message (message) {
 			messages.shift();
 		}
 	}
+}
+
+function calculate_damage (atk, def) {
+	var dam = Math.ceil((atk * 1.1 - def * 0.4) * Math.random());
+	if (dam <= 0) {
+		dam = 1;
+	}
+	return dam;
 }
 
 function create_field (depth, upstairs, base_seed) {
@@ -654,6 +704,12 @@ function draw (con, env) {
 		}
 		else if (messages[i].type === 'special') {
 			con.fillStyle = 'yellow';
+		}
+		else if (messages[i].type === 'important') {
+			con.fillStyle = 'red';
+		}
+		else if (messages[i].type === 'pattack') {
+			con.fillStyle = 'yellowgreen';
 		}
 		else {
 			throw new Error('not supported.');
