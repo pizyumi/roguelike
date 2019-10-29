@@ -11,6 +11,8 @@ var MSG_INIT = 'あなたは目覚めました。';
 var MSG_DOWNSTAIR = '下り階段を降りました。';
 var MSG_WALL = '壁に阻まれました。';
 
+var E_RAT_NAME = 'ラット';
+
 var SCREEN_X = 1600;
 var SCREEN_Y = 800;
 
@@ -18,6 +20,18 @@ var SX = 25;
 var SY = 25;
 var PX = 32;
 var PY = 32;
+
+var E_RAT = 0;
+
+var E_INFO = [];
+E_INFO[E_RAT] = {
+	dname: E_RAT_NAME,
+	level: 1,
+	hp: 4,
+	atk: 3,
+	def: 3,
+	exp: 1
+};
 
 var B_FLOOR = 0;
 var B_WALL = 1;
@@ -308,7 +322,8 @@ function create_field (depth, upstairs, base_seed) {
 		return {
 			nx: nx,
 			ny: ny,
-			blocks: blocks
+			blocks: blocks,
+			npcs: []
 		};
 	}
 
@@ -351,6 +366,19 @@ function create_field (depth, upstairs, base_seed) {
 		}
 	}
 
+	var npcs = [];
+	for (var i = 0; i < ers.length; i++) {
+		var num = random.num(3);
+		for (var j = 0; j < num; j++) {
+			var x = random.num(ers[i].x2 - ers[i].x1) + ers[i].x1;
+			var y = random.num(ers[i].y2 - ers[i].y1) + ers[i].y1;
+			var type = E_RAT;
+			var level = depth + random.num(depth) + random.num(2);
+
+			npcs.push(new Enemy(type, x, y, level));
+		}
+	}
+
 	for (var i = 0; i < upstairs.length; i++) {
 		if (blocks[upstairs[i].x][upstairs[i].y].base = B_WALL) {
 			blocks[upstairs[i].x][upstairs[i].y].base = B_FLOOR;
@@ -360,7 +388,8 @@ function create_field (depth, upstairs, base_seed) {
 	return {
 		nx: nx,
 		ny: ny,
-		blocks: blocks
+		blocks: blocks,
+		npcs: npcs
 	};
 }
 
@@ -527,6 +556,19 @@ function draw (con, env) {
 		}
 	}
 
+	con.textBaseline = 'middle';
+	con.textAlign = 'center';
+	var npcs = fields[player.depth].npcs;
+	for (var i = 0; i < npcs.length; i++) {
+		if (npcs[i].x >= ox && npcs[i].x < ox + SX && npcs[i].y >= oy && npcs[i].y < oy + SY) {
+			if (npcs[i].type === E_RAT) {
+				con.fillStyle = 'yellow';
+				con.font = '16px consolas';
+				con.fillText('🐀\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+			}
+		}
+	}
+
 	var px = player.x - ox;
 	var py = player.y - oy;
 
@@ -653,6 +695,51 @@ class Player {
 	}
 
 	get def () {
+		return this.defbase + this.defext;
+	}
+}
+
+class Enemy {
+	constructor (type, x, y, level) {
+		var e = E_INFO[type];
+
+		this.type = type;
+		this.x = x;
+		this.y = y;
+
+		this.dname = e.dname;
+
+		this.level = e.level;
+		this.hpbase = e.hp;
+		this.hpext = 0;
+		this.atkbase = e.atk;
+		this.atkext = 0;
+		this.defbase = e.def;
+		this.defext = 0;
+		this.exp = e.exp;
+
+		while (level > this.level) {
+			this.level++;
+			this.hpbase = Math.ceil(this.hpbase * 1.2);
+			this.atkbase = Math.ceil(this.atkbase * 1.1);
+			this.defbase = Math.ceil(this.defbase * 1.1);
+			this.exp = Math.ceil(this.exp * 1.4);
+		}
+
+		this.hp = this.hpfull;
+		this.atk = this.atkfull;
+		this.def = this.deffull;
+	}
+
+	get hpfull () {
+		return this.hpbase + this.hpext;
+	}
+
+	get atkfull () {
+		return this.atkbase + this.atkext;
+	}
+
+	get deffull () {
 		return this.defbase + this.defext;
 	}
 }
