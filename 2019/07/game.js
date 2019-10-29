@@ -11,7 +11,9 @@ var MSG_INIT = 'あなたは目覚めました。';
 var MSG_DOWNSTAIR = '下り階段を降りました。';
 var MSG_WALL = '壁に阻まれました。';
 var MSG_PATTACK = ({name, dam}) => `${name}に${dam}のダメージを与えました。`;
+var MSG_EATTACK = ({name, dam}) => `${name}から${dam}のダメージを受けました。`;
 var MSG_KILL = ({name, exp}) => `${name}を倒しました。${exp}の経験値を得ました。`;
+var MSG_DIE = 'あなたは倒れました。';
 var MSG_LEVELUP = ({level}) => `おめでとうございます。あなたはレベル${level}になりました。`
 
 var E_RAT_NAME = 'ラット';
@@ -53,6 +55,7 @@ img.src = 'Dungeon_B_Freem7.png';
 var seed = Date.now().toString(10);
 
 var startf = false;
+var gameover = false;
 
 var fields = null;
 var player = null;
@@ -119,6 +122,16 @@ $(function(){
 			return;
 		}
 
+		if (gameover) {
+			if (e.keyCode === 90) {
+				startf = false;
+
+				draw(con, env);
+			}
+
+			return;
+		}
+
 		if (e.keyCode === 16) {
 			if (!env.diagonal) {
 				env.diagonal = true;
@@ -128,6 +141,8 @@ $(function(){
 
 			return;
 		}
+
+		var npcs = fields[player.depth].npcs;
 
 		if (e.keyCode >= 37 && e.keyCode <= 40) {
 			var nx = fields[player.depth].nx;
@@ -279,6 +294,84 @@ $(function(){
 			return;
 		}
 
+		for (var i = 0; i < npcs.length; i++) {
+			var c = npcs[i];
+
+			var l = player.x === c.x - 1 && player.y === c.y;
+			var u = player.x === c.x && player.y === c.y - 1;
+			var r = player.x === c.x + 1 && player.y === c.y;
+			var d = player.x === c.x && player.y === c.y + 1;
+			var lu = player.x === c.x - 1 && player.y === c.y - 1;
+			var ru = player.x === c.x + 1 && player.y === c.y - 1;
+			var ld = player.x === c.x - 1 && player.y === c.y + 1;
+			var rd = player.x === c.x + 1 && player.y === c.y + 1;
+			if (l || u || r || d || lu || ru || ld || rd) {
+				var dam = calculate_damage(c.atk, player.def);
+				player.hp -= dam;
+				add_message({
+					text: MSG_EATTACK({name: c.dname, dam}),
+					type: 'eattack'
+				});
+				if (player.hp <= 0) {
+					player.hp = 0;
+					gameover = true;
+					add_message({
+						text: MSG_DIE,
+						type: 'special'
+					});
+					break;
+				}
+			}
+			else {
+				var m = Math.random();
+				if (m < 0.5) {
+					var dir = Math.floor(Math.random() * 8);
+					var x = c.x;
+					var y = c.y;
+					if (dir === 0) {
+						x--;
+					}
+					else if (dir === 1) {
+						y--;
+					}
+					else if (dir === 2) {
+						x++;
+					}
+					else if (dir === 3) {
+						y++;
+					}
+					else if (dir === 4) {
+						x--;
+						y--;
+					}
+					else if (dir === 5) {
+						x++;
+						y--;
+					}
+					else if (dir === 6) {
+						x--;
+						y++;
+					}
+					else if (dir === 7) {
+						x++;
+						y++;
+					}
+					var block = fields[player.depth].blocks[x][y];
+					var c2 = undefined;
+					for (var j = 0; j < npcs.length; j++) {
+						if (npcs[j].x === x && npcs[j].y === y) {
+							c2 = npcs[j];
+							break;
+						}
+					}
+					if (B_CAN_STAND[block.base] && !c2 && (player.x !== x || player.y !== y)) {
+						c.x = x;
+						c.y = y;
+					}
+				}
+			}
+		}
+
 		draw(con, env);
 	});
 	c.on('keyup', function (e) {
@@ -302,6 +395,8 @@ $(function(){
 });
 
 function init () {
+	gameover = false;
+
 	fields = [];
 	fields[0] = create_field(0, [], seed);
 	player = new Player();
@@ -710,6 +805,9 @@ function draw (con, env) {
 		}
 		else if (messages[i].type === 'pattack') {
 			con.fillStyle = 'yellowgreen';
+		}
+		else if (messages[i].type === 'eattack') {
+			con.fillStyle = 'aqua';
 		}
 		else {
 			throw new Error('not supported.');
