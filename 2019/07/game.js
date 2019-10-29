@@ -1,6 +1,11 @@
 ﻿var TITLE = 'シンプルローグライク';
 
 var TEXT_START = 'はじめる';
+var TEXT_LEVEL = 'レベル';
+var TEXT_HP = 'HP';
+var TEXT_ATK = '攻撃力';
+var TEXT_DEF = '防御力';
+var TEXT_EXP = '経験値';
 
 var MSG_INIT = 'あなたは目覚めました。';
 var MSG_DOWNSTAIR = '下り階段を降りました。';
@@ -243,11 +248,7 @@ $(function(){
 function init () {
 	fields = [];
 	fields[0] = create_field(0, [], seed);
-	player = {
-		depth: 0,
-		x: 12,
-		y: 17
-	};
+	player = new Player();
 	messages = [{
 		text: MSG_INIT,
 		type: 'special'
@@ -593,6 +594,11 @@ function draw (con, env) {
 	con.fillStyle = 'white';
 	con.translate(SX * PX, 0);
 	con.fillText(player.depth + 'F', 8, (24 + 6) * 0 + 8);
+	con.fillText(TEXT_LEVEL + '：' + player.level, 8, (24 + 6) * 1 + 8);
+	con.fillText(TEXT_HP + '：' + player.hp + '/' + player.hpfull, 8, (24 + 6) * 2 + 8);
+	con.fillText(TEXT_ATK + '：' + player.atk, 8, (24 + 6) * 3 + 8);
+	con.fillText(TEXT_DEF + '：' + player.def, 8, (24 + 6) * 4 + 8);
+	con.fillText(TEXT_EXP + '：' + player.exp + '/' + player.expfull, 8, (24 + 6) * 5 + 8);
 	con.restore();
 
 	con.save();
@@ -617,6 +623,38 @@ function draw (con, env) {
 		con.fillText(text, 8, (16 + 6) * i + 8);
 	}
 	con.restore();
+}
+
+class Player {
+	constructor () {
+		this.depth = 0;
+		this.x = 12;
+		this.y = 17;
+
+		this.level = 1;
+		this.hpbase = 16;
+		this.hpext = 0;
+		this.atkbase = 4;
+		this.atkext = 0;
+		this.defbase = 4;
+		this.defext = 0;
+		this.expfull = 4;
+
+		this.hp = this.hpfull;
+		this.exp = 0;
+	}
+
+	get hpfull () {
+		return this.hpbase + this.hpext;
+	}
+
+	get atk () {
+		return this.atkbase + this.atkext;
+	}
+
+	get def () {
+		return this.defbase + this.defext;
+	}
 }
 
 function hash (seed) {
