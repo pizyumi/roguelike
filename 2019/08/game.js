@@ -3,6 +3,7 @@
 var TEXT_START = 'はじめる';
 var TEXT_LEVEL = 'レベル';
 var TEXT_HP = 'HP';
+var TEXT_ENERGY = '満腹度';
 var TEXT_ATK = '攻撃力';
 var TEXT_DEF = '防御力';
 var TEXT_EXP = '経験値';
@@ -15,6 +16,9 @@ var MSG_EATTACK = ({name, dam}) => `${name}から${dam}のダメージを受け�
 var MSG_KILL = ({name, exp}) => `${name}を倒しました。${exp}の経験値を得ました。`;
 var MSG_DIE = 'あなたは倒れました。';
 var MSG_LEVELUP = ({level}) => `おめでとうございます。あなたはレベル${level}になりました。`
+var MSG_ENERGY20 = 'お腹が減ってきました。';
+var MSG_ENERGY10 = 'お腹がペコペコです。';
+var MSG_ENERGY0 = 'お腹が減って死にそうです。';
 
 var E_RAT_NAME = 'ラット';
 
@@ -368,6 +372,62 @@ $(function(){
 						c.x = x;
 						c.y = y;
 					}
+				}
+			}
+		}
+
+		if (!gameover) {
+			var delta = player.hpfull * 0.005;
+			if (player.energy === 0) {
+				player.energy_turn = 0;
+				player.hp_fraction -= delta;
+				if (player.hp_fraction <= -1) {
+					player.hp--;
+					player.hp_fraction += 1;
+				}
+				if (player.hp <= 0) {
+					player.hp = 0;
+					gameover = true;
+					add_message({
+						text: MSG_DIE,
+						type: 'special'
+					});
+				}
+			}
+			else {
+				player.energy_turn++;
+				if (player.energy_turn === 10) {
+					player.energy_turn = 0;
+					player.energy--;
+					if (player.energy === 20) {
+						add_message({
+							text: MSG_ENERGY20,
+							type: 'normal'
+						});
+					}
+					else if (player.energy === 10) {
+						add_message({
+							text: MSG_ENERGY10,
+							type: 'normal'
+						});
+					}
+					else if (player.energy === 0) {
+						add_message({
+							text: MSG_ENERGY0,
+							type: 'important'
+						});
+					}
+				}
+
+				if (player.hp < player.hpfull) {
+					player.hp_fraction += delta;
+					if (player.hp_fraction >= 1) {
+						player.hp++;
+						player.hp_fraction -= 1;
+					}
+				}
+				else {
+					player.hp_fraction = 0;
 				}
 			}
 		}
@@ -783,9 +843,10 @@ function draw (con, env) {
 	con.fillText(player.depth + 'F', 8, (24 + 6) * 0 + 8);
 	con.fillText(TEXT_LEVEL + '：' + player.level, 8, (24 + 6) * 1 + 8);
 	con.fillText(TEXT_HP + '：' + player.hp + '/' + player.hpfull, 8, (24 + 6) * 2 + 8);
-	con.fillText(TEXT_ATK + '：' + player.atk, 8, (24 + 6) * 3 + 8);
-	con.fillText(TEXT_DEF + '：' + player.def, 8, (24 + 6) * 4 + 8);
-	con.fillText(TEXT_EXP + '：' + player.exp + '/' + player.expfull, 8, (24 + 6) * 5 + 8);
+	con.fillText(TEXT_ENERGY + '：' + player.energy + '/' + player.energyfull, 8, (24 + 6) * 3 + 8);
+	con.fillText(TEXT_ATK + '：' + player.atk, 8, (24 + 6) * 4 + 8);
+	con.fillText(TEXT_DEF + '：' + player.def, 8, (24 + 6) * 5 + 8);
+	con.fillText(TEXT_EXP + '：' + player.exp + '/' + player.expfull, 8, (24 + 6) * 6 + 8);
 	con.restore();
 
 	con.save();
@@ -830,6 +891,8 @@ class Player {
 		this.level = 1;
 		this.hpbase = 16;
 		this.hpext = 0;
+		this.energybase = 100;
+		this.energyext = 0;
 		this.atkbase = 4;
 		this.atkext = 0;
 		this.defbase = 4;
@@ -837,11 +900,18 @@ class Player {
 		this.expfull = 4;
 
 		this.hp = this.hpfull;
+		this.hp_fraction = 0;
+		this.energy = this.energyfull;
+		this.energy_turn = 0;
 		this.exp = 0;
 	}
 
 	get hpfull () {
 		return this.hpbase + this.hpext;
+	}
+
+	get energyfull () {
+		return this.energybase + this.energyext;
 	}
 
 	get atk () {
