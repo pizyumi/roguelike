@@ -1,6 +1,7 @@
 ﻿var TITLE = 'シンプルローグライク';
 
 var TEXT_START = 'はじめる';
+var TEXT_DEPTH = '階';
 var TEXT_LEVEL = 'レベル';
 var TEXT_HP = 'HP';
 var TEXT_ENERGY = '満腹度';
@@ -15,7 +16,7 @@ var MSG_PATTACK = ({name, dam}) => `${name}に${dam}のダメージを与えま�
 var MSG_EATTACK = ({name, dam}) => `${name}から${dam}のダメージを受けました。`;
 var MSG_KILL = ({name, exp}) => `${name}を倒しました。${exp}の経験値を得ました。`;
 var MSG_DIE = 'あなたは倒れました。';
-var MSG_LEVELUP = ({level}) => `おめでとうございます。あなたはレベル${level}になりました。`
+var MSG_LEVELUP = ({level}) => `おめでとうございます。あなたはレベル${level}になりました。`;
 var MSG_ENERGY20 = 'お腹が減ってきました。';
 var MSG_ENERGY10 = 'お腹がペコペコです。';
 var MSG_ENERGY0 = 'お腹が減って死にそうです。';
@@ -577,10 +578,19 @@ function create_field (depth, upstairs, base_seed) {
 		for (var j = 0; j < num; j++) {
 			var x = random.num(ers[i].x2 - ers[i].x1) + ers[i].x1;
 			var y = random.num(ers[i].y2 - ers[i].y1) + ers[i].y1;
-			var type = E_RAT;
-			var level = depth + random.num(depth) + random.num(2);
+			var f = true;
+			for (var k = 0; k < upstairs.length; k++) {
+				if (x === upstairs[k].x && y === upstairs[k].y) {
+					f = false;
+					break;
+				}
+			}
+			if (f) {
+				var type = E_RAT;
+				var level = depth + random.num(depth) + random.num(2);
 
-			npcs.push(new Enemy(type, x, y, level));
+				npcs.push(new Enemy(type, x, y, level));
+			}
 		}
 	}
 
@@ -840,7 +850,7 @@ function draw (con, env) {
 	con.font = '24px consolas';
 	con.fillStyle = 'white';
 	con.translate(SX * PX, 0);
-	con.fillText(player.depth + 'F', 8, (24 + 6) * 0 + 8);
+	con.fillText(player.depth + TEXT_DEPTH, 8, (24 + 6) * 0 + 8);
 	con.fillText(TEXT_LEVEL + '：' + player.level, 8, (24 + 6) * 1 + 8);
 	con.fillText(TEXT_HP + '：' + player.hp + '/' + player.hpfull, 8, (24 + 6) * 2 + 8);
 	con.fillText(TEXT_ENERGY + '：' + player.energy + '/' + player.energyfull, 8, (24 + 6) * 3 + 8);
