@@ -147,8 +147,6 @@ $(function(){
 			return;
 		}
 
-		var npcs = fields[player.depth].npcs;
-
 		if (e.keyCode >= 37 && e.keyCode <= 40) {
 			var nx = fields[player.depth].nx;
 			var ny = fields[player.depth].ny;
@@ -215,6 +213,7 @@ $(function(){
 			}
 
 			if (x !== player.x || y !== player.y) {
+				var npcs = fields[player.depth].npcs;
 				var c = undefined;
 				var index = 0;
 				for (var i = 0; i < npcs.length; i++) {
@@ -299,139 +298,7 @@ $(function(){
 			return;
 		}
 
-		for (var i = 0; i < npcs.length; i++) {
-			var c = npcs[i];
-
-			var l = player.x === c.x - 1 && player.y === c.y;
-			var u = player.x === c.x && player.y === c.y - 1;
-			var r = player.x === c.x + 1 && player.y === c.y;
-			var d = player.x === c.x && player.y === c.y + 1;
-			var lu = player.x === c.x - 1 && player.y === c.y - 1;
-			var ru = player.x === c.x + 1 && player.y === c.y - 1;
-			var ld = player.x === c.x - 1 && player.y === c.y + 1;
-			var rd = player.x === c.x + 1 && player.y === c.y + 1;
-			if (l || u || r || d || lu || ru || ld || rd) {
-				var dam = calculate_damage(c.atk, player.def);
-				player.hp -= dam;
-				add_message({
-					text: MSG_EATTACK({name: c.dname, dam}),
-					type: 'eattack'
-				});
-				if (player.hp <= 0) {
-					player.hp = 0;
-					gameover = true;
-					add_message({
-						text: MSG_DIE,
-						type: 'special'
-					});
-					break;
-				}
-			}
-			else {
-				var m = Math.random();
-				if (m < 0.5) {
-					var dir = Math.floor(Math.random() * 8);
-					var x = c.x;
-					var y = c.y;
-					if (dir === 0) {
-						x--;
-					}
-					else if (dir === 1) {
-						y--;
-					}
-					else if (dir === 2) {
-						x++;
-					}
-					else if (dir === 3) {
-						y++;
-					}
-					else if (dir === 4) {
-						x--;
-						y--;
-					}
-					else if (dir === 5) {
-						x++;
-						y--;
-					}
-					else if (dir === 6) {
-						x--;
-						y++;
-					}
-					else if (dir === 7) {
-						x++;
-						y++;
-					}
-					var block = fields[player.depth].blocks[x][y];
-					var c2 = undefined;
-					for (var j = 0; j < npcs.length; j++) {
-						if (npcs[j].x === x && npcs[j].y === y) {
-							c2 = npcs[j];
-							break;
-						}
-					}
-					if (B_CAN_STAND[block.base] && !c2 && (player.x !== x || player.y !== y)) {
-						c.x = x;
-						c.y = y;
-					}
-				}
-			}
-		}
-
-		if (!gameover) {
-			var delta = player.hpfull * 0.005;
-			if (player.energy === 0) {
-				player.energy_turn = 0;
-				player.hp_fraction -= delta;
-				if (player.hp_fraction <= -1) {
-					player.hp--;
-					player.hp_fraction += 1;
-				}
-				if (player.hp <= 0) {
-					player.hp = 0;
-					gameover = true;
-					add_message({
-						text: MSG_DIE,
-						type: 'special'
-					});
-				}
-			}
-			else {
-				player.energy_turn++;
-				if (player.energy_turn === 10) {
-					player.energy_turn = 0;
-					player.energy--;
-					if (player.energy === 20) {
-						add_message({
-							text: MSG_ENERGY20,
-							type: 'normal'
-						});
-					}
-					else if (player.energy === 10) {
-						add_message({
-							text: MSG_ENERGY10,
-							type: 'normal'
-						});
-					}
-					else if (player.energy === 0) {
-						add_message({
-							text: MSG_ENERGY0,
-							type: 'important'
-						});
-					}
-				}
-
-				if (player.hp < player.hpfull) {
-					player.hp_fraction += delta;
-					if (player.hp_fraction >= 1) {
-						player.hp++;
-						player.hp_fraction -= 1;
-					}
-				}
-				else {
-					player.hp_fraction = 0;
-				}
-			}
-		}
+		execute_turn();
 
 		draw(con, env);
 	});
@@ -481,6 +348,141 @@ function add_message (message) {
 		messages.push(message);
 		while (messages.length > NUM_MESSAGE) {
 			messages.shift();
+		}
+	}
+}
+
+function execute_turn () {
+	var npcs = fields[player.depth].npcs;
+	for (var i = 0; i < npcs.length; i++) {
+		var c = npcs[i];
+
+		var l = player.x === c.x - 1 && player.y === c.y;
+		var u = player.x === c.x && player.y === c.y - 1;
+		var r = player.x === c.x + 1 && player.y === c.y;
+		var d = player.x === c.x && player.y === c.y + 1;
+		var lu = player.x === c.x - 1 && player.y === c.y - 1;
+		var ru = player.x === c.x + 1 && player.y === c.y - 1;
+		var ld = player.x === c.x - 1 && player.y === c.y + 1;
+		var rd = player.x === c.x + 1 && player.y === c.y + 1;
+		if (l || u || r || d || lu || ru || ld || rd) {
+			var dam = calculate_damage(c.atk, player.def);
+			player.hp -= dam;
+			add_message({
+				text: MSG_EATTACK({name: c.dname, dam}),
+				type: 'eattack'
+			});
+			if (player.hp <= 0) {
+				player.hp = 0;
+				gameover = true;
+				add_message({
+					text: MSG_DIE,
+					type: 'special'
+				});
+				return;
+			}
+		}
+		else {
+			var m = Math.random();
+			if (m < 0.5) {
+				var dir = Math.floor(Math.random() * 8);
+				var x = c.x;
+				var y = c.y;
+				if (dir === 0) {
+					x--;
+				}
+				else if (dir === 1) {
+					y--;
+				}
+				else if (dir === 2) {
+					x++;
+				}
+				else if (dir === 3) {
+					y++;
+				}
+				else if (dir === 4) {
+					x--;
+					y--;
+				}
+				else if (dir === 5) {
+					x++;
+					y--;
+				}
+				else if (dir === 6) {
+					x--;
+					y++;
+				}
+				else if (dir === 7) {
+					x++;
+					y++;
+				}
+				var block = fields[player.depth].blocks[x][y];
+				var c2 = undefined;
+				for (var j = 0; j < npcs.length; j++) {
+					if (npcs[j].x === x && npcs[j].y === y) {
+						c2 = npcs[j];
+						break;
+					}
+				}
+				if (B_CAN_STAND[block.base] && !c2 && (player.x !== x || player.y !== y)) {
+					c.x = x;
+					c.y = y;
+				}
+			}
+		}
+	}
+
+	var delta = player.hpfull * 0.005;
+	if (player.energy === 0) {
+		player.energy_turn = 0;
+		player.hp_fraction -= delta;
+		if (player.hp_fraction <= -1) {
+			player.hp--;
+			player.hp_fraction += 1;
+		}
+		if (player.hp <= 0) {
+			player.hp = 0;
+			gameover = true;
+			add_message({
+				text: MSG_DIE,
+				type: 'special'
+			});
+		}
+	}
+	else {
+		player.energy_turn++;
+		if (player.energy_turn === 10) {
+			player.energy_turn = 0;
+			player.energy--;
+			if (player.energy === 20) {
+				add_message({
+					text: MSG_ENERGY20,
+					type: 'normal'
+				});
+			}
+			else if (player.energy === 10) {
+				add_message({
+					text: MSG_ENERGY10,
+					type: 'normal'
+				});
+			}
+			else if (player.energy === 0) {
+				add_message({
+					text: MSG_ENERGY0,
+					type: 'important'
+				});
+			}
+		}
+
+		if (player.hp < player.hpfull) {
+			player.hp_fraction += delta;
+			if (player.hp_fraction >= 1) {
+				player.hp++;
+				player.hp_fraction -= 1;
+			}
+		}
+		else {
+			player.hp_fraction = 0;
 		}
 	}
 }
