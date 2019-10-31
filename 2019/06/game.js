@@ -1,6 +1,7 @@
 ﻿var TITLE = 'シンプルローグライク';
 
 var TEXT_START = 'はじめる';
+var TEXT_DEPTH = '階';
 
 var MSG_INIT = 'あなたは目覚めました。';
 var MSG_DOWNSTAIR = '下り階段を降りました。';
@@ -592,7 +593,7 @@ function draw (con, env) {
 	con.font = '24px consolas';
 	con.fillStyle = 'white';
 	con.translate(SX * PX, 0);
-	con.fillText(player.depth + 'F', 8, (24 + 6) * 0 + 8);
+	con.fillText(player.depth + TEXT_DEPTH, 8, (24 + 6) * 0 + 8);
 	con.restore();
 
 	con.save();
