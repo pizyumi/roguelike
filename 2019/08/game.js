@@ -5,6 +5,7 @@ var TEXT_DEPTH = '階';
 var TEXT_LEVEL = 'レベル';
 var TEXT_HP = 'HP';
 var TEXT_ENERGY = '満腹度';
+var TEXT_WEIGHT = 'アイテム重量';
 var TEXT_ATK = '攻撃力';
 var TEXT_DEF = '防御力';
 var TEXT_EXP = '経験値';
@@ -20,6 +21,8 @@ var MSG_LEVELUP = ({level}) => `おめでとうございます。あなたはレ
 var MSG_ENERGY20 = 'お腹が減ってきました。';
 var MSG_ENERGY10 = 'お腹がペコペコです。';
 var MSG_ENERGY0 = 'お腹が減って死にそうです。';
+var MSG_PICKUP = ({name}) => `${name}を拾いました。`;
+var MSG_CANT_PICKUP = ({name}) => `${name}を拾おうとしましたが、持ちきれませんでした。`;
 
 var E_RAT_NAME = 'ラット';
 
@@ -81,6 +84,7 @@ img2.src = 'fighting_fantasy_icons.png';
 var seed = Date.now().toString(10);
 
 var startf = false;
+var invoffset = 0;
 var gameover = false;
 
 var fields = null;
@@ -298,7 +302,25 @@ $(function(){
 		}
 		else if (e.keyCode === 32) {
 			var block = fields[player.depth].blocks[player.x][player.y];
-			if (block.base === B_DOWNSTAIR) {
+			if (block.items && block.items.length > 0) {
+				var item = block.items[0];
+				if (player.weight + item.weight <= player.weightfull) {
+					block.items.shift();
+					player.items.push(item);
+					player.weight += item.weight;
+					add_message({
+						text: MSG_PICKUP({name: item.dname}),
+						type: 'normal'
+					});
+				}
+				else {
+					add_message({
+						text: MSG_CANT_PICKUP({name: item.dname}),
+						type: 'important'
+					});
+				}
+			}
+			else if (block.base === B_DOWNSTAIR) {
 				player.depth++;
 				if (!fields[player.depth]) {
 					fields[player.depth] = create_field(player.depth, [{
@@ -344,6 +366,7 @@ $(function(){
 });
 
 function init () {
+	invoffset = 0;
 	gameover = false;
 
 	fields = [];
@@ -929,9 +952,28 @@ function draw (con, env) {
 	con.fillText(TEXT_LEVEL + '：' + player.level, 8, (24 + 6) * 1 + 8);
 	con.fillText(TEXT_HP + '：' + player.hp + '/' + player.hpfull, 8, (24 + 6) * 2 + 8);
 	con.fillText(TEXT_ENERGY + '：' + player.energy + '/' + player.energyfull, 8, (24 + 6) * 3 + 8);
-	con.fillText(TEXT_ATK + '：' + player.atk, 8, (24 + 6) * 4 + 8);
-	con.fillText(TEXT_DEF + '：' + player.def, 8, (24 + 6) * 5 + 8);
-	con.fillText(TEXT_EXP + '：' + player.exp + '/' + player.expfull, 8, (24 + 6) * 6 + 8);
+	con.fillText(TEXT_WEIGHT + '：' + (Math.round(player.weight * 10) / 10) + '/' + player.weightfull, 8, (24 + 6) * 4 + 8);
+	con.fillText(TEXT_ATK + '：' + player.atk, 8, (24 + 6) * 5 + 8);
+	con.fillText(TEXT_DEF + '：' + player.def, 8, (24 + 6) * 6 + 8);
+	con.fillText(TEXT_EXP + '：' + player.exp + '/' + player.expfull, 8, (24 + 6) * 7 + 8);
+	con.restore();
+
+	con.save();
+	con.textBaseline = 'middle';
+	con.textAlign = 'left';
+	con.font = '24px consolas';
+	con.fillStyle = 'white';
+	con.translate(SX * PX, 284);
+	for (var i = invoffset; i < invoffset + 10 && i < player.items.length; i++) {
+		var item = player.items[i];
+		if (item.type === I_APPLE) {
+			con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+		}
+		else if (item.cat === I_CAT_POTION) {
+			con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+		}
+		con.fillText(item.dname, 8 + 12 + 32 + 4, (24 + 6) * (i - invoffset));
+	}
 	con.restore();
 
 	con.save();
@@ -978,6 +1020,8 @@ class Player {
 		this.hpext = 0;
 		this.energybase = 100;
 		this.energyext = 0;
+		this.weightbase = 10.0;
+		this.weightext = 0.0;
 		this.atkbase = 4;
 		this.atkext = 0;
 		this.defbase = 4;
@@ -988,7 +1032,10 @@ class Player {
 		this.hp_fraction = 0;
 		this.energy = this.energyfull;
 		this.energy_turn = 0;
+		this.weight = 0.0;
 		this.exp = 0;
+
+		this.items = [];
 	}
 
 	get hpfull () {
@@ -997,6 +1044,10 @@ class Player {
 
 	get energyfull () {
 		return this.energybase + this.energyext;
+	}
+
+	get weightfull () {
+		return this.weightbase + this.weightext;
 	}
 
 	get atk () {
