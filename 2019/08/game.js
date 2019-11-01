@@ -23,6 +23,9 @@ var MSG_ENERGY0 = 'お腹が減って死にそうです。';
 
 var E_RAT_NAME = 'ラット';
 
+var I_APPLE_NAME = 'リンゴ';
+var I_HEALTH_POTION_NAME = '回復薬';
+
 var SCREEN_X = 1600;
 var SCREEN_Y = 800;
 
@@ -52,10 +55,28 @@ B_CAN_STAND[B_FLOOR] = true;
 B_CAN_STAND[B_WALL] = false;
 B_CAN_STAND[B_DOWNSTAIR] = true;
 
+var I_APPLE = 0;
+var I_HEALTH_POTION = 1;
+
+var I_INFO = [];
+I_INFO[I_APPLE] = {
+	dname: I_APPLE_NAME,
+	weight: 0.1
+};
+I_INFO[I_HEALTH_POTION] = {
+	dname: I_HEALTH_POTION_NAME,
+	weight: 0.1
+};
+
+var I_CAT_FOOD = 0;
+var I_CAT_POTION = 1;
+
 var NUM_MESSAGE = 8;
 
 var img = new Image();
 img.src = 'Dungeon_B_Freem7.png';
+var img2 = new Image();
+img2.src = 'fighting_fantasy_icons.png';
 
 var seed = Date.now().toString(10);
 
@@ -594,6 +615,47 @@ function create_field (depth, upstairs, base_seed) {
 				npcs.push(new Enemy(type, x, y, level));
 			}
 		}
+
+		var num_item = Math.floor(random.fraction() + 0.5);
+		for (var j = 0; j < num_item; j++) {
+			var x = random.num(ers[i].x2 - ers[i].x1) + ers[i].x1;
+			var y = random.num(ers[i].y2 - ers[i].y1) + ers[i].y1;
+			if (!blocks[x][y].items) {
+				blocks[x][y].items = [];
+			}
+
+			var ctable = new Map();
+			ctable.set(I_CAT_FOOD, 20);
+			ctable.set(I_CAT_POTION, 80);
+			var cat = random.select(ctable);
+			if (cat === I_CAT_FOOD) {
+				var type = I_APPLE;
+				var e = I_INFO[type];
+				blocks[x][y].items.push({
+					dname: e.dname,
+					type: type,
+					cat: cat,
+					weight: e.weight
+				});
+			}
+			else if (cat === I_CAT_POTION) {
+				var type = I_HEALTH_POTION;
+				var e = I_INFO[type];
+				var baselevel = Math.ceil(depth / 4);
+				var ltable = new Map();
+				ltable.set(random.num(baselevel) + 1, 75);
+				ltable.set(baselevel + 1, 20);
+				ltable.set(baselevel + 2, 5);
+				var level = random.select(ltable);
+				blocks[x][y].items.push({
+					dname: e.dname + level * 10,
+					type: type,
+					cat: cat,
+					level: level,
+					weight: e.weight
+				});
+			}
+		}
 	}
 
 	for (var i = 0; i < upstairs.length; i++) {
@@ -769,6 +831,17 @@ function draw (con, env) {
 			}
 			else if (block.base === B_DOWNSTAIR) {
 				con.drawImage(img, 4 * 32, 5 * 32, 32, 32, i * PX, j * PY, PX, PY);
+			}
+
+			if (block.items) {
+				for (var k = 0; k < block.items.length; k++) {
+					if (block.items[k].type === I_APPLE) {
+						con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
+					}
+					else if (block.items[k].cat === I_CAT_POTION) {
+						con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
+					}
+				}
 			}
 		}
 	}
@@ -1018,6 +1091,21 @@ class Random {
 	fraction () {
 		return this.byte() / 256;
 	}
+
+	select (table) {
+		var sum = 0;
+		for (var i of table.entries()) {
+			sum += i[1];
+		}
+		var num = this.num(sum);
+		var sum2 = 0;
+		for (var i of table.entries()) {
+			sum2 += i[1];
+			if (num < sum2) {
+				return i[0];
+			}
+		}
+	}
 }
 
 function test_random_class_byte () {
@@ -1040,6 +1128,27 @@ function test_random_class_num () {
 	for (var i = 0; i < a.length; i++) {
 		if (r.num(i + 1) !== a[i]) {
 			throw new Error('test_random_class_num');
+		}
+	}
+}
+
+function test_random_class_select () {
+	var table = new Map();
+	table.set('a', 5);
+	table.set('b', 15);
+	table.set('c', 20);
+	table.set('d', 10);
+	table.set('e', 30);
+	table.set('f', 20);
+
+	var a = ['e', 'b', 'e', 'e', 'e', 'f', 'd', 'e',
+	  'f', 'c', 'd', 'f', 'e', 'c', 'e', 'c',
+		'f', 'd', 'b', 'f', 'e', 'f', 'b', 'f',
+		'f', 'f', 'a', 'd', 'e', 'e', 'b', 'c'];
+	var r = new Random('yurina');
+	for (var i = 0; i < a.length; i++) {
+		if (r.select(table) !== a[i]) {
+			throw new Error('test_random_class_select');
 		}
 	}
 }
