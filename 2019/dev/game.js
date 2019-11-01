@@ -23,11 +23,18 @@ var MSG_ENERGY10 = 'お腹がペコペコです。';
 var MSG_ENERGY0 = 'お腹が減って死にそうです。';
 var MSG_PICKUP = ({name}) => `${name}を拾いました。`;
 var MSG_CANT_PICKUP = ({name}) => `${name}を拾おうとしましたが、持ちきれませんでした。`;
+var MSG_PUT = ({name}) => `${name}を置きました。`;
+var MSG_EAT_FOOD = ({name, diff}) => `${name}を食べました。満腹度が${diff}回復しました。`;
+var MSG_QUAFF_HPOTION = ({name, diff}) => `${name}を飲みました。HPが${diff}回復しました。`;
 
 var E_RAT_NAME = 'ラット';
 
 var I_APPLE_NAME = 'リンゴ';
 var I_HEALTH_POTION_NAME = '回復薬';
+
+var ACTION_EAT = '食べる';
+var ACTION_QUAFF = '飲む';
+var ACTION_PUT = '置く';
 
 var SCREEN_X = 1600;
 var SCREEN_Y = 800;
@@ -74,6 +81,20 @@ I_INFO[I_HEALTH_POTION] = {
 var I_CAT_FOOD = 0;
 var I_CAT_POTION = 1;
 
+var I_CAT_INFO = [];
+I_CAT_INFO[I_CAT_FOOD] = {
+	actions: [
+		{ dname: ACTION_EAT, exec: () => eat() },
+		{ dname: ACTION_PUT, exec: () => put() }
+	]
+};
+I_CAT_INFO[I_CAT_POTION] = {
+	actions: [
+		{ dname: ACTION_QUAFF, exec: () => quaff() },
+		{ dname: ACTION_PUT, exec: () => put() }
+	]
+};
+
 var NUM_MESSAGE = 8;
 
 var img = new Image();
@@ -84,6 +105,7 @@ img2.src = 'fighting_fantasy_icons.png';
 var seed = Date.now().toString(10);
 
 var startf = false;
+var invindex = 0;
 var invoffset = 0;
 var gameover = false;
 
@@ -366,6 +388,7 @@ $(function(){
 });
 
 function init () {
+	invindex = 0;
 	invoffset = 0;
 	gameover = false;
 
@@ -537,6 +560,57 @@ function calculate_damage (atk, def) {
 		dam = 1;
 	}
 	return dam;
+}
+
+function put () {
+	var item = player.items[invindex];
+	player.items.splice(invindex, 1);
+	player.weight -= item.weight;
+	var block = fields[player.depth].blocks[player.x][player.y];
+	if (!block.items) {
+		block.items = [];
+	}
+	block.items.push(item);
+	add_message({
+		text: MSG_PUT({name: item.dname}),
+		type: 'normal'
+	});
+}
+
+function eat () {
+	var item = player.items[invindex];
+	player.items.splice(invindex, 1);
+	player.weight -= item.weight;
+	if (item.type === I_APPLE) {
+		var old = player.energy;
+		player.energy += 50;
+		if (player.energy >= player.energyfull) {
+			player.energy = player.energyfull;
+			player.energy_turn = 0;
+		}
+		add_message({
+			text: MSG_EAT_FOOD({name: item.dname, diff: player.energy - old}),
+			type: 'normal'
+		});
+	}
+}
+
+function quaff () {
+	var item = player.items[invindex];
+	player.items.splice(invindex, 1);
+	player.weight -= item.weight;
+	if (item.type === I_HEALTH_POTION) {
+		var old = player.hp;
+		player.hp += item.level * 10;
+		if (player.hp >= player.hpfull) {
+			player.hp = player.hpfull;
+			player.hp_fraction = 0;
+		}
+		add_message({
+			text: MSG_QUAFF_HPOTION({name: item.dname, diff: player.hp - old}),
+			type: 'normal'
+		});
+	}
 }
 
 function create_field (depth, upstairs, base_seed) {
