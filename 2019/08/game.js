@@ -199,40 +199,68 @@ $(function(){
 		}
 
 		if (invf) {
-			if (e.keyCode === 38) {
-				invindex--;
-				if (invindex < 0) {
-					invindex = player.items.length - 1;
-					if (invoffset + 10 <= invindex) {
-						invoffset = invindex - 10 + 1;
+			if (invactf) {
+				var actions = I_CAT_INFO[player.items[invindex].cat].actions;
+				if (e.keyCode === 38) {
+					invactindex--;
+					if (invactindex < 0) {
+						invactindex = actions.length - 1;
 					}
 				}
-				else {
-					if (invoffset > invindex) {
-						invoffset = invindex;
+				else if (e.keyCode === 40) {
+					invactindex++;
+					if (invactindex >= actions.length) {
+						invactindex = 0;
 					}
 				}
-			}
-			else if (e.keyCode === 40) {
-				invindex++;
-				if (invindex >= player.items.length) {
-					invindex = 0;
-					if (invoffset > invindex) {
-						invoffset = invindex;
-					}
+				else if (e.keyCode === 88) {
+					invactf = !invactf;
 				}
-				else {
-					if (invoffset + 10 <= invindex) {
-						invoffset = invindex - 10 + 1;
-					}
+				else if (e.keyCode === 90) {
+					actions[invactindex].exec();
+
+					invactf = !invactf;
+					invf = !invf;
+
+					execute_turn();
 				}
 			}
-			else if (e.keyCode === 88) {
-				invf = !invf;
-			}
-			else if (e.keyCode === 90) {
-				invactf = !invactf;
-				invactindex = 0;
+			else {
+				if (e.keyCode === 38) {
+					invindex--;
+					if (invindex < 0) {
+						invindex = player.items.length - 1;
+						if (invoffset + 10 <= invindex) {
+							invoffset = invindex - 10 + 1;
+						}
+					}
+					else {
+						if (invoffset > invindex) {
+							invoffset = invindex;
+						}
+					}
+				}
+				else if (e.keyCode === 40) {
+					invindex++;
+					if (invindex >= player.items.length) {
+						invindex = 0;
+						if (invoffset > invindex) {
+							invoffset = invindex;
+						}
+					}
+					else {
+						if (invoffset + 10 <= invindex) {
+							invoffset = invindex - 10 + 1;
+						}
+					}
+				}
+				else if (e.keyCode === 88) {
+					invf = !invf;
+				}
+				else if (e.keyCode === 90) {
+					invactf = !invactf;
+					invactindex = 0;
+				}
 			}
 
 			draw(con, env);
@@ -1108,17 +1136,28 @@ function draw (con, env) {
 	con.font = '24px consolas';
 	con.fillStyle = 'white';
 	con.translate(SX * PX, 284);
-	for (var i = invoffset; i < invoffset + 10 && i < player.items.length; i++) {
-		var item = player.items[i];
-		if (item.type === I_APPLE) {
-			con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+	if (!invactf) {
+		for (var i = invoffset; i < invoffset + 10 && i < player.items.length; i++) {
+			var item = player.items[i];
+			if (item.type === I_APPLE) {
+				con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+			}
+			else if (item.cat === I_CAT_POTION) {
+				con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+			}
+			con.fillText(item.dname, 8 + 12 + 32 + 4, (24 + 6) * (i - invoffset));
+			if (invf && i === invindex) {
+				con.fillText('>', 8, (24 + 6) * (i - invoffset));
+			}
 		}
-		else if (item.cat === I_CAT_POTION) {
-			con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
-		}
-		con.fillText(item.dname, 8 + 12 + 32 + 4, (24 + 6) * (i - invoffset));
-		if (invf && i === invindex) {
-			con.fillText('>', 8, (24 + 6) * (i - invoffset));
+	}
+	else {
+		var cinfo = I_CAT_INFO[player.items[invindex].cat];
+		for (var i = 0; i < cinfo.actions.length; i++) {
+			con.fillText(cinfo.actions[i].dname, 8 + 12, (24 + 6) * (i - invoffset));
+			if (i === invactindex) {
+				con.fillText('>', 8, (24 + 6) * (i - invoffset));
+			}
 		}
 	}
 	con.restore();
