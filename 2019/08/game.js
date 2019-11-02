@@ -26,6 +26,7 @@ var MSG_CANT_PICKUP = ({name}) => `${name}を拾おうとしましたが、持�
 var MSG_PUT = ({name}) => `${name}を置きました。`;
 var MSG_EAT_FOOD = ({name, diff}) => `${name}を食べました。満腹度が${diff}回復しました。`;
 var MSG_QUAFF_HPOTION = ({name, diff}) => `${name}を飲みました。HPが${diff}回復しました。`;
+var MSG_EMPTY_INV = '何も持っていません。';
 
 var E_RAT_NAME = 'ラット';
 
@@ -105,8 +106,11 @@ img2.src = 'fighting_fantasy_icons.png';
 var seed = Date.now().toString(10);
 
 var startf = false;
+var invf = false;
 var invindex = 0;
 var invoffset = 0;
+var invactf = false;
+var invactindex = 0;
 var gameover = false;
 
 var fields = null;
@@ -190,6 +194,48 @@ $(function(){
 
 				draw(con, env);
 			}
+
+			return;
+		}
+
+		if (invf) {
+			if (e.keyCode === 38) {
+				invindex--;
+				if (invindex < 0) {
+					invindex = player.items.length - 1;
+					if (invoffset + 10 <= invindex) {
+						invoffset = invindex - 10 + 1;
+					}
+				}
+				else {
+					if (invoffset > invindex) {
+						invoffset = invindex;
+					}
+				}
+			}
+			else if (e.keyCode === 40) {
+				invindex++;
+				if (invindex >= player.items.length) {
+					invindex = 0;
+					if (invoffset > invindex) {
+						invoffset = invindex;
+					}
+				}
+				else {
+					if (invoffset + 10 <= invindex) {
+						invoffset = invindex - 10 + 1;
+					}
+				}
+			}
+			else if (e.keyCode === 88) {
+				invf = !invf;
+			}
+			else if (e.keyCode === 90) {
+				invactf = !invactf;
+				invactindex = 0;
+			}
+
+			draw(con, env);
 
 			return;
 		}
@@ -359,6 +405,27 @@ $(function(){
 				return;
 			}
 		}
+		else if (e.keyCode === 88) {
+			if (player.items.length === 0) {
+				add_message({
+					text: MSG_EMPTY_INV,
+					type: 'normal'
+				});
+			}
+			else {
+				invf = !invf;
+				if (invindex < 0) {
+					invindex = 0;
+				}
+				else if (invindex >= player.items.length) {
+					invindex = player.items.length - 1;
+				}
+			}
+
+			draw(con, env);
+
+			return;
+		}
 		else {
 			return;
 		}
@@ -388,8 +455,11 @@ $(function(){
 });
 
 function init () {
+	invf = false;
 	invindex = 0;
 	invoffset = 0;
+	invactf = false;
+	invactindex = 0;
 	gameover = false;
 
 	fields = [];
@@ -1047,6 +1117,9 @@ function draw (con, env) {
 			con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 		}
 		con.fillText(item.dname, 8 + 12 + 32 + 4, (24 + 6) * (i - invoffset));
+		if (invf && i === invindex) {
+			con.fillText('>', 8, (24 + 6) * (i - invoffset));
+		}
 	}
 	con.restore();
 
