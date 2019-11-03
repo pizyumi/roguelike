@@ -45,6 +45,9 @@ var SY = 25;
 var PX = 32;
 var PY = 32;
 
+var MAP_WIDTH = 256;
+var MAP_HEIGHT = 256;
+
 var E_RAT = 0;
 
 var E_INFO = [];
@@ -1074,38 +1077,51 @@ function draw (con, env) {
 		oy = player.y - Math.floor(SY / 2);
 	}
 
+	var npcs = fields[player.depth].npcs;
+	var room = player.maps[player.depth].room;
+
 	for (var i = 0; i < SX; i++) {
 		for (var j = 0; j < SY; j++) {
 			var block = fields[player.depth].blocks[ox + i][oy + j];
-			if (block.base === B_FLOOR) {
-				con.fillStyle = 'white';
-				con.beginPath();
-				con.arc((i + 0.5) * PX, (j + 0.5) * PY, 1, 0, Math.PI * 2);
-				con.closePath();
-				con.fill();
-			}
-			else if (block.base === B_WALL) {
-				con.strokeStyle = 'white';
-				con.strokeRect(i * PX, j * PY, PX, PY);
-				con.beginPath();
-				con.moveTo(i * PX, j * PY);
-				con.lineTo((i + 1) * PX, (j + 1) * PY);
-				con.moveTo((i + 1) * PX, j * PY);
-				con.lineTo(i * PX, (j + 1) * PY);
-				con.closePath();
-				con.stroke();
-			}
-			else if (block.base === B_DOWNSTAIR) {
-				con.drawImage(img, 4 * 32, 5 * 32, 32, 32, i * PX, j * PY, PX, PY);
-			}
+			var mblock = player.maps[player.depth].blocks[ox + i][oy + j];
+			if (mblock !== M_UNKNOWN) {
+				if ((room !== null && within_room_surrounding(ox + i, oy + j, room)) || (room === null && within_player_surrounding(ox + i, oy + j))) {
+					con.fillStyle = 'white';
+					con.strokeStyle = 'white';
+				}
+				else {
+					con.fillStyle = 'gray';
+					con.strokeStyle = 'gray';
+				}
 
-			if (block.items) {
-				for (var k = 0; k < block.items.length; k++) {
-					if (block.items[k].type === I_APPLE) {
-						con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
-					}
-					else if (block.items[k].cat === I_CAT_POTION) {
-						con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
+				if (block.base === B_FLOOR) {
+					con.beginPath();
+					con.arc((i + 0.5) * PX, (j + 0.5) * PY, 1, 0, Math.PI * 2);
+					con.closePath();
+					con.fill();
+				}
+				else if (block.base === B_WALL) {
+					con.strokeRect(i * PX, j * PY, PX, PY);
+					con.beginPath();
+					con.moveTo(i * PX, j * PY);
+					con.lineTo((i + 1) * PX, (j + 1) * PY);
+					con.moveTo((i + 1) * PX, j * PY);
+					con.lineTo(i * PX, (j + 1) * PY);
+					con.closePath();
+					con.stroke();
+				}
+				else if (block.base === B_DOWNSTAIR) {
+					con.drawImage(img, 4 * 32, 5 * 32, 32, 32, i * PX, j * PY, PX, PY);
+				}
+
+				if (block.items) {
+					for (var k = 0; k < block.items.length; k++) {
+						if (block.items[k].type === I_APPLE) {
+							con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
+						}
+						else if (block.items[k].cat === I_CAT_POTION) {
+							con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
+						}
 					}
 				}
 			}
@@ -1114,13 +1130,14 @@ function draw (con, env) {
 
 	con.textBaseline = 'middle';
 	con.textAlign = 'center';
-	var npcs = fields[player.depth].npcs;
 	for (var i = 0; i < npcs.length; i++) {
 		if (npcs[i].x >= ox && npcs[i].x < ox + SX && npcs[i].y >= oy && npcs[i].y < oy + SY) {
-			if (npcs[i].type === E_RAT) {
-				con.fillStyle = 'yellow';
-				con.font = '16px consolas';
-				con.fillText('🐀\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+			if ((room !== null && within_room_surrounding(npcs[i].x, npcs[i].y, room)) || (room === null && within_player_surrounding(npcs[i].x, npcs[i].y))) {
+				if (npcs[i].type === E_RAT) {
+					con.fillStyle = 'yellow';
+					con.font = '24px consolas';
+					con.fillText('🐀\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+				}
 			}
 		}
 	}
@@ -1263,6 +1280,52 @@ function draw (con, env) {
 		}
 		con.fillText(text, 8, (16 + 6) * i + 8);
 	}
+	con.restore();
+
+	con.save();
+	var nx = player.maps[player.depth].nx;
+	var ny = player.maps[player.depth].nx;
+	var px = Math.floor(MAP_WIDTH / nx);
+	var py = Math.floor(MAP_HEIGHT / ny);
+	con.translate(SCREEN_X - nx * px, 0);
+	for (var i = 0; i < nx; i++) {
+		for (var j = 0; j < ny; j++) {
+			var block = fields[player.depth].blocks[i][j];
+			var mblock = player.maps[player.depth].blocks[i][j];
+			if (mblock === M_UNKNOWN) {
+				con.fillStyle = 'gray';
+			}
+			else if (mblock === B_FLOOR) {
+				if (block.items && block.items.length > 0) {
+					con.fillStyle = 'yellow';
+				}
+				else if (room !== null && within_room_surrounding(i, j, room)) {
+					con.fillStyle = 'dodgerblue';
+				}
+				else if (room === null && within_player_surrounding(i, j)) {
+					con.fillStyle = 'dodgerblue';
+				}
+				else {
+					con.fillStyle = 'royalblue';
+				}
+			}
+			else if (mblock === B_WALL) {
+				con.fillStyle = 'black';
+			}
+			else if (mblock === B_DOWNSTAIR) {
+				con.fillStyle = 'yellowgreen';
+			}
+			con.fillRect(i * px, j * py, px, py);
+		}
+	}
+	for (var i = 0; i < npcs.length; i++) {
+		if ((room !== null && within_room_surrounding(npcs[i].x, npcs[i].y, room)) || (room === null && within_player_surrounding(npcs[i].x, npcs[i].y))) {
+			con.fillStyle = 'red';
+			con.fillRect(npcs[i].x * px, npcs[i].y * py, px, py);
+		}
+	}
+	con.fillStyle = 'pink';
+	con.fillRect(player.x * px, player.y * py, px, py);
 	con.restore();
 }
 
