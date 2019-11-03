@@ -66,6 +66,8 @@ B_CAN_STAND[B_FLOOR] = true;
 B_CAN_STAND[B_WALL] = false;
 B_CAN_STAND[B_DOWNSTAIR] = true;
 
+var M_UNKNOWN = 65535;
+
 var I_APPLE = 0;
 var I_HEALTH_POTION = 1;
 
@@ -377,6 +379,7 @@ $(function(){
 					if (B_CAN_STAND[block.base]) {
 						player.x = x;
 						player.y = y;
+						update_map(player.maps[player.depth], fields[player.depth], player.x, player.y);
 					}
 					else {
 						if (block.base === B_WALL) {
@@ -424,6 +427,10 @@ $(function(){
 						y: player.y
 					}], seed);
 				}
+				if (!player.maps[player.depth]) {
+					player.maps[player.depth] = init_map(fields[player.depth]);
+				}
+				update_map(player.maps[player.depth], fields[player.depth], player.x, player.y);
 				add_message({
 					text: MSG_DOWNSTAIR,
 					type: 'normal'
@@ -493,6 +500,8 @@ function init () {
 	fields = [];
 	fields[0] = create_field(0, [], seed);
 	player = new Player();
+	player.maps[0] = init_map(fields[0]);
+	update_map(player.maps[0], fields[0], player.x, player.y);
 	messages = [{
 		text: MSG_INIT,
 		type: 'special'
@@ -747,6 +756,12 @@ function create_field (depth, upstairs, base_seed) {
 			nx: nx,
 			ny: ny,
 			blocks: blocks,
+			rooms: [{
+				x1: 1,
+				x2: nx - 2,
+				y1: 1,
+				y2: ny - 2
+			}],
 			npcs: []
 		};
 	}
@@ -863,6 +878,7 @@ function create_field (depth, upstairs, base_seed) {
 		nx: nx,
 		ny: ny,
 		blocks: blocks,
+		rooms: ers,
 		npcs: npcs
 	};
 }
@@ -958,6 +974,61 @@ function split_room (blocks, r, dp, random) {
 		}
 	}
 	return [];
+}
+
+function init_map (field) {
+	var nx = field.nx;
+	var ny = field.ny;
+	var blocks = [];
+	for (var i = 0; i < nx; i++) {
+		blocks[i] = [];
+		for (var j = 0; j < ny; j++) {
+			blocks[i][j] = M_UNKNOWN;
+		}
+	}
+	return {
+		nx: nx,
+		ny: ny,
+		blocks: blocks,
+		room: null
+	};
+}
+
+function update_map (map, field, x, y) {
+	for (var i = 0; i < field.rooms.length; i++) {
+		var room = field.rooms[i];
+		if (within_room(x, y, room)) {
+			for (var j = room.x1 - 1; j <= room.x2 + 1; j++) {
+				for (var k = room.y1 - 1; k <= room.y2 + 1; k++) {
+					map.blocks[j][k] = field.blocks[j][k].base;
+				}
+			}
+			map.room = room;
+			return;
+		}
+	}
+	map.blocks[x][y] = field.blocks[x][y].base;
+	map.blocks[x - 1][y] = field.blocks[x - 1][y].base;
+	map.blocks[x + 1][y] = field.blocks[x + 1][y].base;
+	map.blocks[x][y - 1] = field.blocks[x][y - 1].base;
+	map.blocks[x][y + 1] = field.blocks[x][y + 1].base;
+	map.blocks[x - 1][y - 1] = field.blocks[x - 1][y - 1].base;
+	map.blocks[x + 1][y - 1] = field.blocks[x + 1][y - 1].base;
+	map.blocks[x - 1][y + 1] = field.blocks[x - 1][y + 1].base;
+	map.blocks[x + 1][y + 1] = field.blocks[x + 1][y + 1].base;
+	map.room = null;
+}
+
+function within_room (x, y, room) {
+	return x >= room.x1 && x <= room.x2 && y >= room.y1 && y <= room.y2;
+}
+
+function within_room_surrounding (x, y, room) {
+	return x >= room.x1 - 1 && x <= room.x2 + 1 && y >= room.y1 - 1 && y <= room.y2 + 1;
+}
+
+function within_player_surrounding (x, y) {
+	return x >= player.x - 1 && x <= player.x + 1 && y >= player.y - 1 && y <= player.y + 1;
 }
 
 function draw (con, env) {
@@ -1222,6 +1293,7 @@ class Player {
 		this.exp = 0;
 
 		this.items = [];
+		this.maps = [];
 	}
 
 	get hpfull () {
