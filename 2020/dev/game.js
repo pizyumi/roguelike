@@ -420,6 +420,10 @@ $(function(){
 						text: MSG_CANT_PICKUP({name: item.dname}),
 						type: 'important'
 					});
+
+					draw(con, env);
+
+					return;
 				}
 			}
 			else if (block.base === B_DOWNSTAIR) {
@@ -1242,9 +1246,9 @@ function draw (con, env) {
 	else {
 		var cinfo = I_CAT_INFO[player.items[invindex].cat];
 		for (var i = 0; i < cinfo.actions.length; i++) {
-			con.fillText(cinfo.actions[i].dname, 8 + 12, (24 + 6) * (i - invoffset));
+			con.fillText(cinfo.actions[i].dname, 8 + 12, (24 + 6) * i);
 			if (i === invactindex) {
-				con.fillText('>', 8, (24 + 6) * (i - invoffset));
+				con.fillText('>', 8, (24 + 6) * i);
 			}
 		}
 	}
@@ -1263,7 +1267,7 @@ function draw (con, env) {
 			con.fillStyle = 'yellow';
 		}
 		else if (messages[i].type === 'important') {
-			con.fillStyle = 'red';
+			con.fillStyle = 'pink';
 		}
 		else if (messages[i].type === 'pattack') {
 			con.fillStyle = 'yellowgreen';
