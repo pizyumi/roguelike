@@ -40,10 +40,10 @@ var ACTION_PUT = '置く';
 var SCREEN_X = 1600;
 var SCREEN_Y = 800;
 
-var SX = 25;
-var SY = 25;
-var PX = 32;
-var PY = 32;
+var SX = 15;
+var SY = 15;
+var PX = 48;
+var PY = 48;
 
 var MAP_WIDTH = 256;
 var MAP_HEIGHT = 256;
@@ -726,11 +726,11 @@ function quaff () {
 function create_field (depth, upstairs, base_seed) {
 	var random = new Random(base_seed + ',' + depth.toString(10));
 
-	var nx = 25;
-	var ny = 25;
+	var nx = 15;
+	var ny = 15;
 	if (depth > 0) {
-		nx = 50;
-		ny = 50;
+		nx = 25;
+		ny = 25;
 	}
 
 	var blocks = [];
@@ -751,7 +751,7 @@ function create_field (depth, upstairs, base_seed) {
 	}
 
 	if (depth === 0) {
-		blocks[12][5] = {
+		blocks[7][5] = {
 			base: B_DOWNSTAIR
 		};
 
@@ -1148,7 +1148,7 @@ function draw (con, env) {
 	con.textBaseline = 'middle';
 	con.textAlign = 'center';
 	con.fillStyle = 'red';
-	con.font = '24px consolas';
+	con.font = '32px consolas';
 	con.fillText('🚶\uFE0E', px * PX + (PX / 2), py * PY + (PY / 2));
 
 	if (env.diagonal) {
@@ -1332,8 +1332,8 @@ function draw (con, env) {
 class Player {
 	constructor () {
 		this.depth = 0;
-		this.x = 12;
-		this.y = 17;
+		this.x = 7;
+		this.y = 9;
 
 		this.level = 1;
 		this.hpbase = 16;
