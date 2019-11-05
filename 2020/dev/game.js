@@ -865,6 +865,21 @@ function create_field (depth, upstairs, base_seed) {
 			base: B_DOWNSTAIR
 		};
 
+		for (var i = 0; i < 2; i++) {
+			var x = random.num(nx - 2 - 1) + 1;
+			var y = random.num(ny - 2 - 1) + 1;
+			if (!blocks[x][y].items) {
+				blocks[x][y].items = [];
+			}
+			var e = I_INFO[I_APPLE];
+			blocks[x][y].items.push({
+				dname: e.dname,
+				type: I_APPLE,
+				cat: I_CAT_FOOD,
+				weight: e.weight
+			});
+		}
+
 		return {
 			nx: nx,
 			ny: ny,
