@@ -1547,7 +1547,7 @@ class Enemy {
 			this.hpbase = Math.ceil(this.hpbase * 1.2);
 			this.atkbase = Math.ceil(this.atkbase * 1.1);
 			this.defbase = Math.ceil(this.defbase * 1.1);
-			this.exp = Math.ceil(this.exp * 1.4);
+			this.exp = Math.ceil(this.exp * 1.5);
 		}
 
 		this.hp = this.hpfull;
