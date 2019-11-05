@@ -29,6 +29,13 @@ var MSG_QUAFF_HPOTION = ({name, diff}) => `${name}を飲みました。HPが${di
 var MSG_EMPTY_INV = '何も持っていません。';
 
 var E_RAT_NAME = 'ラット';
+var E_BAT_NAME = 'バット';
+var E_SLIME_NAME = 'スライム';
+var E_SPIDER_NAME = 'クモ';
+var E_SNAKE_NAME = 'ヘビ';
+var E_CARACAL_NAME = 'カラカル';
+var E_WOLF_NAME = 'ウルフ';
+var E_GOBLIN_NAME = 'ゴブリン';
 
 var I_APPLE_NAME = 'リンゴ';
 var I_HEALTH_POTION_NAME = '回復薬';
@@ -49,6 +56,13 @@ var MAP_WIDTH = 256;
 var MAP_HEIGHT = 256;
 
 var E_RAT = 0;
+var E_BAT = 1;
+var E_SLIME = 2;
+var E_SPIDER = 3;
+var E_SNAKE = 4;
+var E_CARACAL = 5;
+var E_WOLF = 6;
+var E_GOBLIN = 7;
 
 var E_INFO = [];
 E_INFO[E_RAT] = {
@@ -58,6 +72,62 @@ E_INFO[E_RAT] = {
 	atk: 3,
 	def: 3,
 	exp: 1
+};
+E_INFO[E_BAT] = {
+	dname: E_BAT_NAME,
+	level: 1,
+	hp: 6,
+	atk: 4,
+	def: 4,
+	exp: 2
+};
+E_INFO[E_SLIME] = {
+	dname: E_SLIME_NAME,
+	level: 1,
+	hp: 8,
+	atk: 4,
+	def: 4,
+	exp: 3
+};
+E_INFO[E_SPIDER] = {
+	dname: E_SPIDER_NAME,
+	level: 1,
+	hp: 10,
+	atk: 5,
+	def: 4,
+	exp: 4
+};
+E_INFO[E_SNAKE] = {
+	dname: E_SNAKE_NAME,
+	level: 1,
+	hp: 14,
+	atk: 6,
+	def: 5,
+	exp: 5
+};
+E_INFO[E_CARACAL] = {
+	dname: E_CARACAL_NAME,
+	level: 1,
+	hp: 16,
+	atk: 6,
+	def: 6,
+	exp: 6
+};
+E_INFO[E_WOLF] = {
+	dname: E_WOLF_NAME,
+	level: 1,
+	hp: 20,
+	atk: 7,
+	def: 7,
+	exp: 8
+};
+E_INFO[E_GOBLIN] = {
+	dname: E_GOBLIN_NAME,
+	level: 1,
+	hp: 24,
+	atk: 8,
+	def: 8,
+	exp: 10
 };
 
 var B_FLOOR = 0;
@@ -351,6 +421,7 @@ $(function(){
 				}
 				if (c) {
 					var dam = calculate_damage(player.atk, c.def);
+					c.attacked = true;
 					c.hp -= dam;
 					add_message({
 						text: MSG_PATTACK({name: c.dname, dam}),
@@ -538,6 +609,21 @@ function execute_turn () {
 	for (var i = 0; i < npcs.length; i++) {
 		var c = npcs[i];
 
+		var attack = true;
+		if (c.type === 0) {
+			if (c.attacked) {
+				c.attacked = false;
+			}
+			else {
+				attack = false;
+			}
+		}
+		else if (c.type === 1) {
+			if (!c.attacked) {
+				attack = false;
+			}
+		}
+
 		var l = player.x === c.x - 1 && player.y === c.y;
 		var u = player.x === c.x && player.y === c.y - 1;
 		var r = player.x === c.x + 1 && player.y === c.y;
@@ -546,7 +632,7 @@ function execute_turn () {
 		var ru = player.x === c.x + 1 && player.y === c.y - 1;
 		var ld = player.x === c.x - 1 && player.y === c.y + 1;
 		var rd = player.x === c.x + 1 && player.y === c.y + 1;
-		if (l || u || r || d || lu || ru || ld || rd) {
+		if (attack && (l || u || r || d || lu || ru || ld || rd)) {
 			var dam = calculate_damage(c.atk, player.def);
 			player.hp -= dam;
 			add_message({
@@ -564,39 +650,59 @@ function execute_turn () {
 			}
 		}
 		else {
-			var m = Math.random();
-			if (m < 0.5) {
-				var dir = Math.floor(Math.random() * 8);
-				var x = c.x;
-				var y = c.y;
-				if (dir === 0) {
+			var x = c.x;
+			var y = c.y;
+			var room = player.maps[player.depth].room;
+			var same = room && within_room(c.x, c.y, room);
+			if (same && c.type >= 3) {
+				if (c.x > player.x) {
 					x--;
 				}
-				else if (dir === 1) {
-					y--;
-				}
-				else if (dir === 2) {
+				else if (c.x < player.x) {
 					x++;
 				}
-				else if (dir === 3) {
-					y++;
-				}
-				else if (dir === 4) {
-					x--;
+				if (c.y > player.y) {
 					y--;
 				}
-				else if (dir === 5) {
-					x++;
-					y--;
-				}
-				else if (dir === 6) {
-					x--;
+				else if (c.y < player.y) {
 					y++;
 				}
-				else if (dir === 7) {
-					x++;
-					y++;
+			}
+			else {
+				var m = Math.random();
+				if (m < 0.5) {
+					var dir = Math.floor(Math.random() * 8);
+					if (dir === 0) {
+						x--;
+					}
+					else if (dir === 1) {
+						y--;
+					}
+					else if (dir === 2) {
+						x++;
+					}
+					else if (dir === 3) {
+						y++;
+					}
+					else if (dir === 4) {
+						x--;
+						y--;
+					}
+					else if (dir === 5) {
+						x++;
+						y--;
+					}
+					else if (dir === 6) {
+						x--;
+						y++;
+					}
+					else if (dir === 7) {
+						x++;
+						y++;
+					}
 				}
+			}
+			if (x !== c.x || y !== c.y) {
 				var block = fields[player.depth].blocks[x][y];
 				var c2 = undefined;
 				for (var j = 0; j < npcs.length; j++) {
@@ -826,9 +932,18 @@ function create_field (depth, upstairs, base_seed) {
 				}
 			}
 			if (f) {
-				var type = E_RAT;
-				var level = depth + random.num(depth) + random.num(2);
-
+				var ltable = new Map();
+				ltable.set(random.num(depth), 3);
+				ltable.set(depth, 60);
+				ltable.set(depth + 1, 30);
+				ltable.set(depth + 2, 4);
+				ltable.set(depth + 3, 3);
+				var baselevel = random.select(ltable);
+				var type = Math.floor(random.num(depth + 1) / 2);
+				if (type > 8) {
+					type = 8;
+				}
+				var level = baselevel - type;
 				npcs.push(new Enemy(type, x, y, level));
 			}
 		}
@@ -1134,13 +1249,37 @@ function draw (con, env) {
 
 	con.textBaseline = 'middle';
 	con.textAlign = 'center';
+	con.fillStyle = 'gray';
+	con.font = '24px consolas';
 	for (var i = 0; i < npcs.length; i++) {
 		if (npcs[i].x >= ox && npcs[i].x < ox + SX && npcs[i].y >= oy && npcs[i].y < oy + SY) {
 			if ((room !== null && within_room_surrounding(npcs[i].x, npcs[i].y, room)) || (room === null && within_player_surrounding(npcs[i].x, npcs[i].y))) {
 				if (npcs[i].type === E_RAT) {
-					con.fillStyle = 'yellow';
-					con.font = '24px consolas';
 					con.fillText('🐀\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+				}
+				else if (npcs[i].type === E_BAT) {
+					con.fillText('🦇\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+				}
+				else if (npc[i].type === E_SLIME) {
+					con.fillText('s', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+				}
+				else if (npc[i].type === E_SPIDER) {
+					con.fillText('🕷️\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+				}
+				else if (npc[i].type === E_SNAKE) {
+					con.fillText('🐍\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+				}
+				else if (npc[i].type === E_CARACAL) {
+					con.fillText('🐈\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+				}
+				else if (npc[i].type === E_WOLF) {
+					con.fillText('ϝ', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+				}
+				else if (npc[i].type === E_GOBLIN) {
+					con.fillText('g', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+				}
+				else {
+					throw new Error('not supported.');
 				}
 			}
 		}
