@@ -782,10 +782,15 @@ function calculate_damage (atk, def) {
 	return dam;
 }
 
-function put () {
+function consume_item () {
 	var item = player.items[invindex];
 	player.items.splice(invindex, 1);
 	player.weight -= item.weight;
+	return item;
+}
+
+function put () {
+	var item = consume_item();
 	var block = fields[player.depth].blocks[player.x][player.y];
 	if (!block.items) {
 		block.items = [];
@@ -798,9 +803,7 @@ function put () {
 }
 
 function eat () {
-	var item = player.items[invindex];
-	player.items.splice(invindex, 1);
-	player.weight -= item.weight;
+	var item = consume_item();
 	if (item.type === I_APPLE) {
 		var old = player.energy;
 		player.energy += 50;
@@ -816,9 +819,7 @@ function eat () {
 }
 
 function quaff () {
-	var item = player.items[invindex];
-	player.items.splice(invindex, 1);
-	player.weight -= item.weight;
+	var item = consume_item();
 	if (item.type === I_HEALTH_POTION) {
 		var old = player.hp;
 		player.hp += item.level * 10;
