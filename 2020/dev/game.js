@@ -782,6 +782,18 @@ function calculate_damage (atk, def) {
 	return dam;
 }
 
+function within_room (x, y, room) {
+	return x >= room.x1 && x <= room.x2 && y >= room.y1 && y <= room.y2;
+}
+
+function within_room_surrounding (x, y, room) {
+	return x >= room.x1 - 1 && x <= room.x2 + 1 && y >= room.y1 - 1 && y <= room.y2 + 1;
+}
+
+function within_player_surrounding (x, y) {
+	return x >= player.x - 1 && x <= player.x + 1 && y >= player.y - 1 && y <= player.y + 1;
+}
+
 function consume_item () {
 	var item = player.items[invindex];
 	player.items.splice(invindex, 1);
@@ -1155,18 +1167,6 @@ function update_map (map, field, x, y) {
 	map.blocks[x - 1][y + 1] = field.blocks[x - 1][y + 1].base;
 	map.blocks[x + 1][y + 1] = field.blocks[x + 1][y + 1].base;
 	map.room = null;
-}
-
-function within_room (x, y, room) {
-	return x >= room.x1 && x <= room.x2 && y >= room.y1 && y <= room.y2;
-}
-
-function within_room_surrounding (x, y, room) {
-	return x >= room.x1 - 1 && x <= room.x2 + 1 && y >= room.y1 - 1 && y <= room.y2 + 1;
-}
-
-function within_player_surrounding (x, y) {
-	return x >= player.x - 1 && x <= player.x + 1 && y >= player.y - 1 && y <= player.y + 1;
 }
 
 function draw (con, env) {
