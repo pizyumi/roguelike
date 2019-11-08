@@ -33,13 +33,13 @@ var MSG_CANT_REST_ENEMY = '敵が近くにいて休憩できません。';
 var MSG_CANT_REST_PASSAGE = '部屋の中でないと休憩できません。';
 var MSG_SUFFICIENT_HP = '休憩の必要はなさそうです。';
 
-var E_RAT_NAME = 'ラット';
-var E_BAT_NAME = 'バット';
+var E_RAT_NAME = 'ネズミ';
+var E_BAT_NAME = 'コウモリ';
 var E_SLIME_NAME = 'スライム';
 var E_SPIDER_NAME = 'クモ';
 var E_SNAKE_NAME = 'ヘビ';
 var E_CARACAL_NAME = 'カラカル';
-var E_WOLF_NAME = 'ウルフ';
+var E_WOLF_NAME = 'オオカミ';
 var E_GOBLIN_NAME = 'ゴブリン';
 
 var I_APPLE_NAME = 'リンゴ';
