@@ -1659,12 +1659,6 @@ class Enemy {
 	}
 }
 
-function hash (seed) {
-	var sha256 = new jsSHA('SHA-256', 'TEXT');
-	sha256.update(seed);
-	return sha256.getHash('HEX');
-}
-
 class Random {
 	constructor (seed) {
 		this.seed = seed;
@@ -1712,6 +1706,12 @@ class Random {
 			}
 		}
 	}
+}
+
+function hash (seed) {
+	var sha256 = new jsSHA('SHA-256', 'TEXT');
+	sha256.update(seed);
+	return sha256.getHash('HEX');
 }
 
 function test_random_class_byte () {
