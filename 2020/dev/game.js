@@ -201,6 +201,7 @@ var gameover = false;
 var fields = null;
 var player = null;
 var messages = null;
+var statistics = null;
 
 function get_query () {
 	var qs = window.location.search.slice(1).split('&');
@@ -452,6 +453,7 @@ $(function(){
 						text: MSG_PATTACK({name: c.dname, dam}),
 						type: 'pattack'
 					});
+					statistics.add_fight(c, STATS_FIGHT_OUTBOUND, dam);
 					if (c.hp <= 0) {
 						npcs.splice(index, 1);
 						player.exp += c.exp;
@@ -459,6 +461,7 @@ $(function(){
 							text: MSG_KILL({name: c.dname, exp: c.exp}),
 							type: 'important'
 						});
+						statistics.add_fight(c, STATS_FIGHT_KILLED, 0);
 
 						while (player.exp >= player.expfull) {
 							player.level++;
@@ -612,6 +615,7 @@ function init () {
 		text: MSG_INIT,
 		type: 'special'
 	}];
+	statistics = new Statistics();
 }
 
 function add_message (message) {
@@ -667,6 +671,7 @@ function execute_turn () {
 				text: MSG_EATTACK({name: c.dname, dam}),
 				type: 'eattack'
 			});
+			statistics.add_fight(c, STATS_FIGHT_INBOUND, dam);
 			if (player.hp <= 0) {
 				player.hp = 0;
 				gameover = true;
@@ -1618,6 +1623,7 @@ class Enemy {
 	constructor (type, x, y, level) {
 		var e = E_INFO[type];
 
+		this.id = Enemy.index++;
 		this.type = type;
 		this.x = x;
 		this.y = y;
@@ -1656,6 +1662,135 @@ class Enemy {
 
 	get deffull () {
 		return this.defbase + this.defext;
+	}
+}
+Enemy.index = 0;
+
+var STATS_FIGHT_INBOUND = 0;
+var STATS_FIGHT_OUTBOUND = 1;
+var STATS_FIGHT_KILLED = 2;
+
+class Statistics {
+	constructor () {
+		this.fights = [];
+	}
+
+	add_fight (c, type, dam) {
+		var fs = this.fights[player.depth];
+		if (!fs) {
+			fs = this.fights[player.depth] = new Map();
+		}
+		var f = fs.get(c.id);
+		if (!f) {
+			f = {
+				c: c,
+				dams: []
+			};
+			fs.set(c.id, f);
+		}
+		f.dams.push({
+			type: type,
+			dam: dam
+		});
+	}
+
+	get_record () {
+		return {
+			fights: this.get_fights_all()
+		};
+	}
+
+	get_fights_all () {
+		var all = [];
+		for (var i = 0; i <= player.depth; i++) {
+			all.push(this.get_fights(i));
+		}
+		return all;
+	}
+
+	get_fights (depth) {
+		var fights = [];
+		var fs = this.fights[depth];
+		if (fs) {
+			for (var i of fs.entries()) {
+				var c = i[1].c;
+				var killed = false;
+				var ps = [];
+				var cs = [];
+				for (var j = 0; j < i[1].dams.length; j++) {
+					var dam = i[1].dams[j];
+					if (dam.type === STATS_FIGHT_INBOUND) {
+						ps.push(dam.dam);
+					}
+					else if (dam.type === STATS_FIGHT_OUTBOUND) {
+						cs.push(dam.dam);
+					}
+					else if (dam.type === STATS_FIGHT_KILLED) {
+						killed = true;
+					}
+				}
+				var pstats = calculate_stats(ps);
+				var cstats = calculate_stats(cs);
+
+				var fight = {};
+				if (debug) {
+					fight.id = c.id;
+				}
+				fight.dname = c.dname;
+				if (debug) {
+					fight.level = c.level;
+				}
+				fight.exp = c.exp;
+				fight.killed = killed;
+				fight.ps = ps;
+				fight.plen = ps.length;
+				fight.psum = pstats.sum;
+				fight.pmin = pstats.min;
+				fight.pmax = pstats.max;
+				fight.pavg = Math.round(pstats.avg * 10) / 10;
+				fight.cs = cs;
+				fight.clen = cs.length;
+				fight.csum = cstats.sum;
+				fight.cmin = cstats.min;
+				fight.cmax = cstats.max;
+				fight.cavg = Math.round(cstats.avg * 10) / 10;
+
+				fights.push(fight);
+			}
+		}
+		return fights;
+	}
+}
+
+function calculate_stats (ds) {
+	var sum = 0;
+	var min = 65535;
+	var max = 0;
+	if (ds.length === 0) {
+		return {
+			sum: 0,
+			min: NaN,
+			max: NaN,
+			avg: NaN
+		};
+	}
+	else {
+		for (var i = 0; i < ds.length; i++) {
+			sum += ds[i];
+			if (ds[i] < min) {
+				min = ds[i];
+			}
+			if (ds[i] > max) {
+				max = ds[i];
+			}
+		}
+		var avg = sum / ds.length;
+		return {
+			sum: sum,
+			min: min,
+			max: max,
+			avg: avg
+		};
 	}
 }
 
