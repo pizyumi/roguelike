@@ -1,3 +1,8 @@
+var query = get_query();
+
+var version = 'dev';
+var debug = query.debug ? true : version === 'dev';
+
 ﻿var TITLE = 'シンプルローグライク';
 
 var TEXT_START = 'はじめる';
@@ -196,6 +201,21 @@ var gameover = false;
 var fields = null;
 var player = null;
 var messages = null;
+
+function get_query () {
+	var qs = window.location.search.slice(1).split('&');
+	var obj = {};
+	for (var i = 0; i < qs.length; i++) {
+		if (qs[i].includes('=')) {
+			var kv = qs[i].split('=');
+			obj[kv[0]] = kv[1];
+		}
+		else {
+			obj[qs[i]] = true;
+		}
+	}
+	return obj;
+}
 
 $(function(){
 	var canvas = document.getElementById('game');
