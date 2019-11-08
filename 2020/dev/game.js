@@ -1331,22 +1331,22 @@ function draw (con, env) {
 				else if (npcs[i].type === E_BAT) {
 					con.fillText('🦇\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
 				}
-				else if (npc[i].type === E_SLIME) {
+				else if (npcs[i].type === E_SLIME) {
 					con.fillText('s', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
 				}
-				else if (npc[i].type === E_SPIDER) {
+				else if (npcs[i].type === E_SPIDER) {
 					con.fillText('🕷️\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
 				}
-				else if (npc[i].type === E_SNAKE) {
+				else if (npcs[i].type === E_SNAKE) {
 					con.fillText('🐍\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
 				}
-				else if (npc[i].type === E_CARACAL) {
+				else if (npcs[i].type === E_CARACAL) {
 					con.fillText('🐈\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
 				}
-				else if (npc[i].type === E_WOLF) {
+				else if (npcs[i].type === E_WOLF) {
 					con.fillText('ϝ', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
 				}
-				else if (npc[i].type === E_GOBLIN) {
+				else if (npcs[i].type === E_GOBLIN) {
 					con.fillText('g', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
 				}
 				else {
