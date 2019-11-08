@@ -27,6 +27,11 @@ var MSG_PUT = ({name}) => `${name}を置きました。`;
 var MSG_EAT_FOOD = ({name, diff}) => `${name}を食べました。満腹度が${diff}回復しました。`;
 var MSG_QUAFF_HPOTION = ({name, diff}) => `${name}を飲みました。HPが${diff}回復しました。`;
 var MSG_EMPTY_INV = '何も持っていません。';
+var MSG_REST = 'ほんの少しの間休憩しました。';
+var MSG_CANT_REST_ENERGY = '休憩する前に空腹を満たさないとです。';
+var MSG_CANT_REST_ENEMY = '敵が近くにいて休憩できません。';
+var MSG_CANT_REST_PASSAGE = '部屋の中でないと休憩できません。';
+var MSG_SUFFICIENT_HP = '休憩の必要はなさそうです。';
 
 var E_RAT_NAME = 'ラット';
 var E_BAT_NAME = 'バット';
@@ -515,7 +520,10 @@ $(function(){
 				});
 			}
 			else {
-				return;
+				if (!rest()) {
+					draw(con, env);
+					return;
+				}
 			}
 		}
 		else if (e.keyCode === 88) {
@@ -794,11 +802,58 @@ function within_player_surrounding (x, y) {
 	return x >= player.x - 1 && x <= player.x + 1 && y >= player.y - 1 && y <= player.y + 1;
 }
 
+function npcs_within_room (room) {
+	var npcs = fields[player.depth].npcs;
+	for (var i = 0; i < npcs.length; i++) {
+		if (within_room(npcs[i].x, npcs[i].y, room)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 function consume_item () {
 	var item = player.items[invindex];
 	player.items.splice(invindex, 1);
 	player.weight -= item.weight;
 	return item;
+}
+
+function rest () {
+	var room = player.maps[player.depth].room;
+	if (player.hp >= player.hpfull * 0.8) {
+		add_message({
+			text: MSG_SUFFICIENT_HP,
+			type: 'important'
+		});
+		return false;
+	}
+	if (player.energy <= 20) {
+		add_message({
+			text: MSG_CANT_REST_ENERGY,
+			type: 'important'
+		});
+		return false;
+	}
+	if (room === null) {
+		add_message({
+			text: MSG_CANT_REST_PASSAGE,
+			type: 'important'
+		});
+		return false;
+	}
+	if (npcs_within_room(room)) {
+		add_message({
+			text: MSG_CANT_REST_ENEMY,
+			type: 'important'
+		});
+		return false;
+	}
+	add_message({
+		text: MSG_REST,
+		type: 'normal'
+	});
+	return true;
 }
 
 function put () {
