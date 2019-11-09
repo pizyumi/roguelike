@@ -322,8 +322,6 @@ $(function(){
 
 					invactf = !invactf;
 					invf = !invf;
-
-					execute_turn();
 				}
 			}
 			else {
@@ -376,19 +374,11 @@ $(function(){
 					if (r === null) {
 						r = move_up_left();
 					}
-					if (r === null || !r) {
-						draw(con, env);
-						return;
-					}
 				}
 				else if (keyr && keyu) {
 					var r = attack_up_right();
 					if (r === null) {
 						r = move_up_right();
-					}
-					if (r === null || !r) {
-						draw(con, env);
-						return;
 					}
 				}
 				else if (keyl && keyd) {
@@ -396,19 +386,11 @@ $(function(){
 					if (r === null) {
 						r = move_down_left();
 					}
-					if (r === null || !r) {
-						draw(con, env);
-						return;
-					}
 				}
 				else if (keyr && keyd) {
 					var r = attack_down_right();
 					if (r === null) {
 						r = move_down_right();
-					}
-					if (r === null || !r) {
-						draw(con, env);
-						return;
 					}
 				}
 				else {
@@ -421,19 +403,11 @@ $(function(){
 					if (r === null) {
 						r = move_left();
 					}
-					if (r === null || !r) {
-						draw(con, env);
-						return;
-					}
 				}
 				else if (e.keyCode === 38) {
 					var r = attack_up();
 					if (r === null) {
 						r = move_up();
-					}
-					if (r === null || !r) {
-						draw(con, env);
-						return;
 					}
 				}
 				else if (e.keyCode === 39) {
@@ -441,19 +415,11 @@ $(function(){
 					if (r === null) {
 						r = move_right();
 					}
-					if (r === null || !r) {
-						draw(con, env);
-						return;
-					}
 				}
 				else if (e.keyCode === 40) {
 					var r = attack_down();
 					if (r === null) {
 						r = move_down();
-					}
-					if (r === null || !r) {
-						draw(con, env);
-						return;
 					}
 				}
 			}
@@ -465,10 +431,6 @@ $(function(){
 			}
 			if (r === null) {
 				r = rest();
-			}
-			if (r === null || !r) {
-				draw(con, env);
-				return;
 			}
 		}
 		else if (e.keyCode === 88) {
@@ -495,8 +457,6 @@ $(function(){
 		else {
 			return;
 		}
-
-		execute_turn();
 
 		draw(con, env);
 	});
@@ -852,6 +812,7 @@ function move (x, y) {
 	player.x = x;
 	player.y = y;
 	update_map(player.maps[player.depth], fields[player.depth], player.x, player.y);
+	execute_turn();
 	return true;
 }
 
@@ -989,6 +950,7 @@ function attack (index) {
 			});
 		}
 	}
+	execute_turn();
 }
 
 function pickup () {
@@ -1011,6 +973,7 @@ function pickup () {
 		text: MSG_PICKUP({name: item.dname}),
 		type: 'normal'
 	});
+	execute_turn();
 	return true;
 }
 
@@ -1034,6 +997,7 @@ function downstair () {
 		text: MSG_DOWNSTAIR,
 		type: 'normal'
 	});
+	execute_turn();
 	return true;
 }
 
@@ -1071,6 +1035,7 @@ function rest () {
 		text: MSG_REST,
 		type: 'normal'
 	});
+	execute_turn();
 	return true;
 }
 
@@ -1085,6 +1050,7 @@ function put () {
 		text: MSG_PUT({name: item.dname}),
 		type: 'normal'
 	});
+	execute_turn();
 }
 
 function eat () {
@@ -1101,6 +1067,7 @@ function eat () {
 			type: 'normal'
 		});
 	}
+	execute_turn();
 }
 
 function quaff () {
@@ -1117,6 +1084,7 @@ function quaff () {
 			type: 'normal'
 		});
 	}
+	execute_turn();
 }
 
 function draw (con, env) {
