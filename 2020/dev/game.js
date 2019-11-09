@@ -770,12 +770,28 @@ function move_up_left () {
 	if (player.x === 0 || player.y === 0) {
 		return null;
 	}
+	var block1 = fields[player.depth].blocks[player.x - 1][player.y];
+	if (!B_CAN_STAND[block1.base]) {
+		return null;
+	}
+	var block2 = fields[player.depth].blocks[player.x][player.y - 1];
+	if (!B_CAN_STAND[block2.base]) {
+		return null;
+	}
 	return move(player.x - 1, player.y - 1);
 }
 
 function move_up_right () {
 	var nx = fields[player.depth].nx;
 	if (player.x === nx - 1 || player.y === 0) {
+		return null;
+	}
+	var block1 = fields[player.depth].blocks[player.x + 1][player.y];
+	if (!B_CAN_STAND[block1.base]) {
+		return null;
+	}
+	var block2 = fields[player.depth].blocks[player.x][player.y - 1];
+	if (!B_CAN_STAND[block2.base]) {
 		return null;
 	}
 	return move(player.x + 1, player.y - 1);
@@ -786,6 +802,14 @@ function move_down_left () {
 	if (player.x === 0 || player.y === ny - 1) {
 		return null;
 	}
+	var block1 = fields[player.depth].blocks[player.x - 1][player.y];
+	if (!B_CAN_STAND[block1.base]) {
+		return null;
+	}
+	var block2 = fields[player.depth].blocks[player.x][player.y + 1];
+	if (!B_CAN_STAND[block2.base]) {
+		return null;
+	}
 	return move(player.x - 1, player.y + 1);
 }
 
@@ -793,6 +817,14 @@ function move_down_right () {
 	var nx = fields[player.depth].nx;
 	var ny = fields[player.depth].ny;
 	if (player.x === nx - 1 || player.y === ny - 1) {
+		return null;
+	}
+	var block1 = fields[player.depth].blocks[player.x + 1][player.y];
+	if (!B_CAN_STAND[block1.base]) {
+		return null;
+	}
+	var block2 = fields[player.depth].blocks[player.x][player.y + 1];
+	if (!B_CAN_STAND[block2.base]) {
 		return null;
 	}
 	return move(player.x + 1, player.y + 1);
@@ -870,6 +902,14 @@ function attack_up_left () {
 	if (player.x === 0 || player.y === 0) {
 		return null;
 	}
+	var block1 = fields[player.depth].blocks[player.x - 1][player.y];
+	if (!B_CAN_STAND[block1.base]) {
+		return null;
+	}
+	var block2 = fields[player.depth].blocks[player.x][player.y - 1];
+	if (!B_CAN_STAND[block2.base]) {
+		return null;
+	}
 	var index = get_npc_index(player.x - 1, player.y - 1);
 	if (index === null) {
 		return null;
@@ -881,6 +921,14 @@ function attack_up_left () {
 function attack_up_right () {
 	var nx = fields[player.depth].nx;
 	if (player.x === nx - 1 || player.y === 0) {
+		return null;
+	}
+	var block1 = fields[player.depth].blocks[player.x + 1][player.y];
+	if (!B_CAN_STAND[block1.base]) {
+		return null;
+	}
+	var block2 = fields[player.depth].blocks[player.x][player.y - 1];
+	if (!B_CAN_STAND[block2.base]) {
 		return null;
 	}
 	var index = get_npc_index(player.x + 1, player.y - 1);
@@ -896,6 +944,14 @@ function attack_down_left () {
 	if (player.x === 0 || player.y === ny - 1) {
 		return null;
 	}
+	var block1 = fields[player.depth].blocks[player.x - 1][player.y];
+	if (!B_CAN_STAND[block1.base]) {
+		return null;
+	}
+	var block2 = fields[player.depth].blocks[player.x][player.y + 1];
+	if (!B_CAN_STAND[block2.base]) {
+		return null;
+	}
 	var index = get_npc_index(player.x - 1, player.y + 1);
 	if (index === null) {
 		return null;
@@ -908,6 +964,14 @@ function attack_down_right () {
 	var nx = fields[player.depth].nx;
 	var ny = fields[player.depth].ny;
 	if (player.x === nx - 1 || player.y === ny - 1) {
+		return null;
+	}
+	var block1 = fields[player.depth].blocks[player.x + 1][player.y];
+	if (!B_CAN_STAND[block1.base]) {
+		return null;
+	}
+	var block2 = fields[player.depth].blocks[player.x][player.y + 1];
+	if (!B_CAN_STAND[block2.base]) {
 		return null;
 	}
 	var index = get_npc_index(player.x + 1, player.y + 1);
