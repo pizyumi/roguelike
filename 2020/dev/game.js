@@ -370,38 +370,46 @@ $(function(){
 		}
 
 		if (e.keyCode >= 37 && e.keyCode <= 40) {
-			var nx = fields[player.depth].nx;
-			var ny = fields[player.depth].ny;
-			var x = player.x;
-			var y = player.y;
 			if (e.shiftKey) {
 				if (keyl && keyu) {
-					if (x === 0 || y === 0) {
+					var r = attack_up_left();
+					if (r === null) {
+						r = move_up_left();
+					}
+					if (r === null || !r) {
+						draw(con, env);
 						return;
 					}
-					x--;
-					y--;
 				}
 				else if (keyr && keyu) {
-					if (x === nx - 1 || y === 0) {
+					var r = attack_up_right();
+					if (r === null) {
+						r = move_up_right();
+					}
+					if (r === null || !r) {
+						draw(con, env);
 						return;
 					}
-					x++;
-					y--;
 				}
 				else if (keyl && keyd) {
-					if (x === 0 || y === ny - 1) {
+					var r = attack_down_left();
+					if (r === null) {
+						r = move_down_left();
+					}
+					if (r === null || !r) {
+						draw(con, env);
 						return;
 					}
-					x--;
-					y++;
 				}
 				else if (keyr && keyd) {
-					if (x === nx - 1 || y === ny - 1) {
+					var r = attack_down_right();
+					if (r === null) {
+						r = move_down_right();
+					}
+					if (r === null || !r) {
+						draw(con, env);
 						return;
 					}
-					x++;
-					y++;
 				}
 				else {
 					return;
@@ -409,144 +417,58 @@ $(function(){
 			}
 			else {
 				if (e.keyCode === 37) {
-					if (x === 0) {
+					var r = attack_left();
+					if (r === null) {
+						r = move_left();
+					}
+					if (r === null || !r) {
+						draw(con, env);
 						return;
 					}
-					x--;
 				}
 				else if (e.keyCode === 38) {
-					if (y === 0) {
+					var r = attack_up();
+					if (r === null) {
+						r = move_up();
+					}
+					if (r === null || !r) {
+						draw(con, env);
 						return;
 					}
-					y--;
 				}
 				else if (e.keyCode === 39) {
-					if (x === nx - 1) {
+					var r = attack_right();
+					if (r === null) {
+						r = move_right();
+					}
+					if (r === null || !r) {
+						draw(con, env);
 						return;
 					}
-					x++;
 				}
 				else if (e.keyCode === 40) {
-					if (y === ny - 1) {
-						return;
+					var r = attack_down();
+					if (r === null) {
+						r = move_down();
 					}
-					y++;
-				}
-			}
-
-			if (x !== player.x || y !== player.y) {
-				var npcs = fields[player.depth].npcs;
-				var c = undefined;
-				var index = 0;
-				for (var i = 0; i < npcs.length; i++) {
-					if (npcs[i].x === x && npcs[i].y === y) {
-						c = npcs[i];
-						index = i;
-						break;
-					}
-				}
-				if (c) {
-					var dam = calculate_damage(player.atk, c.def);
-					c.attacked = true;
-					c.hp -= dam;
-					add_message({
-						text: MSG_PATTACK({name: c.dname, dam}),
-						type: 'pattack'
-					});
-					statistics.add_fight(c, STATS_FIGHT_OUTBOUND, dam);
-					if (c.hp <= 0) {
-						npcs.splice(index, 1);
-						player.exp += c.exp;
-						add_message({
-							text: MSG_KILL({name: c.dname, exp: c.exp}),
-							type: 'important'
-						});
-						statistics.add_fight(c, STATS_FIGHT_KILLED, 0);
-
-						while (player.exp >= player.expfull) {
-							player.level++;
-							player.hpbase = Math.ceil(player.hpbase * 1.2);
-							player.atkbase = Math.ceil(player.atkbase * 1.1);
-							player.defbase = Math.ceil(player.defbase * 1.1);
-							player.expfull = Math.ceil(player.expfull * 2.4);
-							add_message({
-								text: MSG_LEVELUP({level: player.level}),
-								type: 'important'
-							});
-						}
-					}
-				}
-				else {
-					var block = fields[player.depth].blocks[x][y];
-					if (B_CAN_STAND[block.base]) {
-						player.x = x;
-						player.y = y;
-						update_map(player.maps[player.depth], fields[player.depth], player.x, player.y);
-					}
-					else {
-						if (block.base === B_WALL) {
-							add_message({
-								text: MSG_WALL,
-								type: 'normal'
-							});
-
-							draw(con, env);
-						}
-
+					if (r === null || !r) {
+						draw(con, env);
 						return;
 					}
 				}
-			}
-			else {
-				return;
 			}
 		}
 		else if (e.keyCode === 32) {
-			var block = fields[player.depth].blocks[player.x][player.y];
-			if (block.items && block.items.length > 0) {
-				var item = block.items[0];
-				if (player.weight + item.weight <= player.weightfull) {
-					block.items.shift();
-					player.items.push(item);
-					player.weight += item.weight;
-					add_message({
-						text: MSG_PICKUP({name: item.dname}),
-						type: 'normal'
-					});
-				}
-				else {
-					add_message({
-						text: MSG_CANT_PICKUP({name: item.dname}),
-						type: 'important'
-					});
-
-					draw(con, env);
-
-					return;
-				}
+			var r = pickup();
+			if (r === null) {
+				r = downstair();
 			}
-			else if (block.base === B_DOWNSTAIR) {
-				player.depth++;
-				if (!fields[player.depth]) {
-					fields[player.depth] = create_field(player.depth, [{
-						x: player.x,
-						y: player.y
-					}], seed);
-				}
-				if (!player.maps[player.depth]) {
-					player.maps[player.depth] = init_map(fields[player.depth]);
-				}
-				update_map(player.maps[player.depth], fields[player.depth], player.x, player.y);
-				add_message({
-					text: MSG_DOWNSTAIR,
-					type: 'normal'
-				});
+			if (r === null) {
+				r = rest();
 			}
-			else {
-				if (!rest()) {
-					draw(con, env);
-					return;
-				}
+			if (r === null || !r) {
+				draw(con, env);
+				return;
 			}
 		}
 		else if (e.keyCode === 88) {
@@ -837,11 +759,282 @@ function npcs_within_room (room) {
 	return false;
 }
 
+function get_npc_index (x, y) {
+	var npcs = fields[player.depth].npcs;
+	for (var i = 0; i < npcs.length; i++) {
+		if (npcs[i].x === x && npcs[i].y === y) {
+			return i;
+		}
+	}
+	return null;
+}
+
 function consume_item () {
 	var item = player.items[invindex];
 	player.items.splice(invindex, 1);
 	player.weight -= item.weight;
 	return item;
+}
+
+function move_up () {
+	if (player.y === 0) {
+		return null;
+	}
+	return move(player.x, player.y - 1);
+}
+
+function move_down () {
+	var ny = fields[player.depth].ny;
+	if (player.y === ny - 1) {
+		return null;
+	}
+	return move(player.x, player.y + 1);
+}
+
+function move_left () {
+	if (player.x === 0) {
+		return null;
+	}
+	return move(player.x - 1, player.y);
+}
+
+function move_right () {
+	var nx = fields[player.depth].nx;
+	if (player.x === nx - 1) {
+		return null;
+	}
+	return move(player.x + 1, player.y);
+}
+
+function move_up_left () {
+	if (player.x === 0 || player.y === 0) {
+		return null;
+	}
+	return move(player.x - 1, player.y - 1);
+}
+
+function move_up_right () {
+	var nx = fields[player.depth].nx;
+	if (player.x === nx - 1 || player.y === 0) {
+		return null;
+	}
+	return move(player.x + 1, player.y - 1);
+}
+
+function move_down_left () {
+	var ny = fields[player.depth].ny;
+	if (player.x === 0 || player.y === ny - 1) {
+		return null;
+	}
+	return move(player.x - 1, player.y + 1);
+}
+
+function move_down_right () {
+	var nx = fields[player.depth].nx;
+	var ny = fields[player.depth].ny;
+	if (player.x === nx - 1 || player.y === ny - 1) {
+		return null;
+	}
+	return move(player.x + 1, player.y + 1);
+}
+
+function move (x, y) {
+	var block = fields[player.depth].blocks[x][y];
+	if (!B_CAN_STAND[block.base]) {
+		if (block.base === B_WALL) {
+			add_message({
+				text: MSG_WALL,
+				type: 'normal'
+			});
+		}
+		return false;
+	}
+	player.x = x;
+	player.y = y;
+	update_map(player.maps[player.depth], fields[player.depth], player.x, player.y);
+	return true;
+}
+
+function attack_up () {
+	if (player.y === 0) {
+		return null;
+	}
+	var index = get_npc_index(player.x, player.y - 1);
+	if (index === null) {
+		return null;
+	}
+	attack(index);
+	return true;
+}
+
+function attack_down () {
+	var ny = fields[player.depth].ny;
+	if (player.y === ny - 1) {
+		return null;
+	}
+	var index = get_npc_index(player.x, player.y + 1);
+	if (index === null) {
+		return null;
+	}
+	attack(index);
+	return true;
+}
+
+function attack_left () {
+	if (player.x === 0) {
+		return null;
+	}
+	var index = get_npc_index(player.x - 1, player.y);
+	if (index === null) {
+		return null;
+	}
+	attack(index);
+	return true;
+}
+
+function attack_right () {
+	var nx = fields[player.depth].nx;
+	if (player.x === nx - 1) {
+		return null;
+	}
+	var index = get_npc_index(player.x + 1, player.y);
+	if (index === null) {
+		return null;
+	}
+	attack(index);
+	return true;
+}
+
+function attack_up_left () {
+	if (player.x === 0 || player.y === 0) {
+		return null;
+	}
+	var index = get_npc_index(player.x - 1, player.y - 1);
+	if (index === null) {
+		return null;
+	}
+	attack(index);
+	return true;
+}
+
+function attack_up_right () {
+	var nx = fields[player.depth].nx;
+	if (player.x === nx - 1 || player.y === 0) {
+		return null;
+	}
+	var index = get_npc_index(player.x + 1, player.y - 1);
+	if (index === null) {
+		return null;
+	}
+	attack(index);
+	return true;
+}
+
+function attack_down_left () {
+	var ny = fields[player.depth].ny;
+	if (player.x === 0 || player.y === ny - 1) {
+		return null;
+	}
+	var index = get_npc_index(player.x - 1, player.y + 1);
+	if (index === null) {
+		return null;
+	}
+	attack(index);
+	return true;
+}
+
+function attack_down_right () {
+	var nx = fields[player.depth].nx;
+	var ny = fields[player.depth].ny;
+	if (player.x === nx - 1 || player.y === ny - 1) {
+		return null;
+	}
+	var index = get_npc_index(player.x + 1, player.y + 1);
+	if (index === null) {
+		return null;
+	}
+	attack(index);
+	return true;
+}
+
+function attack (index) {
+	var npcs = fields[player.depth].npcs;
+	var c = npcs[index];
+	var dam = calculate_damage(player.atk, c.def);
+	c.attacked = true;
+	c.hp -= dam;
+	add_message({
+		text: MSG_PATTACK({name: c.dname, dam}),
+		type: 'pattack'
+	});
+	statistics.add_fight(c, STATS_FIGHT_OUTBOUND, dam);
+	if (c.hp <= 0) {
+		npcs.splice(index, 1);
+		player.exp += c.exp;
+		add_message({
+			text: MSG_KILL({name: c.dname, exp: c.exp}),
+			type: 'important'
+		});
+		statistics.add_fight(c, STATS_FIGHT_KILLED, 0);
+
+		while (player.exp >= player.expfull) {
+			player.level++;
+			player.hpbase = Math.ceil(player.hpbase * 1.2);
+			player.atkbase = Math.ceil(player.atkbase * 1.1);
+			player.defbase = Math.ceil(player.defbase * 1.1);
+			player.expfull = Math.ceil(player.expfull * 2.4);
+			add_message({
+				text: MSG_LEVELUP({level: player.level}),
+				type: 'important'
+			});
+		}
+	}
+}
+
+function pickup () {
+	var block = fields[player.depth].blocks[player.x][player.y];
+	if (!block.items || block.items.length === 0) {
+		return null;
+	}
+	var item = block.items[0];
+	if (player.weight + item.weight > player.weightfull) {
+		add_message({
+			text: MSG_CANT_PICKUP({name: item.dname}),
+			type: 'important'
+		});
+		return false;
+	}
+	block.items.shift();
+	player.items.push(item);
+	player.weight += item.weight;
+	add_message({
+		text: MSG_PICKUP({name: item.dname}),
+		type: 'normal'
+	});
+	return true;
+}
+
+function downstair () {
+	var block = fields[player.depth].blocks[player.x][player.y];
+	if (block.base !== B_DOWNSTAIR) {
+		return null;
+	}
+	player.depth++;
+	if (!fields[player.depth]) {
+		fields[player.depth] = create_field(player.depth, [{
+			x: player.x,
+			y: player.y
+		}], seed);
+	}
+	if (!player.maps[player.depth]) {
+		player.maps[player.depth] = init_map(fields[player.depth]);
+	}
+	update_map(player.maps[player.depth], fields[player.depth], player.x, player.y);
+	add_message({
+		text: MSG_DOWNSTAIR,
+		type: 'normal'
+	});
+	return true;
 }
 
 function rest () {
