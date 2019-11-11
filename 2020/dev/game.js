@@ -664,6 +664,15 @@ function execute_turn () {
 			}
 		}
 
+		var cl = B_CAN_STAND[fields[player.depth].blocks[c.x - 1][c.y].base];
+		var cu = B_CAN_STAND[fields[player.depth].blocks[c.x][c.y - 1].base];
+		var cr = B_CAN_STAND[fields[player.depth].blocks[c.x + 1][c.y].base];
+		var cd = B_CAN_STAND[fields[player.depth].blocks[c.x][c.y + 1].base];
+		var clu = B_CAN_STAND[fields[player.depth].blocks[c.x - 1][c.y - 1].base];
+		var cru = B_CAN_STAND[fields[player.depth].blocks[c.x + 1][c.y - 1].base];
+		var cld = B_CAN_STAND[fields[player.depth].blocks[c.x - 1][c.y + 1].base];
+		var crd = B_CAN_STAND[fields[player.depth].blocks[c.x + 1][c.y + 1].base];
+
 		var l = player.x === c.x - 1 && player.y === c.y;
 		var u = player.x === c.x && player.y === c.y - 1;
 		var r = player.x === c.x + 1 && player.y === c.y;
@@ -672,7 +681,7 @@ function execute_turn () {
 		var ru = player.x === c.x + 1 && player.y === c.y - 1;
 		var ld = player.x === c.x - 1 && player.y === c.y + 1;
 		var rd = player.x === c.x + 1 && player.y === c.y + 1;
-		if (attack && (l || u || r || d || lu || ru || ld || rd)) {
+		if (attack && (l || u || r || d || (lu && cl && cu) || (ru && cr && cu) || (ld && cl && cd) || (rd && cr && cd))) {
 			var dam = calculate_damage(c.atk, player.def);
 			player.hp -= dam;
 			add_message({
@@ -691,70 +700,132 @@ function execute_turn () {
 			}
 		}
 		else {
-			var x = c.x;
-			var y = c.y;
+			var ps = [];
 			var room = player.maps[player.depth].room;
 			var same = room && within_room(c.x, c.y, room);
 			if (same && c.type >= 3) {
-				if (c.x > player.x) {
-					x--;
+				if (c.x > player.x && cl) {
+					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
+						x: c.x - 1,
+						y: c.y,
+						p: 1.0
+					});
 				}
-				else if (c.x < player.x) {
-					x++;
+				else if (c.x < player.x && cr) {
+					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
+						x: c.x + 1,
+						y: c.y,
+						p: 1.0
+					});
 				}
-				if (c.y > player.y) {
-					y--;
+				if (c.y > player.y && cu) {
+					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
+						x: c.x,
+						y: c.y - 1,
+						p: 1.0
+					});
 				}
-				else if (c.y < player.y) {
-					y++;
+				else if (c.y < player.y && cd) {
+					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
+						x: c.x,
+						y: c.y + 1,
+						p: 1.0
+					});
+				}
+				if (c.x > player.x && c.y > player.y && cl && cu && clu) {
+					ps.unshift({
+						x: c.x - 1,
+						y: c.y - 1,
+						p: 1.0
+					});
+				}
+				else if (c.x < player.x && c.y > player.y && cr && cu && cru) {
+					ps.unshift({
+						x: c.x + 1,
+						y: c.y - 1,
+						p: 1.0
+					});
+				}
+				else if (c.x > player.x && c.y < player.y && cl && cd && cld) {
+					ps.unshift({
+						x: c.x - 1,
+						y: c.y + 1,
+						p: 1.0
+					});
+				}
+				else if (c.x < player.x && c.y < player.y && cr && cd && crd) {
+					ps.unshift({
+						x: c.x + 1,
+						y: c.y + 1,
+						p: 1.0
+					});
 				}
 			}
 			else {
-				var m = Math.random();
-				if (m < 0.5) {
-					var dir = Math.floor(Math.random() * 8);
-					if (dir === 0) {
-						x--;
-					}
-					else if (dir === 1) {
-						y--;
-					}
-					else if (dir === 2) {
-						x++;
-					}
-					else if (dir === 3) {
-						y++;
-					}
-					else if (dir === 4) {
-						x--;
-						y--;
-					}
-					else if (dir === 5) {
-						x++;
-						y--;
-					}
-					else if (dir === 6) {
-						x--;
-						y++;
-					}
-					else if (dir === 7) {
-						x++;
-						y++;
-					}
+				if (cl) {
+					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
+						x: c.x - 1,
+						y: c.y,
+						p: 0.5
+					});
+				}
+				if (cu) {
+					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
+						x: c.x,
+						y: c.y - 1,
+						p: 0.5
+					});
+				}
+				if (cr) {
+					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
+						x: c.x + 1,
+						y: c.y,
+						p: 0.5
+					});
+				}
+				if (cd) {
+					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
+						x: c.x,
+						y: c.y + 1,
+						p: 0.5
+					});
+				}
+				if (clu) {
+					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
+						x: c.x - 1,
+						y: c.y - 1,
+						p: 0.5
+					});
+				}
+				if (cru) {
+					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
+						x: c.x + 1,
+						y: c.y - 1,
+						p: 0.5
+					});
+				}
+				if (cld) {
+					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
+						x: c.x - 1,
+						y: c.y + 1,
+						p: 0.5
+					});
+				}
+				if (crd) {
+					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
+						x: c.x + 1,
+						y: c.y + 1,
+						p: 0.5
+					});
 				}
 			}
-			if (x !== c.x || y !== c.y) {
-				var block = fields[player.depth].blocks[x][y];
-				var c2 = undefined;
-				for (var j = 0; j < npcs.length; j++) {
-					if (npcs[j].x === x && npcs[j].y === y) {
-						c2 = npcs[j];
-						break;
+			for (var j = 0; j < ps.length; j++) {
+				if (get_npc_index(ps[j].x, ps[j].y) === null && (ps[j].x !== player.x || ps[j].y !== player.y)) {
+					if (Math.random() < ps[j].p) {
+						c.x = ps[j].x;
+						c.y = ps[j].y;
 					}
-				}
-				if (B_CAN_STAND[block.base] && !c2 && (player.x !== x || player.y !== y)) {
-					c.x = x;
-					c.y = y;
+					break;
 				}
 			}
 		}
