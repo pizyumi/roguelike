@@ -1127,6 +1127,9 @@ function eat () {
 			type: 'normal'
 		});
 	}
+	else {
+		throw new Error('not supported.');
+	}
 	execute_turn();
 	return true;
 }
@@ -1144,6 +1147,9 @@ function quaff () {
 			text: MSG_QUAFF_HPOTION({name: item.dname, diff: player.hp - old}),
 			type: 'normal'
 		});
+	}
+	else {
+		throw new Error('not supported.');
 	}
 	execute_turn();
 	return true;
@@ -1236,6 +1242,9 @@ function draw (con, env) {
 						}
 						else if (block.items[k].cat === I_CAT_POTION) {
 							con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
+						}
+						else {
+							throw new Error('not supported.');
 						}
 					}
 				}
@@ -1371,6 +1380,9 @@ function draw (con, env) {
 			}
 			else if (item.cat === I_CAT_POTION) {
 				con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+			}
+			else {
+				throw new Error('not supported.');
 			}
 			con.fillText(item.dname, 8 + 12 + 32 + 4, (24 + 6) * (i - invoffset));
 			if (invf && i === invindex) {
