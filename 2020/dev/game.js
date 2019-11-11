@@ -398,6 +398,14 @@ $(function(){
 
 		if (gameover) {
 			if (e.keyCode === 90) {
+				var record = statistics.get_record();
+				record.id = Date.now().toString(10);
+				record.version = version;
+
+				axios.post('/add-record', record).then((res) => {
+				}).catch((err) => {
+				});
+
 				startf = false;
 
 				draw(con, env);

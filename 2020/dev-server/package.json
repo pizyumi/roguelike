@@ -1,0 +1,13 @@
+{
+  "name": "roguelike",
+  "version": "1.0.0",
+  "description": "a roguelike game",
+  "main": "app.js",
+  "scripts": {
+    "test": "mocha --ui exports"
+  },
+  "author": "yurina washida",
+  "license": "pay license fee",
+  "dependencies": {
+  }
+}
