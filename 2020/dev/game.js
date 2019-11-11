@@ -14,6 +14,21 @@ var TEXT_WEIGHT = 'アイテム重量';
 var TEXT_ATK = '攻撃力';
 var TEXT_DEF = '防御力';
 var TEXT_EXP = '経験値';
+var TEXT_GENERATE_STATS = '情報を収集中です。';
+var TEXT_SAVE_CLIPBOARD = 'クリップボードに保存しました。';
+var TEXT_FIGHT = '戦闘詳細';
+var TEXT_KILL = '死亡';
+var TEXT_ID = '識別子';
+var TEXT_NAME = '名称';
+var TEXT_LEVEL = 'レベル';
+var TEXT_EXP = '経験値';
+var TEXT_IN_DAMAGE = '被ダメージ';
+var TEXT_OUT_DAMAGE = '与ダメージ';
+var TEXT_NUM = '数';
+var TEXT_SUM = '合計';
+var TEXT_MIN = '最小';
+var TEXT_MAX = '最大';
+var TEXT_AVG = '平均';
 
 var MSG_INIT = 'あなたは目覚めました。';
 var MSG_DOWNSTAIR = '下り階段を降りました。';
@@ -196,12 +211,15 @@ var invindex = 0;
 var invoffset = 0;
 var invactf = false;
 var invactindex = 0;
+var dataf = false;
 var gameover = false;
 
 var fields = null;
 var player = null;
 var messages = null;
 var statistics = null;
+var stats_elem = null;
+var stats_aux_elem = null;
 
 function get_query () {
 	var qs = window.location.search.slice(1).split('&');
@@ -216,6 +234,11 @@ function get_query () {
 		}
 	}
 	return obj;
+}
+
+function stats_nan_formatter (cell, formatterParams, onRendered) {
+	var val = cell.getValue();
+	return isNaN(val) ? '-' : val;
 }
 
 $(function(){
@@ -277,6 +300,100 @@ $(function(){
 			}
 
 			return;
+		}
+
+		if (dataf) {
+			if (e.keyCode === 68) {
+				dataf = !dataf;
+
+				stats_elem.remove();
+				stats_elem = null;
+
+				stats_aux_elem.remove();
+				stats_aux_elem = null;
+
+				draw(con, env);
+			}
+			else if (e.keyCode === 83) {
+				navigator.clipboard.writeText(JSON.stringify(statistics.get_fights_all()));
+				stats_aux_elem.text(TEXT_SAVE_CLIPBOARD);
+			}
+
+			return;
+		}
+		else {
+			if (e.keyCode === 68) {
+				dataf = !dataf;
+
+				stats_elem = $('<div></div>');
+				stats_elem.css('position', 'absolute');
+				stats_elem.css('top', 64);
+				stats_elem.css('left', 64);
+				stats_elem.css('width', SCREEN_X - 64 * 2);
+				stats_elem.css('height', SCREEN_Y - 64 * 3);
+				stats_elem.css('color', 'white');
+				stats_elem.css('overflow-y', 'scroll');
+
+				stats_aux_elem = $('<div></div>');
+				stats_aux_elem.css('position', 'absolute');
+				stats_aux_elem.css('top', SCREEN_Y - 64 * 2 + 16);
+				stats_aux_elem.css('left', 64);
+				stats_aux_elem.css('width', SCREEN_X - 64 * 2);
+				stats_aux_elem.css('height', 64);
+				stats_aux_elem.css('color', 'white');
+				stats_aux_elem.text(TEXT_GENERATE_STATS);
+
+				$(document.body).prepend(stats_aux_elem);
+				$(document.body).prepend(stats_elem);
+
+				var columns = [];
+				columns.push({ title: TEXT_KILL, field: 'killed', formatter: 'tickCross'});
+				if (debug) {
+					columns.push({ title: TEXT_ID, field: 'id'});
+				}
+				columns.push({ title: TEXT_NAME, field: 'dname'});
+				if (debug) {
+					columns.push({ title: TEXT_LEVEL, field: 'level'});
+				}
+				columns.push({ title: TEXT_EXP, field: 'exp'});
+				columns.push({ title: TEXT_IN_DAMAGE, field: 'ps'});
+				columns.push({ title: TEXT_NUM, field: 'plen'});
+				columns.push({ title: TEXT_SUM, field: 'psum'});
+				columns.push({ title: TEXT_MIN, field: 'pmin', formatter: stats_nan_formatter});
+				columns.push({ title: TEXT_MAX, field: 'pmax', formatter: stats_nan_formatter});
+				columns.push({ title: TEXT_AVG, field: 'pavg', formatter: stats_nan_formatter});
+				columns.push({ title: TEXT_OUT_DAMAGE, field: 'cs'});
+				columns.push({ title: TEXT_NUM, field: 'clen'});
+				columns.push({ title: TEXT_SUM, field: 'csum'});
+				columns.push({ title: TEXT_MIN, field: 'cmin', formatter: stats_nan_formatter});
+				columns.push({ title: TEXT_MAX, field: 'cmax', formatter: stats_nan_formatter});
+				columns.push({ title: TEXT_AVG, field: 'cavg', formatter: stats_nan_formatter});
+
+				setTimeout(function () {
+					var h1 = $('<h1>' + TEXT_FIGHT + '</h1>');
+					stats_elem.append(h1);
+					for (var i = 0; i <= player.depth; i++) {
+						var h2 = $('<h2>' + i + TEXT_DEPTH + '</h2>');
+						stats_elem.append(h2);
+						var div = $('<div></div>');
+						div.attr('id', 'fights' + i);
+						div.css('width', SCREEN_X - 64 * 3);
+						stats_elem.append(div);
+
+						var table = new Tabulator('#fights' + i, {
+							height: 512,
+							data: statistics.get_fights(i),
+							columns: columns
+						});
+					}
+
+					stats_aux_elem.text('');
+				}, 0);
+
+				draw(con, env);
+
+				return;
+			}
 		}
 
 		if (gameover) {
@@ -486,6 +603,7 @@ function init () {
 	invoffset = 0;
 	invactf = false;
 	invactindex = 0;
+	dataf = false;
 	gameover = false;
 
 	fields = [];
@@ -1468,4 +1586,9 @@ function draw (con, env) {
 	con.fillStyle = 'pink';
 	con.fillRect(player.x * px, player.y * py, px, py);
 	con.restore();
+
+	if (dataf) {
+		con.fillStyle = 'rgba(0, 0, 0, 0.75)';
+		con.fillRect(32, 32, SCREEN_X - 32 * 2, SCREEN_Y - 32 * 2);
+	}
 }
