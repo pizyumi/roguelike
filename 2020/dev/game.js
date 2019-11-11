@@ -855,97 +855,53 @@ function consume_item () {
 }
 
 function move_up () {
-	if (player.y === 0) {
-		return null;
-	}
-	return move(player.x, player.y - 1);
+	return move_one_block(0, -1);
 }
 
 function move_down () {
-	var ny = fields[player.depth].ny;
-	if (player.y === ny - 1) {
-		return null;
-	}
-	return move(player.x, player.y + 1);
+	return move_one_block(0, 1);
 }
 
 function move_left () {
-	if (player.x === 0) {
-		return null;
-	}
-	return move(player.x - 1, player.y);
+	return move_one_block(-1, 0);
 }
 
 function move_right () {
-	var nx = fields[player.depth].nx;
-	if (player.x === nx - 1) {
-		return null;
-	}
-	return move(player.x + 1, player.y);
+	return move_one_block(1, 0);
 }
 
 function move_up_left () {
-	if (player.x === 0 || player.y === 0) {
-		return null;
-	}
-	var block1 = fields[player.depth].blocks[player.x - 1][player.y];
-	if (!B_CAN_STAND[block1.base]) {
-		return null;
-	}
-	var block2 = fields[player.depth].blocks[player.x][player.y - 1];
-	if (!B_CAN_STAND[block2.base]) {
-		return null;
-	}
-	return move(player.x - 1, player.y - 1);
+	return move_one_block(-1, -1);
 }
 
 function move_up_right () {
-	var nx = fields[player.depth].nx;
-	if (player.x === nx - 1 || player.y === 0) {
-		return null;
-	}
-	var block1 = fields[player.depth].blocks[player.x + 1][player.y];
-	if (!B_CAN_STAND[block1.base]) {
-		return null;
-	}
-	var block2 = fields[player.depth].blocks[player.x][player.y - 1];
-	if (!B_CAN_STAND[block2.base]) {
-		return null;
-	}
-	return move(player.x + 1, player.y - 1);
+	return move_one_block(1, -1);
 }
 
 function move_down_left () {
-	var ny = fields[player.depth].ny;
-	if (player.x === 0 || player.y === ny - 1) {
-		return null;
-	}
-	var block1 = fields[player.depth].blocks[player.x - 1][player.y];
-	if (!B_CAN_STAND[block1.base]) {
-		return null;
-	}
-	var block2 = fields[player.depth].blocks[player.x][player.y + 1];
-	if (!B_CAN_STAND[block2.base]) {
-		return null;
-	}
-	return move(player.x - 1, player.y + 1);
+	return move_one_block(-1, 1);
 }
 
 function move_down_right () {
+	return move_one_block(1, 1);
+}
+
+function move_one_block (xd, yd) {
+	var x = player.x + xd;
+	var y = player.y + yd;
 	var nx = fields[player.depth].nx;
 	var ny = fields[player.depth].ny;
-	if (player.x === nx - 1 || player.y === ny - 1) {
+	if (x < 0 || y < 0 || x > nx - 1 || y > ny - 1) {
 		return null;
 	}
-	var block1 = fields[player.depth].blocks[player.x + 1][player.y];
-	if (!B_CAN_STAND[block1.base]) {
-		return null;
+	if ((xd + yd) % 2 === 0) {
+		var block1 = fields[player.depth].blocks[x][player.y];
+		var block2 = fields[player.depth].blocks[player.x][y];
+		if (!B_CAN_STAND[block1.base] || !B_CAN_STAND[block2.base]) {
+			return null;
+		}
 	}
-	var block2 = fields[player.depth].blocks[player.x][player.y + 1];
-	if (!B_CAN_STAND[block2.base]) {
-		return null;
-	}
-	return move(player.x + 1, player.y + 1);
+	return move(x, y);
 }
 
 function move (x, y) {
@@ -967,137 +923,57 @@ function move (x, y) {
 }
 
 function attack_up () {
-	if (player.y === 0) {
-		return null;
-	}
-	var index = get_npc_index(player.x, player.y - 1);
-	if (index === null) {
-		return null;
-	}
-	attack(index);
-	return true;
+	return attack_next(0, -1);
 }
 
 function attack_down () {
-	var ny = fields[player.depth].ny;
-	if (player.y === ny - 1) {
-		return null;
-	}
-	var index = get_npc_index(player.x, player.y + 1);
-	if (index === null) {
-		return null;
-	}
-	attack(index);
-	return true;
+	return attack_next(0, 1);
 }
 
 function attack_left () {
-	if (player.x === 0) {
-		return null;
-	}
-	var index = get_npc_index(player.x - 1, player.y);
-	if (index === null) {
-		return null;
-	}
-	attack(index);
-	return true;
+	return attack_next(-1, 0);
 }
 
 function attack_right () {
-	var nx = fields[player.depth].nx;
-	if (player.x === nx - 1) {
-		return null;
-	}
-	var index = get_npc_index(player.x + 1, player.y);
-	if (index === null) {
-		return null;
-	}
-	attack(index);
-	return true;
+	return attack_next(1, 0);
 }
 
 function attack_up_left () {
-	if (player.x === 0 || player.y === 0) {
-		return null;
-	}
-	var block1 = fields[player.depth].blocks[player.x - 1][player.y];
-	if (!B_CAN_STAND[block1.base]) {
-		return null;
-	}
-	var block2 = fields[player.depth].blocks[player.x][player.y - 1];
-	if (!B_CAN_STAND[block2.base]) {
-		return null;
-	}
-	var index = get_npc_index(player.x - 1, player.y - 1);
-	if (index === null) {
-		return null;
-	}
-	attack(index);
-	return true;
+	return attack_next(-1, -1);
 }
 
 function attack_up_right () {
-	var nx = fields[player.depth].nx;
-	if (player.x === nx - 1 || player.y === 0) {
-		return null;
-	}
-	var block1 = fields[player.depth].blocks[player.x + 1][player.y];
-	if (!B_CAN_STAND[block1.base]) {
-		return null;
-	}
-	var block2 = fields[player.depth].blocks[player.x][player.y - 1];
-	if (!B_CAN_STAND[block2.base]) {
-		return null;
-	}
-	var index = get_npc_index(player.x + 1, player.y - 1);
-	if (index === null) {
-		return null;
-	}
-	attack(index);
-	return true;
+	return attack_next(1, -1);
 }
 
 function attack_down_left () {
-	var ny = fields[player.depth].ny;
-	if (player.x === 0 || player.y === ny - 1) {
-		return null;
-	}
-	var block1 = fields[player.depth].blocks[player.x - 1][player.y];
-	if (!B_CAN_STAND[block1.base]) {
-		return null;
-	}
-	var block2 = fields[player.depth].blocks[player.x][player.y + 1];
-	if (!B_CAN_STAND[block2.base]) {
-		return null;
-	}
-	var index = get_npc_index(player.x - 1, player.y + 1);
-	if (index === null) {
-		return null;
-	}
-	attack(index);
-	return true;
+	return attack_next(-1, 1);
 }
 
 function attack_down_right () {
+	return attack_next(1, 1);
+}
+
+function attack_next (xd, yd) {
+	var x = player.x + xd;
+	var y = player.y + yd;
 	var nx = fields[player.depth].nx;
 	var ny = fields[player.depth].ny;
-	if (player.x === nx - 1 || player.y === ny - 1) {
+	if (x < 0 || y < 0 || x > nx - 1 || y > ny - 1) {
 		return null;
 	}
-	var block1 = fields[player.depth].blocks[player.x + 1][player.y];
-	if (!B_CAN_STAND[block1.base]) {
-		return null;
+	if ((xd + yd) % 2 === 0) {
+		var block1 = fields[player.depth].blocks[x][player.y];
+		var block2 = fields[player.depth].blocks[player.x][y];
+		if (!B_CAN_STAND[block1.base] || !B_CAN_STAND[block2.base]) {
+			return null;
+		}
 	}
-	var block2 = fields[player.depth].blocks[player.x][player.y + 1];
-	if (!B_CAN_STAND[block2.base]) {
-		return null;
-	}
-	var index = get_npc_index(player.x + 1, player.y + 1);
+	var index = get_npc_index(x, y);
 	if (index === null) {
 		return null;
 	}
-	attack(index);
-	return true;
+	return attack(index);
 }
 
 function attack (index) {
