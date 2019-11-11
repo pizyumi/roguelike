@@ -1009,6 +1009,7 @@ function attack (index) {
 		}
 	}
 	execute_turn();
+	return true;
 }
 
 function pickup () {
@@ -1109,6 +1110,7 @@ function put () {
 		type: 'normal'
 	});
 	execute_turn();
+	return true;
 }
 
 function eat () {
@@ -1126,6 +1128,7 @@ function eat () {
 		});
 	}
 	execute_turn();
+	return true;
 }
 
 function quaff () {
@@ -1143,6 +1146,7 @@ function quaff () {
 		});
 	}
 	execute_turn();
+	return true;
 }
 
 function draw (con, env) {
