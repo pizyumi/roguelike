@@ -1,7 +1,7 @@
 var query = get_query();
 
 var version = 'dev';
-var debug = query.debug ? true : version === 'dev';
+var debug = query.debug ? true : version.substring(0, 3) === 'dev';
 
 ﻿var TITLE = 'シンプルローグライク';
 
