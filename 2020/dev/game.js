@@ -203,7 +203,8 @@ img.src = 'Dungeon_B_Freem7.png';
 var img2 = new Image();
 img2.src = 'fighting_fantasy_icons.png';
 
-var seed = Date.now().toString(10);
+var time = null;
+var seed = null;
 
 var startf = false;
 var invf = false;
@@ -606,6 +607,9 @@ $(function(){
 });
 
 function init () {
+	time = Date.now();
+	seed = time.toString(10);
+
 	invf = false;
 	invindex = 0;
 	invoffset = 0;
