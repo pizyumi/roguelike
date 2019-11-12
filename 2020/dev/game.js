@@ -1310,10 +1310,11 @@ function draw (con, env) {
 
 				if (block.items) {
 					for (var k = 0; k < block.items.length; k++) {
-						if (block.items[k].type === I_APPLE) {
+						var item = block.items[k];
+						if (item.type === I_APPLE) {
 							con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
 						}
-						else if (block.items[k].cat === I_CAT_POTION) {
+						else if (item.cat === I_CAT_POTION) {
 							con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
 						}
 						else {
