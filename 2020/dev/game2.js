@@ -225,3 +225,14 @@ function test_random_class_select () {
 		}
 	}
 }
+
+Promise.prototype.nullthen = function (next) {
+	return this.then((r) => {
+		if (r === null) {
+			return next(r);
+		}
+		else {
+			return r;
+		}
+	});
+}

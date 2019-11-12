@@ -200,6 +200,7 @@ var invactf = false;
 var invactindex = 0;
 var dataf = false;
 var gameover = false;
+var waiting = false;
 
 var fields = null;
 var player = null;
@@ -411,6 +412,12 @@ $(function(){
 			return;
 		}
 
+		if (waiting) {
+			return;
+		}
+
+		var p = Promise.resolve(null);
+
 		if (invf) {
 			if (invactf) {
 				var actions = get_item_actions(player.items.get_item(invindex));
@@ -430,7 +437,7 @@ $(function(){
 					invactf = !invactf;
 				}
 				else if (e.keyCode === 90) {
-					actions[invactindex].exec();
+					p = actions[invactindex].exec();
 
 					invactf = !invactf;
 					invf = !invf;
@@ -474,7 +481,11 @@ $(function(){
 				}
 			}
 
-			draw(con, env);
+			waiting = true;
+			p.then((r) => {
+				draw(con, env);
+				waiting = false;
+			});
 
 			return;
 		}
@@ -482,28 +493,16 @@ $(function(){
 		if (e.keyCode >= 37 && e.keyCode <= 40) {
 			if (e.shiftKey) {
 				if (keyl && keyu) {
-					var r = attack_up_left();
-					if (r === null) {
-						r = move_up_left();
-					}
+					p = attack_up_left().nullthen((r) => move_up_left());
 				}
 				else if (keyr && keyu) {
-					var r = attack_up_right();
-					if (r === null) {
-						r = move_up_right();
-					}
+					p = attack_up_right().nullthen((r) => move_up_right());
 				}
 				else if (keyl && keyd) {
-					var r = attack_down_left();
-					if (r === null) {
-						r = move_down_left();
-					}
+					p = attack_down_left().nullthen((r) => move_down_left());
 				}
 				else if (keyr && keyd) {
-					var r = attack_down_right();
-					if (r === null) {
-						r = move_down_right();
-					}
+					p = attack_down_right().nullthen((r) => move_down_right());
 				}
 				else {
 					return;
@@ -511,39 +510,21 @@ $(function(){
 			}
 			else {
 				if (e.keyCode === 37) {
-					var r = attack_left();
-					if (r === null) {
-						r = move_left();
-					}
+					p = attack_left().nullthen((r) => move_left());
 				}
 				else if (e.keyCode === 38) {
-					var r = attack_up();
-					if (r === null) {
-						r = move_up();
-					}
+					p = attack_up().nullthen((r) => move_up());
 				}
 				else if (e.keyCode === 39) {
-					var r = attack_right();
-					if (r === null) {
-						r = move_right();
-					}
+					p = attack_right().nullthen((r) => move_right());
 				}
 				else if (e.keyCode === 40) {
-					var r = attack_down();
-					if (r === null) {
-						r = move_down();
-					}
+					p = attack_down().nullthen((r) => move_down());
 				}
 			}
 		}
 		else if (e.keyCode === 32) {
-			var r = pickup();
-			if (r === null) {
-				r = downstair();
-			}
-			if (r === null) {
-				r = rest();
-			}
+			p = pickup().nullthen((r) => downstair()).nullthen((r) => rest());
 		}
 		else if (e.keyCode === 88) {
 			if (player.items.length === 0) {
@@ -570,7 +551,11 @@ $(function(){
 			return;
 		}
 
-		draw(con, env);
+		waiting = true;
+		p.then((r) => {
+			draw(con, env);
+			waiting = false;
+		});
 	});
 	c.on('keyup', function (e) {
 		if (e.keyCode === 16) {
@@ -603,6 +588,7 @@ function init () {
 	invactindex = 0;
 	dataf = false;
 	gameover = false;
+	waiting = false;
 
 	fields = [];
 	fields[0] = create_field(0, [], seed);
@@ -634,7 +620,7 @@ function add_message (message) {
 	}
 }
 
-function execute_turn () {
+async function execute_turn () {
 	var npcs = fields[player.depth].npcs;
 	for (var i = 0; i < npcs.length; i++) {
 		var c = npcs[i];
@@ -923,39 +909,39 @@ function consume_item () {
 	return item;
 }
 
-function move_up () {
-	return move_one_block(0, -1);
+async function move_up () {
+	await move_one_block(0, -1);
 }
 
-function move_down () {
-	return move_one_block(0, 1);
+async function move_down () {
+	return await move_one_block(0, 1);
 }
 
-function move_left () {
-	return move_one_block(-1, 0);
+async function move_left () {
+	return await move_one_block(-1, 0);
 }
 
-function move_right () {
-	return move_one_block(1, 0);
+async function move_right () {
+	return await move_one_block(1, 0);
 }
 
-function move_up_left () {
-	return move_one_block(-1, -1);
+async function move_up_left () {
+	return await move_one_block(-1, -1);
 }
 
-function move_up_right () {
-	return move_one_block(1, -1);
+async function move_up_right () {
+	return await move_one_block(1, -1);
 }
 
-function move_down_left () {
-	return move_one_block(-1, 1);
+async function move_down_left () {
+	return await move_one_block(-1, 1);
 }
 
-function move_down_right () {
-	return move_one_block(1, 1);
+async function move_down_right () {
+	return await move_one_block(1, 1);
 }
 
-function move_one_block (xd, yd) {
+async function move_one_block (xd, yd) {
 	var x = player.x + xd;
 	var y = player.y + yd;
 	var nx = fields[player.depth].nx;
@@ -970,10 +956,10 @@ function move_one_block (xd, yd) {
 			return null;
 		}
 	}
-	return move(x, y);
+	return await move(x, y);
 }
 
-function move (x, y) {
+async function move (x, y) {
 	var block = fields[player.depth].blocks[x][y];
 	if (!B_CAN_STAND[block.base]) {
 		if (block.base === B_WALL) {
@@ -987,43 +973,43 @@ function move (x, y) {
 	player.x = x;
 	player.y = y;
 	update_map(player.maps[player.depth], fields[player.depth], player.x, player.y);
-	execute_turn();
+	await execute_turn();
 	return true;
 }
 
-function attack_up () {
-	return attack_next(0, -1);
+async function attack_up () {
+	return await attack_next(0, -1);
 }
 
-function attack_down () {
-	return attack_next(0, 1);
+async function attack_down () {
+	return await attack_next(0, 1);
 }
 
-function attack_left () {
-	return attack_next(-1, 0);
+async function attack_left () {
+	return await attack_next(-1, 0);
 }
 
-function attack_right () {
-	return attack_next(1, 0);
+async function attack_right () {
+	return await attack_next(1, 0);
 }
 
-function attack_up_left () {
-	return attack_next(-1, -1);
+async function attack_up_left () {
+	return await attack_next(-1, -1);
 }
 
-function attack_up_right () {
-	return attack_next(1, -1);
+async function attack_up_right () {
+	return await attack_next(1, -1);
 }
 
-function attack_down_left () {
-	return attack_next(-1, 1);
+async function attack_down_left () {
+	return await attack_next(-1, 1);
 }
 
-function attack_down_right () {
-	return attack_next(1, 1);
+async function attack_down_right () {
+	return await attack_next(1, 1);
 }
 
-function attack_next (xd, yd) {
+async function attack_next (xd, yd) {
 	var x = player.x + xd;
 	var y = player.y + yd;
 	var nx = fields[player.depth].nx;
@@ -1042,10 +1028,10 @@ function attack_next (xd, yd) {
 	if (index === null) {
 		return null;
 	}
-	return attack(index);
+	return await attack(index);
 }
 
-function attack (index) {
+async function attack (index) {
 	var npcs = fields[player.depth].npcs;
 	var c = npcs[index];
 	var dam = calculate_damage(player.atk, c.def);
@@ -1077,11 +1063,11 @@ function attack (index) {
 			});
 		}
 	}
-	execute_turn();
+	await execute_turn();
 	return true;
 }
 
-function pickup () {
+async function pickup () {
 	var block = fields[player.depth].blocks[player.x][player.y];
 	if (!block.items || block.items.length === 0) {
 		return null;
@@ -1101,11 +1087,11 @@ function pickup () {
 		text: MSG_PICKUP({name: item.dname}),
 		type: 'normal'
 	});
-	execute_turn();
+	await execute_turn();
 	return true;
 }
 
-function downstair () {
+async function downstair () {
 	var block = fields[player.depth].blocks[player.x][player.y];
 	if (block.base !== B_DOWNSTAIR) {
 		return null;
@@ -1125,11 +1111,11 @@ function downstair () {
 		text: MSG_DOWNSTAIR,
 		type: 'normal'
 	});
-	execute_turn();
+	await execute_turn();
 	return true;
 }
 
-function rest () {
+async function rest () {
 	var room = player.maps[player.depth].room;
 	if (player.hp >= player.hpfull * 0.8) {
 		add_message({
@@ -1163,21 +1149,21 @@ function rest () {
 		text: MSG_REST,
 		type: 'normal'
 	});
-	execute_turn();
+	await execute_turn();
 	return true;
 }
 
 function get_item_actions (item) {
 	if (item.cat === I_CAT_FOOD) {
 		return [
-			{ name: 'eat', dname: ACTION_EAT, exec: () => eat() },
-			{ name: 'put', dname: ACTION_PUT, exec: () => put() }
+			{ name: 'eat', dname: ACTION_EAT, exec: async () => await eat() },
+			{ name: 'put', dname: ACTION_PUT, exec: async () => await put() }
 		];
 	}
 	else if (item.cat === I_CAT_POTION) {
 		return [
-			{ name: 'quaff', dname: ACTION_QUAFF, exec: () => quaff() },
-			{ name: 'put', dname: ACTION_PUT, exec: () => put() }
+			{ name: 'quaff', dname: ACTION_QUAFF, exec: async () => await quaff() },
+			{ name: 'put', dname: ACTION_PUT, exec: async () => await put() }
 		];
 	}
 	else {
@@ -1185,7 +1171,7 @@ function get_item_actions (item) {
 	}
 }
 
-function put () {
+async function put () {
 	var item = consume_item();
 	var block = fields[player.depth].blocks[player.x][player.y];
 	if (!block.items) {
@@ -1196,11 +1182,11 @@ function put () {
 		text: MSG_PUT({name: item.dname}),
 		type: 'normal'
 	});
-	execute_turn();
+	await execute_turn();
 	return true;
 }
 
-function eat () {
+async function eat () {
 	var item = consume_item();
 	if (item.type === I_APPLE) {
 		var old = player.energy;
@@ -1217,11 +1203,11 @@ function eat () {
 	else {
 		throw new Error('not supported.');
 	}
-	execute_turn();
+	await execute_turn();
 	return true;
 }
 
-function quaff () {
+async function quaff () {
 	var item = consume_item();
 	if (item.type === I_HEALTH_POTION) {
 		var old = player.hp;
@@ -1238,7 +1224,7 @@ function quaff () {
 	else {
 		throw new Error('not supported.');
 	}
-	execute_turn();
+	await execute_turn();
 	return true;
 }
 
