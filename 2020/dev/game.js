@@ -182,20 +182,6 @@ I_INFO[I_HEALTH_POTION] = {
 var I_CAT_FOOD = 0;
 var I_CAT_POTION = 1;
 
-var I_CAT_INFO = [];
-I_CAT_INFO[I_CAT_FOOD] = {
-	actions: [
-		{ dname: ACTION_EAT, exec: () => eat() },
-		{ dname: ACTION_PUT, exec: () => put() }
-	]
-};
-I_CAT_INFO[I_CAT_POTION] = {
-	actions: [
-		{ dname: ACTION_QUAFF, exec: () => quaff() },
-		{ dname: ACTION_PUT, exec: () => put() }
-	]
-};
-
 var NUM_MESSAGE = 8;
 
 var img = new Image();
@@ -427,7 +413,7 @@ $(function(){
 
 		if (invf) {
 			if (invactf) {
-				var actions = I_CAT_INFO[player.items[invindex].cat].actions;
+				var actions = get_item_actions(player.items.get_item(invindex));
 				if (e.keyCode === 38) {
 					invactindex--;
 					if (invactindex < 0) {
@@ -931,8 +917,8 @@ function get_npc_index (x, y) {
 }
 
 function consume_item () {
-	var item = player.items[invindex];
-	player.items.splice(invindex, 1);
+	var item = player.items.get_item(invindex);
+	player.items.delete_item(item);
 	player.weight -= item.weight;
 	return item;
 }
@@ -1109,7 +1095,7 @@ function pickup () {
 		return false;
 	}
 	block.items.shift();
-	player.items.push(item);
+	player.items.add_item(item);
 	player.weight += item.weight;
 	add_message({
 		text: MSG_PICKUP({name: item.dname}),
@@ -1179,6 +1165,24 @@ function rest () {
 	});
 	execute_turn();
 	return true;
+}
+
+function get_item_actions (item) {
+	if (item.cat === I_CAT_FOOD) {
+		return [
+			{ name: 'eat', dname: ACTION_EAT, exec: () => eat() },
+			{ name: 'put', dname: ACTION_PUT, exec: () => put() }
+		];
+	}
+	else if (item.cat === I_CAT_POTION) {
+		return [
+			{ name: 'quaff', dname: ACTION_QUAFF, exec: () => quaff() },
+			{ name: 'put', dname: ACTION_PUT, exec: () => put() }
+		];
+	}
+	else {
+		throw new Error('not supported.');
+	}
 }
 
 function put () {
@@ -1456,27 +1460,27 @@ function draw (con, env) {
 	con.fillStyle = 'white';
 	con.translate(SX * PX, 284);
 	if (!invactf) {
-		for (var i = invoffset; i < invoffset + 10 && i < player.items.length; i++) {
-			var item = player.items[i];
-			if (item.type === I_APPLE) {
+		var items = player.items.get_items();
+		for (var i = invoffset; i < invoffset + 10 && i < items.length; i++) {
+			if (items[i].type === I_APPLE) {
 				con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 			}
-			else if (item.cat === I_CAT_POTION) {
+			else if (items[i].cat === I_CAT_POTION) {
 				con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 			}
 			else {
 				throw new Error('not supported.');
 			}
-			con.fillText(item.dname, 8 + 12 + 32 + 4, (24 + 6) * (i - invoffset));
+			con.fillText(items[i].dname + 'x' + items[i].num, 8 + 12 + 32 + 4, (24 + 6) * (i - invoffset));
 			if (invf && i === invindex) {
 				con.fillText('>', 8, (24 + 6) * (i - invoffset));
 			}
 		}
 	}
 	else {
-		var cinfo = I_CAT_INFO[player.items[invindex].cat];
-		for (var i = 0; i < cinfo.actions.length; i++) {
-			con.fillText(cinfo.actions[i].dname, 8 + 12, (24 + 6) * i);
+		var actions = get_item_actions(player.items.get_item(invindex));
+		for (var i = 0; i < actions.length; i++) {
+			con.fillText(actions[i].dname, 8 + 12, (24 + 6) * i);
 			if (i === invactindex) {
 				con.fillText('>', 8, (24 + 6) * i);
 			}

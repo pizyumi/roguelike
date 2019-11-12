@@ -321,6 +321,57 @@ function update_map (map, field, x, y) {
 	map.room = null;
 }
 
+class Items {
+	constructor () {
+		this.items = [];
+		this.citems = [];
+	}
+
+	get_items () {
+		return this.citems;
+	}
+
+	get_item (cindex) {
+		return this.citems[cindex];
+	}
+
+	get length () {
+		return this.citems.length;
+	}
+
+	add_item (item) {
+		this.items.push(item);
+		this.items.sort(function(a, b) {
+			if (a.type !== b.type) {
+				return a.type - b.type;
+			}
+			else {
+				return a.level - b.level;
+			}
+		});
+		this.citems = Items.compress_items(this.items);
+	}
+
+	delete_item (item) {
+		this.items = this.items.filter((i) => i !== item);
+		this.citems = Items.compress_items(this.items);
+	}
+}
+
+Items.compress_items = function (items) {
+	var citems = [];
+	var prev = null;
+	for (var item of items) {
+		item.num = 0;
+		if (prev === null || item.type !== prev.type || item.level !== prev.level) {
+			citems.push(item);
+			prev = item;
+		}
+		prev.num++;
+	}
+	return citems;
+}
+
 class Player {
 	constructor () {
 		this.depth = 0;
@@ -347,7 +398,7 @@ class Player {
 		this.weight = 0.0;
 		this.exp = 0;
 
-		this.items = [];
+		this.items = new Items();
 		this.maps = [];
 	}
 
