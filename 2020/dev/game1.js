@@ -120,8 +120,8 @@ function create_field (depth, upstairs, base_seed) {
 				ltable.set(depth + 3, 3);
 				var baselevel = random.select(ltable);
 				var type = Math.floor(random.num(depth + 1) / 2);
-				if (type > 8) {
-					type = 8;
+				if (type > 7) {
+					type = 7;
 				}
 				var level = baselevel - type;
 				npcs.push(new Enemy(type, x, y, level));
