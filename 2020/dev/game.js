@@ -14,6 +14,7 @@ var TEXT_WEIGHT = 'アイテム重量';
 var TEXT_ATK = '攻撃力';
 var TEXT_DEF = '防御力';
 var TEXT_EXP = '経験値';
+var TEXT_EQUIPPED = '装備中';
 var TEXT_GENERATE_STATS = '情報を収集中です。';
 var TEXT_SAVE_CLIPBOARD = 'クリップボードに保存しました。';
 var TEXT_FIGHT = '戦闘詳細';
@@ -52,6 +53,10 @@ var MSG_CANT_REST_ENERGY = '休憩する前に空腹を満たさないとです�
 var MSG_CANT_REST_ENEMY = '敵が近くにいて休憩できません。';
 var MSG_CANT_REST_PASSAGE = '部屋の中でないと休憩できません。';
 var MSG_SUFFICIENT_HP = '休憩の必要はなさそうです。';
+var MSG_EQUIP_WEAPON = ({name, diff}) => `${name}を装備しました。攻撃力が${diff}増加しました。`;
+var MSG_UNEQUIP_WEAPON = ({name, diff}) => `${name}を外しました。攻撃力が${diff}減少しました。`;
+var MSG_EQUIP_ARMOR = ({name, diff}) => `${name}を装備しました。防御力が${diff}増加しました。`;
+var MSG_UNEQUIP_ARMOR = ({name, diff}) => `${name}を外しました。防御力が${diff}減少しました。`;
 
 var E_RAT_NAME = 'ネズミ';
 var E_BAT_NAME = 'コウモリ';
@@ -64,9 +69,21 @@ var E_GOBLIN_NAME = 'ゴブリン';
 
 var I_APPLE_NAME = 'リンゴ';
 var I_HEALTH_POTION_NAME = '回復薬';
+var I_DAGGER_NAME = 'ダガー';
+var I_SHORT_SWORD_NAME = 'ショートソード';
+var I_RAPIER_NAME = 'レイピア';
+var I_FALCHION_NAME = 'ファルシオン';
+var I_LONG_SWORD_NAME = 'ロングソード';
+var I_LEATHER_ARMOR_NAME = 'レザーアーマー';
+var I_RIVET_ARMOR_NAME = 'リベットアーマー';
+var I_SCALE_ARMOR_NAME = 'スケールアーマー';
+var I_CHAIN_MAIL_NAME = 'チェーンメール';
+var I_PLATE_ARMOR_NAME = 'プレートアーマー';
 
 var ACTION_EAT = '食べる';
 var ACTION_QUAFF = '飲む';
+var ACTION_EQUIP = '装備する';
+var ACTION_UNEQUIP = '外す';
 var ACTION_PUT = '置く';
 
 var SCREEN_X = 1600;
@@ -168,6 +185,16 @@ var M_UNKNOWN = 65535;
 
 var I_APPLE = 0;
 var I_HEALTH_POTION = 1;
+var I_DAGGER = 100;
+var I_SHORT_SWORD = 101;
+var I_RAPIER = 102;
+var I_FALCHION = 103;
+var I_LONG_SWORD = 104;
+var I_LEATHER_ARMOR = 200;
+var I_RIVET_ARMOR = 201;
+var I_SCALE_ARMOR = 202;
+var I_CHAIN_MAIL = 203;
+var I_PLATE_ARMOR = 204;
 
 var I_INFO = [];
 I_INFO[I_APPLE] = {
@@ -178,9 +205,71 @@ I_INFO[I_HEALTH_POTION] = {
 	dname: I_HEALTH_POTION_NAME,
 	weight: 0.1
 };
+I_INFO[I_DAGGER] = {
+	level: 1,
+	dname: I_DAGGER_NAME,
+	weight: 0.3,
+	atk: 1
+};
+I_INFO[I_SHORT_SWORD] = {
+	level: 2,
+	dname: I_SHORT_SWORD_NAME,
+	weight: 0.5,
+	atk: 2
+};
+I_INFO[I_RAPIER] = {
+	level: 3,
+	dname: I_RAPIER_NAME,
+	weight: 0.5,
+	atk: 3
+};
+I_INFO[I_FALCHION] = {
+	level: 4,
+	dname: I_FALCHION_NAME,
+	weight: 0.8,
+	atk: 4
+};
+I_INFO[I_LONG_SWORD] = {
+	level: 5,
+	dname: I_LONG_SWORD_NAME,
+	weight: 0.7,
+	atk: 5
+};
+I_INFO[I_LEATHER_ARMOR] = {
+	level: 1,
+	dname: I_LEATHER_ARMOR_NAME,
+	weight: 0.4,
+	def: 1
+};
+I_INFO[I_RIVET_ARMOR] = {
+	level: 2,
+	dname: I_RIVET_ARMOR_NAME,
+	weight: 0.6,
+	def: 2
+};
+I_INFO[I_SCALE_ARMOR] = {
+	level: 3,
+	dname: I_SCALE_ARMOR_NAME,
+	weight: 0.7,
+	def: 3
+};
+I_INFO[I_CHAIN_MAIL] = {
+	level: 4,
+	dname: I_CHAIN_MAIL_NAME,
+	weight: 0.8,
+	def: 4
+};
+I_INFO[I_PLATE_ARMOR] = {
+	level: 5,
+	dname: I_PLATE_ARMOR_NAME,
+	weight: 0.8,
+	def: 5
+};
 
 var I_CAT_FOOD = 0;
 var I_CAT_POTION = 1;
+var I_CAT_WEAPON = 2;
+var I_CAT_ARMOR = 3;
 
 var NUM_MESSAGE = 8;
 
@@ -1166,6 +1255,28 @@ function get_item_actions (item) {
 			{ name: 'put', dname: ACTION_PUT, exec: async () => await put() }
 		];
 	}
+	else if (item.cat === I_CAT_WEAPON) {
+		var actions = [];
+		if (item !== player.weapon) {
+			actions.push({ name: 'equip', dname: ACTION_EQUIP, exec: async () => await equip_weapon() });
+			actions.push({ name: 'put', dname: ACTION_PUT, exec: async () => await put() });
+		}
+		else {
+			actions.push({ name: 'unequip', dname: ACTION_UNEQUIP, exec: async () => await unequip_weapon() });
+		}
+		return actions;
+	}
+	else if (item.cat === I_CAT_ARMOR) {
+		var actions = [];
+		if (item !== player.armor) {
+			actions.push({ name: 'equip', dname: ACTION_EQUIP, exec: async () => await equip_armor() });
+			actions.push({ name: 'put', dname: ACTION_PUT, exec: async () => await put() });
+		}
+		else {
+			actions.push({ name: 'unequip', dname: ACTION_UNEQUIP, exec: async () => await unequip_armor() });
+		}
+		return actions;
+	}
 	else {
 		throw new Error('not supported.');
 	}
@@ -1224,6 +1335,70 @@ async function quaff () {
 	else {
 		throw new Error('not supported.');
 	}
+	await execute_turn();
+	return true;
+}
+
+async function equip_weapon () {
+	if (player.weapon !== null) {
+		var old = player.weapon;
+		player.weapon.equipped = false;
+		player.weapon = null;
+		add_message({
+			text: MSG_UNEQUIP_WEAPON({name: old.dname, diff: old.atk}),
+			type: 'normal'
+		});
+	}
+	player.weapon = player.items.get_item(invindex);
+	player.weapon.equipped = true;
+	add_message({
+		text: MSG_EQUIP_WEAPON({name: player.weapon.dname, diff: player.weapon.atk}),
+		type: 'normal'
+	});
+	await execute_turn();
+	return true;
+}
+
+async function unequip_weapon () {
+	var old = player.weapon;
+	player.weapon.equipped = false;
+	player.weapon = null;
+	add_message({
+		text: MSG_UNEQUIP_WEAPON({name: old.dname, diff: old.atk}),
+		type: 'normal'
+	});
+	await execute_turn();
+	return true;
+}
+
+async function equip_armor () {
+	if (player.armor !== null) {
+		var old = player.armor;
+		player.armor.equipped = false;
+		player.armor = null;
+		add_message({
+			text: MSG_UNEQUIP_ARMOR({name: old.dname, diff: old.def}),
+			type: 'normal'
+		});
+	}
+	player.armor = player.items.get_item(invindex);
+	player.armor.equipped = true;
+	add_message({
+		text: MSG_EQUIP_ARMOR({name: player.armor.dname, diff: player.armor.def}),
+		type: 'normal'
+	});
+	await execute_turn();
+	return true;
+}
+
+async function unequip_armor () {
+	var old = player.armor;
+	player.armor.equipped = false;
+	player.armor = null;
+	add_message({
+		text: MSG_UNEQUIP_ARMOR({name: old.dname, diff: old.def}),
+		type: 'normal'
+	});
 	await execute_turn();
 	return true;
 }
@@ -1316,6 +1491,12 @@ function draw (con, env) {
 						}
 						else if (item.cat === I_CAT_POTION) {
 							con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
+						}
+						else if (item.cat === I_CAT_WEAPON) {
+							con.drawImage(img2, 2 * 32, 10 * 32, 32, 32, i * PX, j * PY, PX, PY);
+						}
+						else if (item.cat === I_CAT_ARMOR) {
+							con.drawImage(img2, 10 * 32, 7 * 32, 32, 32, i * PX, j * PY, PX, PY);
 						}
 						else {
 							throw new Error('not supported.');
@@ -1455,10 +1636,16 @@ function draw (con, env) {
 			else if (items[i].cat === I_CAT_POTION) {
 				con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 			}
+			else if (items[i].cat === I_CAT_WEAPON) {
+				con.drawImage(img2, 2 * 32, 10 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+			}
+			else if (items[i].cat === I_CAT_ARMOR) {
+				con.drawImage(img2, 10 * 32, 7 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+			}
 			else {
 				throw new Error('not supported.');
 			}
-			con.fillText(items[i].dname + 'x' + items[i].num, 8 + 12 + 32 + 4, (24 + 6) * (i - invoffset));
+			con.fillText(items[i].dname + (items[i].num > 1 ? 'x' + items[i].num : '') + (items[i].equipped ? '[' + TEXT_EQUIPPED + ']' : ''), 8 + 12 + 32 + 4, (24 + 6) * (i - invoffset));
 			if (invf && i === invindex) {
 				con.fillText('>', 8, (24 + 6) * (i - invoffset));
 			}

@@ -138,7 +138,11 @@ function create_field (depth, upstairs, base_seed) {
 
 			var ctable = new Map();
 			ctable.set(I_CAT_FOOD, 20);
-			ctable.set(I_CAT_POTION, 80);
+			ctable.set(I_CAT_POTION, 50);
+			if (depth >= 2) {
+				ctable.set(I_CAT_WEAPON, 15);
+				ctable.set(I_CAT_ARMOR, 15);
+			}
 			var cat = random.select(ctable);
 			if (cat === I_CAT_FOOD) {
 				var type = I_APPLE;
@@ -165,6 +169,72 @@ function create_field (depth, upstairs, base_seed) {
 					cat: cat,
 					level: level,
 					weight: e.weight
+				});
+			}
+			else if (cat === I_CAT_WEAPON) {
+				var itable = new Map();
+				itable.set(I_DAGGER, 1);
+				if (depth >= 5) {
+					itable.set(I_SHORT_SWORD, 1);
+				}
+				if (depth >= 7) {
+					itable.set(I_RAPIER, 1);
+				}
+				if (depth >= 9) {
+					itable.set(I_FALCHION, 1);
+				}
+				if (depth >= 11) {
+					itable.set(I_LONG_SWORD, 1);
+				}
+				var type = random.select(itable);
+				var e = I_INFO[type];
+				var baselevel = Math.ceil(depth / 2);
+				var ltable = new Map();
+				ltable.set(random.num(baselevel) + 1, 75);
+				ltable.set(baselevel + 1, 20);
+				ltable.set(baselevel + 2, 5);
+				var level = Math.max(random.select(ltable) - e.level, 0);
+				blocks[x][y].items.push({
+					dname: e.dname + (level === 0 ? '' : '+' + level),
+					type: type,
+					cat: cat,
+					level: level,
+					weight: e.weight,
+					atk: e.atk + level,
+					equipped: false
+				});
+			}
+			else if (cat === I_CAT_ARMOR) {
+				var itable = new Map();
+				itable.set(I_LEATHER_ARMOR, 1);
+				if (depth >= 5) {
+					itable.set(I_RIVET_ARMOR, 1);
+				}
+				if (depth >= 7) {
+					itable.set(I_SCALE_ARMOR, 1);
+				}
+				if (depth >= 9) {
+					itable.set(I_CHAIN_MAIL, 1);
+				}
+				if (depth >= 11) {
+					itable.set(I_PLATE_ARMOR, 1);
+				}
+				var type = random.select(itable);
+				var e = I_INFO[type];
+				var baselevel = Math.ceil(depth / 2);
+				var ltable = new Map();
+				ltable.set(random.num(baselevel) + 1, 75);
+				ltable.set(baselevel + 1, 20);
+				ltable.set(baselevel + 2, 5);
+				var level = Math.max(random.select(ltable) - e.level, 0);
+				blocks[x][y].items.push({
+					dname: e.dname + (level === 0 ? '' : '+' + level),
+					type: type,
+					cat: cat,
+					level: level,
+					weight: e.weight,
+					def: e.def + level,
+					equipped: false
 				});
 			}
 		}
@@ -345,8 +415,17 @@ class Items {
 			if (a.type !== b.type) {
 				return a.type - b.type;
 			}
-			else {
+			else if (a.level !== b.level) {
 				return a.level - b.level;
+			}
+			else if (a.equipped) {
+				return -1;
+			}
+			else if (b.equipped) {
+				return 1;
+			}
+			else {
+				return 0;
 			}
 		});
 		this.citems = Items.compress_items(this.items);
@@ -363,7 +442,7 @@ Items.compress_items = function (items) {
 	var prev = null;
 	for (var item of items) {
 		item.num = 0;
-		if (prev === null || item.type !== prev.type || item.level !== prev.level) {
+		if (prev === null || item.type !== prev.type || item.level !== prev.level || item.equipped !== prev.equipped) {
 			citems.push(item);
 			prev = item;
 		}
@@ -398,6 +477,9 @@ class Player {
 		this.weight = 0.0;
 		this.exp = 0;
 
+		this.weapon = null;
+		this.armor = null;
+
 		this.items = new Items();
 		this.maps = [];
 	}
@@ -415,11 +497,11 @@ class Player {
 	}
 
 	get atk () {
-		return this.atkbase + this.atkext;
+		return this.atkbase + this.atkext + (this.weapon === null ? 0 : this.weapon.atk);
 	}
 
 	get def () {
-		return this.defbase + this.defext;
+		return this.defbase + this.defext + (this.armor === null ? 0 : this.armor.def);
 	}
 }
 
