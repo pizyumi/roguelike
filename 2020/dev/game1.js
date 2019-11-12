@@ -468,4 +468,5 @@ class Enemy {
 		return this.defbase + this.defext;
 	}
 }
+
 Enemy.index = 0;
