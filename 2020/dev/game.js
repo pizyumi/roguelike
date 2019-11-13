@@ -321,7 +321,7 @@ function stats_nan_formatter (cell, formatterParams, onRendered) {
 	return isNaN(val) ? '-' : val;
 }
 
-$(function(){
+$(function () {
 	var canvas = document.getElementById('game');
 	con = canvas.getContext('2d');
 
