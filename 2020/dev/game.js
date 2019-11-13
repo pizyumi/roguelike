@@ -862,28 +862,28 @@ async function execute_turn () {
 						p: 0.5
 					});
 				}
-				if (clu) {
+				if (clu && cl && cu) {
 					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
 						x: c.x - 1,
 						y: c.y - 1,
 						p: 0.5
 					});
 				}
-				if (cru) {
+				if (cru && cr && cu) {
 					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
 						x: c.x + 1,
 						y: c.y - 1,
 						p: 0.5
 					});
 				}
-				if (cld) {
+				if (cld && cl && cd) {
 					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
 						x: c.x - 1,
 						y: c.y + 1,
 						p: 0.5
 					});
 				}
-				if (crd) {
+				if (crd && cr && cd) {
 					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
 						x: c.x + 1,
 						y: c.y + 1,
