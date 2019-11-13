@@ -578,6 +578,29 @@ $(function(){
 
 			return;
 		}
+		else {
+			if (e.keyCode === 88) {
+				if (player.items.length === 0) {
+					add_message({
+						text: MSG_EMPTY_INV,
+						type: 'normal'
+					});
+				}
+				else {
+					invf = !invf;
+					if (invindex < 0) {
+						invindex = 0;
+					}
+					else if (invindex >= player.items.length) {
+						invindex = player.items.length - 1;
+					}
+				}
+
+				draw(con, env);
+
+				return;
+			}
+		}
 
 		if (e.keyCode >= 37 && e.keyCode <= 40) {
 			if (e.shiftKey) {
@@ -614,27 +637,6 @@ $(function(){
 		}
 		else if (e.keyCode === 32) {
 			p = pickup().nullthen((r) => downstair()).nullthen((r) => rest());
-		}
-		else if (e.keyCode === 88) {
-			if (player.items.length === 0) {
-				add_message({
-					text: MSG_EMPTY_INV,
-					type: 'normal'
-				});
-			}
-			else {
-				invf = !invf;
-				if (invindex < 0) {
-					invindex = 0;
-				}
-				else if (invindex >= player.items.length) {
-					invindex = player.items.length - 1;
-				}
-			}
-
-			draw(con, env);
-
-			return;
 		}
 		else {
 			return;
