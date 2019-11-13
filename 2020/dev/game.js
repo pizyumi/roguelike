@@ -1006,7 +1006,7 @@ function consume_item () {
 }
 
 async function move_up () {
-	await move_one_block(0, -1);
+	return await move_one_block(0, -1);
 }
 
 async function move_down () {
