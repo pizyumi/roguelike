@@ -1064,6 +1064,7 @@ async function move (x, y) {
 				type: 'normal'
 			});
 		}
+		draw();
 		return false;
 	}
 	player.x = x;
@@ -1176,6 +1177,7 @@ async function pickup () {
 			text: MSG_CANT_PICKUP({name: item.dname}),
 			type: 'important'
 		});
+		draw();
 		return false;
 	}
 	block.items.shift();
@@ -1222,6 +1224,7 @@ async function rest () {
 			text: MSG_SUFFICIENT_HP,
 			type: 'important'
 		});
+		draw();
 		return false;
 	}
 	if (player.energy <= 20) {
@@ -1229,6 +1232,7 @@ async function rest () {
 			text: MSG_CANT_REST_ENERGY,
 			type: 'important'
 		});
+		draw();
 		return false;
 	}
 	if (room === null) {
@@ -1236,6 +1240,7 @@ async function rest () {
 			text: MSG_CANT_REST_PASSAGE,
 			type: 'important'
 		});
+		draw();
 		return false;
 	}
 	if (npcs_within_room(room)) {
@@ -1243,6 +1248,7 @@ async function rest () {
 			text: MSG_CANT_REST_ENEMY,
 			type: 'important'
 		});
+		draw();
 		return false;
 	}
 	add_message({
