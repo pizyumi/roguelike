@@ -3,7 +3,7 @@ var query = get_query();
 var version = 'dev';
 var debug = query.debug ? true : version.substring(0, 3) === 'dev';
 
-﻿var TITLE = 'シンプルローグライク';
+var TITLE = 'シンプルローグライク';
 
 var TEXT_START = 'はじめる';
 var TEXT_DEPTH = '階';
