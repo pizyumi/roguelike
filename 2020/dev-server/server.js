@@ -21,6 +21,8 @@ obj = _.extend(obj, {
         app.set('strict routing', true);
         app.use(morgan('dev'));
         app.use('/', express.static('../public'));
+        app.use('/lib', express.static('../lib'));
+        app.use('/img', express.static('../img'));
         app.use('/dev', express.static('../dev'));
         app.use(bodyparser.json());
         app.post('/add-record', (req, res, next) => {

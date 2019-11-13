@@ -274,9 +274,9 @@ var I_CAT_ARMOR = 3;
 var NUM_MESSAGE = 8;
 
 var img = new Image();
-img.src = 'img/Dungeon_B_Freem7.png';
+img.src = '/img/Dungeon_B_Freem7.png';
 var img2 = new Image();
-img2.src = 'img/fighting_fantasy_icons.png';
+img2.src = '/img/fighting_fantasy_icons.png';
 
 var time = null;
 var seed = null;
