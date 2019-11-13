@@ -281,6 +281,9 @@ img2.src = 'fighting_fantasy_icons.png';
 var time = null;
 var seed = null;
 
+var con = null;
+var env = null;
+
 var startf = false;
 var invf = false;
 var invindex = 0;
@@ -320,14 +323,14 @@ function stats_nan_formatter (cell, formatterParams, onRendered) {
 
 $(function(){
 	var canvas = document.getElementById('game');
-	var con = canvas.getContext('2d');
+	con = canvas.getContext('2d');
 
 	var keyl = false;
 	var keyu = false;
 	var keyr = false;
 	var keyd = false;
 
-	var env = {
+	env = {
 		diagonal: false
 	};
 
@@ -373,7 +376,7 @@ $(function(){
 
 				init();
 
-				draw(con, env);
+				draw();
 			}
 
 			return;
@@ -389,7 +392,7 @@ $(function(){
 				stats_aux_elem.remove();
 				stats_aux_elem = null;
 
-				draw(con, env);
+				draw();
 			}
 			else if (e.keyCode === 83) {
 				navigator.clipboard.writeText(JSON.stringify(statistics.get_fights_all()));
@@ -467,7 +470,7 @@ $(function(){
 					stats_aux_elem.text('');
 				}, 0);
 
-				draw(con, env);
+				draw();
 
 				return;
 			}
@@ -485,7 +488,7 @@ $(function(){
 
 				startf = false;
 
-				draw(con, env);
+				draw();
 			}
 
 			return;
@@ -495,7 +498,7 @@ $(function(){
 			if (!env.diagonal) {
 				env.diagonal = true;
 
-				draw(con, env);
+				draw();
 			}
 
 			return;
@@ -530,6 +533,13 @@ $(function(){
 
 					invactf = !invactf;
 					invf = !invf;
+
+					waiting = true;
+					p.then((r) => {
+						waiting = false;
+					});
+
+					return;
 				}
 			}
 			else {
@@ -570,11 +580,7 @@ $(function(){
 				}
 			}
 
-			waiting = true;
-			p.then((r) => {
-				draw(con, env);
-				waiting = false;
-			});
+			draw();
 
 			return;
 		}
@@ -596,7 +602,7 @@ $(function(){
 					}
 				}
 
-				draw(con, env);
+				draw();
 
 				return;
 			}
@@ -644,7 +650,6 @@ $(function(){
 
 		waiting = true;
 		p.then((r) => {
-			draw(con, env);
 			waiting = false;
 		});
 	});
@@ -653,7 +658,7 @@ $(function(){
 			if (env.diagonal) {
 				env.diagonal = false;
 
-				draw(con, env);
+				draw();
 			}
 		}
 	});
@@ -661,11 +666,11 @@ $(function(){
 		if (env.diagonal) {
 			env.diagonal = false;
 
-			draw(con, env);
+			draw();
 		}
 	});
 
-	draw(con, env);
+	draw();
 });
 
 function init () {
@@ -1065,6 +1070,7 @@ async function move (x, y) {
 	player.y = y;
 	update_map(player.maps[player.depth], fields[player.depth], player.x, player.y);
 	await execute_turn();
+	draw();
 	return true;
 }
 
@@ -1155,6 +1161,7 @@ async function attack (index) {
 		}
 	}
 	await execute_turn();
+	draw();
 	return true;
 }
 
@@ -1179,6 +1186,7 @@ async function pickup () {
 		type: 'normal'
 	});
 	await execute_turn();
+	draw();
 	return true;
 }
 
@@ -1203,6 +1211,7 @@ async function downstair () {
 		type: 'normal'
 	});
 	await execute_turn();
+	draw();
 	return true;
 }
 
@@ -1241,6 +1250,7 @@ async function rest () {
 		type: 'normal'
 	});
 	await execute_turn();
+	draw();
 	return true;
 }
 
@@ -1296,6 +1306,7 @@ async function put () {
 		type: 'normal'
 	});
 	await execute_turn();
+	draw();
 	return true;
 }
 
@@ -1317,6 +1328,7 @@ async function eat () {
 		throw new Error('not supported.');
 	}
 	await execute_turn();
+	draw();
 	return true;
 }
 
@@ -1338,6 +1350,7 @@ async function quaff () {
 		throw new Error('not supported.');
 	}
 	await execute_turn();
+	draw();
 	return true;
 }
 
@@ -1358,6 +1371,7 @@ async function equip_weapon () {
 		type: 'normal'
 	});
 	await execute_turn();
+	draw();
 	return true;
 }
 
@@ -1370,6 +1384,7 @@ async function unequip_weapon () {
 		type: 'normal'
 	});
 	await execute_turn();
+	draw();
 	return true;
 }
 
@@ -1390,6 +1405,7 @@ async function equip_armor () {
 		type: 'normal'
 	});
 	await execute_turn();
+	draw();
 	return true;
 }
 
@@ -1402,10 +1418,11 @@ async function unequip_armor () {
 		type: 'normal'
 	});
 	await execute_turn();
+	draw();
 	return true;
 }
 
-function draw (con, env) {
+function draw () {
 	con.fillStyle = 'black';
 	con.fillRect(0, 0, SCREEN_X, SCREEN_Y);
 
