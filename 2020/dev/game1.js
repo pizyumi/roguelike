@@ -39,6 +39,7 @@ function create_field (depth, upstairs, base_seed) {
 			var e = I_INFO[I_APPLE];
 			blocks[x][y].items.push({
 				dname: e.dname,
+				otype: OBJ_ITEM,
 				type: I_APPLE,
 				cat: I_CAT_FOOD,
 				weight: e.weight
@@ -149,6 +150,7 @@ function create_field (depth, upstairs, base_seed) {
 				var e = I_INFO[type];
 				blocks[x][y].items.push({
 					dname: e.dname,
+					otype: OBJ_ITEM, 
 					type: type,
 					cat: cat,
 					weight: e.weight
@@ -165,6 +167,7 @@ function create_field (depth, upstairs, base_seed) {
 				var level = random.select(ltable);
 				blocks[x][y].items.push({
 					dname: e.dname + level * 10,
+					otype: OBJ_ITEM, 
 					type: type,
 					cat: cat,
 					level: level,
@@ -196,6 +199,7 @@ function create_field (depth, upstairs, base_seed) {
 				var level = Math.max(random.select(ltable) - e.level, 0);
 				blocks[x][y].items.push({
 					dname: e.dname + (level === 0 ? '' : '+' + level),
+					otype: OBJ_ITEM, 
 					type: type,
 					cat: cat,
 					level: level,
@@ -229,6 +233,7 @@ function create_field (depth, upstairs, base_seed) {
 				var level = Math.max(random.select(ltable) - e.level, 0);
 				blocks[x][y].items.push({
 					dname: e.dname + (level === 0 ? '' : '+' + level),
+					otype: OBJ_ITEM, 
 					type: type,
 					cat: cat,
 					level: level,
@@ -526,6 +531,7 @@ class Enemy {
 		var e = E_INFO[type];
 
 		this.id = Enemy.index++;
+		this.otype = OBJ_ENEMY;
 		this.type = type;
 		this.x = x;
 		this.y = y;

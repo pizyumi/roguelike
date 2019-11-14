@@ -101,6 +101,9 @@ var PY = 48;
 var MAP_WIDTH = 256;
 var MAP_HEIGHT = 256;
 
+var OBJ_ENEMY = 0;
+var OBJ_ITEM = 1;
+
 var E_RAT = 0;
 var E_BAT = 1;
 var E_SLIME = 2;
