@@ -3,6 +3,10 @@ var query = get_query();
 var version = 'dev';
 var debug = query.debug ? true : version.substring(0, 3) === 'dev';
 
+var option = {
+	sound: true
+};
+
 var TITLE = 'シンプルローグライク';
 
 var TEXT_START = 'はじめる';
@@ -760,6 +764,8 @@ async function execute_turn () {
 				text: MSG_EATTACK({name: c.dname, dam}),
 				type: 'eattack'
 			});
+			draw();
+			await play_sound('eattack');
 			statistics.add_fight(c, STATS_FIGHT_INBOUND, dam);
 			if (player.hp <= 0) {
 				player.hp = 0;
@@ -1139,6 +1145,8 @@ async function attack (index) {
 		text: MSG_PATTACK({name: c.dname, dam}),
 		type: 'pattack'
 	});
+	draw();
+	await play_sound('pattack');
 	statistics.add_fight(c, STATS_FIGHT_OUTBOUND, dam);
 	if (c.hp <= 0) {
 		npcs.splice(index, 1);
@@ -1769,4 +1777,19 @@ function draw () {
 		con.fillStyle = 'rgba(0, 0, 0, 0.75)';
 		con.fillRect(32, 32, SCREEN_X - 32 * 2, SCREEN_Y - 32 * 2);
 	}
+}
+
+async function play_sound (name) {
+	return new Promise((resolve) => {
+		if (option.sound) {
+			var audio = document.getElementById('se_' + name);
+			audio.play();
+			audio.addEventListener('ended', function() {
+				resolve(true);
+			}, false);
+		}
+		else {
+			resolve(true);
+		}
+	});
 }
