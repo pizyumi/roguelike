@@ -60,26 +60,26 @@ function create_field (depth, upstairs, base_seed) {
 		};
 	}
 
-	var rs = [{
+	var workings = [{
 		x1: 1,
 		x2: nx - 2,
 		y1: 1,
 		y2: ny - 2
 	}];
-	var ers = [];
-	var dps = [1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5];
-	while (rs.length > 0 && dps.length > 0) {
-		var r = rs.shift();
-		var nrs = split_room(blocks, r, dps.shift(), random);
-		for (var i = 0; i < nrs.length; i++) {
-			rs.push(nrs[i]);
+	var ps = [1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5];
+	var rooms = [];
+	while (workings.length > 0 && ps.length > 0) {
+		var w = workings.shift();
+		var news = split_room(blocks, w, ps.shift(), random);
+		for (var i = 0; i < news.length; i++) {
+			workings.push(news[i]);
 		}
-		if (nrs.length === 0) {
-			ers.push(r);
+		if (news.length === 0) {
+			rooms.push(w);
 		}
 	}
-	while (rs.length > 0) {
-		ers.push(rs.shift());
+	while (workings.length > 0) {
+		rooms.push(workings.shift());
 	}
 
 	var nds = 1;
@@ -100,11 +100,11 @@ function create_field (depth, upstairs, base_seed) {
 	}
 
 	var npcs = [];
-	for (var i = 0; i < ers.length; i++) {
+	for (var i = 0; i < rooms.length; i++) {
 		var num = random.num(3);
 		for (var j = 0; j < num; j++) {
-			var x = random.num(ers[i].x2 - ers[i].x1) + ers[i].x1;
-			var y = random.num(ers[i].y2 - ers[i].y1) + ers[i].y1;
+			var x = random.num(rooms[i].x2 - rooms[i].x1) + rooms[i].x1;
+			var y = random.num(rooms[i].y2 - rooms[i].y1) + rooms[i].y1;
 			var f = true;
 			for (var k = 0; k < upstairs.length; k++) {
 				if (x === upstairs[k].x && y === upstairs[k].y) {
@@ -131,8 +131,8 @@ function create_field (depth, upstairs, base_seed) {
 
 		var num_item = Math.floor(random.fraction() + 0.5);
 		for (var j = 0; j < num_item; j++) {
-			var x = random.num(ers[i].x2 - ers[i].x1) + ers[i].x1;
-			var y = random.num(ers[i].y2 - ers[i].y1) + ers[i].y1;
+			var x = random.num(rooms[i].x2 - rooms[i].x1) + rooms[i].x1;
+			var y = random.num(rooms[i].y2 - rooms[i].y1) + rooms[i].y1;
 			if (!blocks[x][y].items) {
 				blocks[x][y].items = [];
 			}
@@ -255,7 +255,7 @@ function create_field (depth, upstairs, base_seed) {
 		nx: nx,
 		ny: ny,
 		blocks: blocks,
-		rooms: ers,
+		rooms: rooms,
 		npcs: npcs
 	};
 }
