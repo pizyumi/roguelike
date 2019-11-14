@@ -693,8 +693,8 @@ function init () {
 	fields = [];
 	fields[0] = create_field(0, [], seed);
 	player = new Player();
-	player.maps[0] = init_map(fields[0]);
-	update_map(player.maps[0], fields[0], player.x, player.y);
+	player.maps[0] = new FMap(fields[0]);
+	player.maps[0].update(player.x, player.y);
 	messages = [{
 		text: MSG_INIT,
 		type: 'special'
@@ -1075,7 +1075,7 @@ async function move (x, y) {
 	}
 	player.x = x;
 	player.y = y;
-	update_map(player.maps[player.depth], fields[player.depth], player.x, player.y);
+	player.maps[player.depth].update(player.x, player.y);
 	await execute_turn();
 	draw();
 	return true;
@@ -1213,9 +1213,9 @@ async function downstair () {
 		}], seed);
 	}
 	if (!player.maps[player.depth]) {
-		player.maps[player.depth] = init_map(fields[player.depth]);
+		player.maps[player.depth] = new FMap(fields[player.depth]);
 	}
-	update_map(player.maps[player.depth], fields[player.depth], player.x, player.y);
+	player.maps[player.depth].update(player.x, player.y);
 	add_message({
 		text: MSG_DOWNSTAIR,
 		type: 'normal'

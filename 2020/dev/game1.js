@@ -348,47 +348,63 @@ function split_room (blocks, r, dp, random) {
 	return [];
 }
 
-function init_map (field) {
-	var nx = field.nx;
-	var ny = field.ny;
-	var blocks = [];
-	for (var i = 0; i < nx; i++) {
-		blocks[i] = [];
-		for (var j = 0; j < ny; j++) {
-			blocks[i][j] = M_UNKNOWN;
-		}
-	}
-	return {
-		nx: nx,
-		ny: ny,
-		blocks: blocks,
-		room: null
-	};
-}
-
-function update_map (map, field, x, y) {
-	for (var i = 0; i < field.rooms.length; i++) {
-		var room = field.rooms[i];
-		if (within_room(x, y, room)) {
-			for (var j = room.x1 - 1; j <= room.x2 + 1; j++) {
-				for (var k = room.y1 - 1; k <= room.y2 + 1; k++) {
-					map.blocks[j][k] = field.blocks[j][k].base;
-				}
+class FMap {
+	constructor (field) {
+		var blocks = [];
+		for (var i = 0; i < field.nx; i++) {
+			blocks[i] = [];
+			for (var j = 0; j < field.ny; j++) {
+				blocks[i][j] = M_UNKNOWN;
 			}
-			map.room = room;
-			return;
 		}
+		this.field = field;
+		this.nx = field.nx;
+		this.ny = field.ny;
+		this.blocks = blocks;
+		this.room = null;
 	}
-	map.blocks[x][y] = field.blocks[x][y].base;
-	map.blocks[x - 1][y] = field.blocks[x - 1][y].base;
-	map.blocks[x + 1][y] = field.blocks[x + 1][y].base;
-	map.blocks[x][y - 1] = field.blocks[x][y - 1].base;
-	map.blocks[x][y + 1] = field.blocks[x][y + 1].base;
-	map.blocks[x - 1][y - 1] = field.blocks[x - 1][y - 1].base;
-	map.blocks[x + 1][y - 1] = field.blocks[x + 1][y - 1].base;
-	map.blocks[x - 1][y + 1] = field.blocks[x - 1][y + 1].base;
-	map.blocks[x + 1][y + 1] = field.blocks[x + 1][y + 1].base;
-	map.room = null;
+
+	update (x, y) {
+		for (var i = 0; i < this.field.rooms.length; i++) {
+			var room = this.field.rooms[i];
+			if (within_room(x, y, room)) {
+				room.items = [];
+				for (var j = room.x1 - 1; j <= room.x2 + 1; j++) {
+					for (var k = room.y1 - 1; k <= room.y2 + 1; k++) {
+						var block = this.field.blocks[j][k];
+						this.blocks[j][k] = block.base;
+						if (block.items) {
+							for (var l = 0; l < block.items.length; l++) {
+								var item = block.items[l];
+								item.x = j;
+								item.y = k;
+								room.items.push(item);
+							}
+						}
+					}
+				}
+				room.npcs = [];
+				for (var j = 0; j < this.field.npcs.length; j++) {
+					var c = this.field.npcs[j];
+					if (within_room(c.x, c.y, room)) {
+						room.npcs.push(c);
+					}
+				}
+				this.room = room;
+				return;
+			}
+		}
+		this.blocks[x][y] = this.field.blocks[x][y].base;
+		this.blocks[x - 1][y] = this.field.blocks[x - 1][y].base;
+		this.blocks[x + 1][y] = this.field.blocks[x + 1][y].base;
+		this.blocks[x][y - 1] = this.field.blocks[x][y - 1].base;
+		this.blocks[x][y + 1] = this.field.blocks[x][y + 1].base;
+		this.blocks[x - 1][y - 1] = this.field.blocks[x - 1][y - 1].base;
+		this.blocks[x + 1][y - 1] = this.field.blocks[x + 1][y - 1].base;
+		this.blocks[x - 1][y + 1] = this.field.blocks[x - 1][y + 1].base;
+		this.blocks[x + 1][y + 1] = this.field.blocks[x + 1][y + 1].base;
+		this.room = null;
+	}
 }
 
 class Items {
