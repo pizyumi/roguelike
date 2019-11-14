@@ -1219,7 +1219,7 @@ async function downstair () {
 
 async function rest () {
 	var room = player.maps[player.depth].room;
-	if (player.hp >= player.hpfull * 0.8) {
+	if (player.hp >= player.hpfull * 0.9) {
 		add_message({
 			text: MSG_SUFFICIENT_HP,
 			type: 'important'
@@ -1227,7 +1227,7 @@ async function rest () {
 		draw();
 		return false;
 	}
-	if (player.energy <= 20) {
+	if (player.energy <= 10) {
 		add_message({
 			text: MSG_CANT_REST_ENERGY,
 			type: 'important'
