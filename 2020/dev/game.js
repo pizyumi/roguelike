@@ -927,6 +927,7 @@ async function execute_turn () {
 				text: MSG_DIE,
 				type: 'special'
 			});
+			return;
 		}
 	}
 	else {
