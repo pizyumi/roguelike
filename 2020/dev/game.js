@@ -966,6 +966,8 @@ async function execute_turn () {
 			player.hp_fraction = 0;
 		}
 	}
+
+	player.maps[player.depth].update(player.x, player.y);
 }
 
 function calculate_damage (atk, def) {
@@ -1079,7 +1081,6 @@ async function move (x, y) {
 	}
 	player.x = x;
 	player.y = y;
-	player.maps[player.depth].update(player.x, player.y);
 	await execute_turn();
 	draw();
 	return true;
