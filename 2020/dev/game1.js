@@ -36,14 +36,7 @@ function create_field (depth, upstairs, base_seed) {
 			if (!blocks[x][y].items) {
 				blocks[x][y].items = [];
 			}
-			var e = I_INFO[I_APPLE];
-			blocks[x][y].items.push({
-				dname: e.dname,
-				otype: OBJ_ITEM,
-				type: I_APPLE,
-				cat: I_CAT_FOOD,
-				weight: e.weight
-			});
+			blocks[x][y].items.push(new Item(I_APPLE, I_CAT_FOOD));
 		}
 
 		return {
@@ -147,14 +140,7 @@ function create_field (depth, upstairs, base_seed) {
 			var cat = random.select(ctable);
 			if (cat === I_CAT_FOOD) {
 				var type = I_APPLE;
-				var e = I_INFO[type];
-				blocks[x][y].items.push({
-					dname: e.dname,
-					otype: OBJ_ITEM, 
-					type: type,
-					cat: cat,
-					weight: e.weight
-				});
+				blocks[x][y].items.push(new Item(type, cat));
 			}
 			else if (cat === I_CAT_POTION) {
 				var type = I_HEALTH_POTION;
@@ -165,14 +151,7 @@ function create_field (depth, upstairs, base_seed) {
 				ltable.set(baselevel + 1, 20);
 				ltable.set(baselevel + 2, 5);
 				var level = random.select(ltable);
-				blocks[x][y].items.push({
-					dname: e.dname + level * 10,
-					otype: OBJ_ITEM, 
-					type: type,
-					cat: cat,
-					level: level,
-					weight: e.weight
-				});
+				blocks[x][y].items.push(new HealthPotion(type, cat, level));
 			}
 			else if (cat === I_CAT_WEAPON) {
 				var itable = new Map();
@@ -197,16 +176,7 @@ function create_field (depth, upstairs, base_seed) {
 				ltable.set(baselevel + 1, 20);
 				ltable.set(baselevel + 2, 5);
 				var level = Math.max(random.select(ltable) - e.level, 0);
-				blocks[x][y].items.push({
-					dname: e.dname + (level === 0 ? '' : '+' + level),
-					otype: OBJ_ITEM, 
-					type: type,
-					cat: cat,
-					level: level,
-					weight: e.weight,
-					atk: e.atk + level,
-					equipped: false
-				});
+				blocks[x][y].items.push(new Weapon(type, cat, level));
 			}
 			else if (cat === I_CAT_ARMOR) {
 				var itable = new Map();
@@ -231,16 +201,7 @@ function create_field (depth, upstairs, base_seed) {
 				ltable.set(baselevel + 1, 20);
 				ltable.set(baselevel + 2, 5);
 				var level = Math.max(random.select(ltable) - e.level, 0);
-				blocks[x][y].items.push({
-					dname: e.dname + (level === 0 ? '' : '+' + level),
-					otype: OBJ_ITEM, 
-					type: type,
-					cat: cat,
-					level: level,
-					weight: e.weight,
-					def: e.def + level,
-					equipped: false
-				});
+				blocks[x][y].items.push(new Armor(type, cat, level));
 			}
 		}
 	}
@@ -574,3 +535,70 @@ class Enemy {
 }
 
 Enemy.index = 0;
+
+class Item {
+	constructor (type, cat) {
+		this.id = Item.index++;
+		this.otype = OBJ_ITEM;
+		this.type = type;
+		this.cat = cat;
+
+		this.info = I_INFO[type];
+		this.dnamebase = this.info.dname;
+		this.weight = this.info.weight;
+	}
+
+	get dname () {
+		return this.dnamebase;
+	}
+}
+
+Item.index = 0;
+
+class HealthPotion extends Item {
+	constructor (type, cat, level) {
+		super(type, cat);
+
+		this.level = level;
+	}
+
+	get dname () {
+		return this.dnamebase + this.level * 10;
+	}
+}
+
+class Weapon extends Item {
+	constructor (type, cat, level) {
+		super(type, cat);
+
+		this.level = level;
+		this.atkbase = this.info.atk;
+		this.equipped = false;
+	}
+
+	get dname () {
+		return this.dnamebase + (this.level === 0 ? '' : '+' + this.level);
+	}
+
+	get atk () {
+		return this.atkbase + this.level;
+	}
+}
+
+class Armor extends Item {
+	constructor (type, cat, level) {
+		super(type, cat);
+
+		this.level = level;
+		this.defbase = this.info.def;
+		this.equipped = false;
+	}
+
+	get dname () {
+		return this.dnamebase + (this.level === 0 ? '' : '+' + this.level);
+	}
+
+	get def () {
+		return this.defbase + this.level;
+	}
+}
