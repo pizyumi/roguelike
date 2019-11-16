@@ -51,16 +51,16 @@ var MSG_CANT_PICKUP = ({name}) => `${name}を拾おうとしましたが、持�
 var MSG_PUT = ({name}) => `${name}を置きました。`;
 var MSG_EAT_FOOD = ({name, diff}) => `${name}を食べました。満腹度が${diff}回復しました。`;
 var MSG_QUAFF_HPOTION = ({name, diff}) => `${name}を飲みました。HPが${diff}回復しました。`;
+var MSG_EQUIP_WEAPON = ({name, diff}) => `${name}を装備しました。攻撃力が${diff}増加しました。`;
+var MSG_UNEQUIP_WEAPON = ({name, diff}) => `${name}を外しました。攻撃力が${diff}減少しました。`;
+var MSG_EQUIP_ARMOR = ({name, diff}) => `${name}を装備しました。防御力が${diff}増加しました。`;
+var MSG_UNEQUIP_ARMOR = ({name, diff}) => `${name}を外しました。防御力が${diff}減少しました。`;
 var MSG_EMPTY_INV = '何も持っていません。';
 var MSG_REST = 'ほんの少しの間休憩しました。';
 var MSG_CANT_REST_ENERGY = '休憩する前に空腹を満たさないとです。';
 var MSG_CANT_REST_ENEMY = '敵が近くにいて休憩できません。';
 var MSG_CANT_REST_PASSAGE = '部屋の中でないと休憩できません。';
 var MSG_SUFFICIENT_HP = '休憩の必要はなさそうです。';
-var MSG_EQUIP_WEAPON = ({name, diff}) => `${name}を装備しました。攻撃力が${diff}増加しました。`;
-var MSG_UNEQUIP_WEAPON = ({name, diff}) => `${name}を外しました。攻撃力が${diff}減少しました。`;
-var MSG_EQUIP_ARMOR = ({name, diff}) => `${name}を装備しました。防御力が${diff}増加しました。`;
-var MSG_UNEQUIP_ARMOR = ({name, diff}) => `${name}を外しました。防御力が${diff}減少しました。`;
 
 var E_RAT_NAME = 'ネズミ';
 var E_BAT_NAME = 'コウモリ';
