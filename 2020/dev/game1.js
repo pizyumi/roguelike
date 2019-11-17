@@ -139,7 +139,10 @@ function create_field (depth, upstairs, base_seed) {
 			}
 			var cat = random.select(ctable);
 			if (cat === I_CAT_FOOD) {
-				var type = I_APPLE;
+				var itable = new Map();
+				itable.set(I_APPLE, 80);
+				itable.set(I_HP_GRASS, 20);
+				var type = random.select(itable);
 				blocks[x][y].items.push(new Item(type, cat));
 			}
 			else if (cat === I_CAT_POTION) {

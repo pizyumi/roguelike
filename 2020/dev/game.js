@@ -50,6 +50,7 @@ var MSG_PICKUP = ({name}) => `${name}を拾いました。`;
 var MSG_CANT_PICKUP = ({name}) => `${name}を拾おうとしましたが、持ちきれませんでした。`;
 var MSG_PUT = ({name}) => `${name}を置きました。`;
 var MSG_EAT_FOOD = ({name, diff}) => `${name}を食べました。満腹度が${diff}回復しました。`;
+var MSG_EAT_HP_GRASS = ({name, hpdiff, ediff}) => `${name}を食べました。最大HPが${hpdiff}上昇しました。満腹度が${ediff}回復しました。`;
 var MSG_QUAFF_HPOTION = ({name, diff}) => `${name}を飲みました。HPが${diff}回復しました。`;
 var MSG_EQUIP_WEAPON = ({name, diff}) => `${name}を装備しました。攻撃力が${diff}増加しました。`;
 var MSG_UNEQUIP_WEAPON = ({name, diff}) => `${name}を外しました。攻撃力が${diff}減少しました。`;
@@ -72,6 +73,7 @@ var E_WOLF_NAME = 'オオカミ';
 var E_GOBLIN_NAME = 'ゴブリン';
 
 var I_APPLE_NAME = 'リンゴ';
+var I_HP_GRASS_NAME = '命の草';
 var I_HEALTH_POTION_NAME = '回復薬';
 var I_DAGGER_NAME = 'ダガー';
 var I_SHORT_SWORD_NAME = 'ショートソード';
@@ -191,6 +193,7 @@ B_CAN_STAND[B_DOWNSTAIR] = true;
 var M_UNKNOWN = 65535;
 
 var I_APPLE = 0;
+var I_HP_GRASS = 50;
 var I_HEALTH_POTION = 100;
 var I_DAGGER = 200;
 var I_SHORT_SWORD = 201;
@@ -206,6 +209,10 @@ var I_PLATE_ARMOR = 304;
 var I_INFO = [];
 I_INFO[I_APPLE] = {
 	dname: I_APPLE_NAME,
+	weight: 0.1
+};
+I_INFO[I_HP_GRASS] = {
+	dname: I_HP_GRASS_NAME,
 	weight: 0.1
 };
 I_INFO[I_HEALTH_POTION] = {
@@ -1338,6 +1345,16 @@ async function eat () {
 			type: 'normal'
 		});
 	}
+	else if (item.type === I_HP_GRASS) {
+		var hpold = player.hpfull;
+		player.hpext += Math.ceil(player.hpfull * 0.1);
+		var hpdiff = player.hpfull - hpold;
+		var ediff = player.increase_energy(10);
+		add_message({
+			text: MSG_EAT_HP_GRASS({name: item.dname, hpdiff, ediff}),
+			type: 'important'
+		});
+	}
 	else {
 		throw new Error('not supported.');
 	}
@@ -1522,6 +1539,9 @@ function draw () {
 						if (item.type === I_APPLE) {
 							con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
 						}
+						else if (item.type === I_HP_GRASS) {
+							con.drawImage(img2, 1 * 32, 1 * 32, 32, 32, i * PX, j * PY, PX, PY);
+						}
 						else if (item.cat === I_CAT_POTION) {
 							con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
 						}
@@ -1665,6 +1685,9 @@ function draw () {
 		for (var i = invoffset; i < invoffset + 10 && i < items.length; i++) {
 			if (items[i].type === I_APPLE) {
 				con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+			}
+			else if (items[i].type === I_HP_GRASS) {
+				con.drawImage(img2, 1 * 32, 1 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 			}
 			else if (items[i].cat === I_CAT_POTION) {
 				con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
