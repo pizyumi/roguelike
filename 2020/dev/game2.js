@@ -126,6 +126,52 @@ function calculate_stats (ds) {
 	}
 }
 
+function stats_nan_formatter (cell, formatterParams, onRendered) {
+	var val = cell.getValue();
+	return isNaN(val) || val === null ? '-' : val;
+}
+
+function create_statistics_html (parent, record, secret) {
+    var columns = [];
+    columns.push({ title: TEXT_KILL, field: 'killed', formatter: 'tickCross'});
+    if (secret) {
+        columns.push({ title: TEXT_ID, field: 'id'});
+    }
+    columns.push({ title: TEXT_NAME, field: 'dname'});
+    if (secret) {
+        columns.push({ title: TEXT_LEVEL, field: 'level'});
+    }
+    columns.push({ title: TEXT_EXP, field: 'exp'});
+    columns.push({ title: TEXT_IN_DAMAGE, field: 'ps'});
+    columns.push({ title: TEXT_NUM, field: 'plen'});
+    columns.push({ title: TEXT_SUM, field: 'psum'});
+    columns.push({ title: TEXT_MIN, field: 'pmin', formatter: stats_nan_formatter});
+    columns.push({ title: TEXT_MAX, field: 'pmax', formatter: stats_nan_formatter});
+    columns.push({ title: TEXT_AVG, field: 'pavg', formatter: stats_nan_formatter});
+    columns.push({ title: TEXT_OUT_DAMAGE, field: 'cs'});
+    columns.push({ title: TEXT_NUM, field: 'clen'});
+    columns.push({ title: TEXT_SUM, field: 'csum'});
+    columns.push({ title: TEXT_MIN, field: 'cmin', formatter: stats_nan_formatter});
+    columns.push({ title: TEXT_MAX, field: 'cmax', formatter: stats_nan_formatter});
+    columns.push({ title: TEXT_AVG, field: 'cavg', formatter: stats_nan_formatter});
+
+    var h1 = $('<h1>' + TEXT_FIGHT + '</h1>');
+    parent.append(h1);
+    for (var i = 0; i < record.fights.length; i++) {
+        var h2 = $('<h2>' + i + TEXT_DEPTH + '</h2>');
+        parent.append(h2);
+        var div = $('<div></div>');
+        div.attr('id', 'fights' + i);
+        parent.append(div);
+
+        var table = new Tabulator('#fights' + i, {
+            height: 512,
+            data: record.fights[i],
+            columns: columns
+        });
+    }
+}
+
 class Random {
 	constructor (seed) {
 		this.seed = seed;

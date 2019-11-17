@@ -51,11 +51,6 @@ function get_query () {
 	return obj;
 }
 
-function stats_nan_formatter (cell, formatterParams, onRendered) {
-	var val = cell.getValue();
-	return isNaN(val) || val === null ? '-' : val;
-}
-
 $(function () {
 	var canvas = document.getElementById('game');
 	con = canvas.getContext('2d');
@@ -162,46 +157,8 @@ $(function () {
 				$(document.body).prepend(stats_aux_elem);
 				$(document.body).prepend(stats_elem);
 
-				var columns = [];
-				columns.push({ title: TEXT_KILL, field: 'killed', formatter: 'tickCross'});
-				if (debug) {
-					columns.push({ title: TEXT_ID, field: 'id'});
-				}
-				columns.push({ title: TEXT_NAME, field: 'dname'});
-				if (debug) {
-					columns.push({ title: TEXT_LEVEL, field: 'level'});
-				}
-				columns.push({ title: TEXT_EXP, field: 'exp'});
-				columns.push({ title: TEXT_IN_DAMAGE, field: 'ps'});
-				columns.push({ title: TEXT_NUM, field: 'plen'});
-				columns.push({ title: TEXT_SUM, field: 'psum'});
-				columns.push({ title: TEXT_MIN, field: 'pmin', formatter: stats_nan_formatter});
-				columns.push({ title: TEXT_MAX, field: 'pmax', formatter: stats_nan_formatter});
-				columns.push({ title: TEXT_AVG, field: 'pavg', formatter: stats_nan_formatter});
-				columns.push({ title: TEXT_OUT_DAMAGE, field: 'cs'});
-				columns.push({ title: TEXT_NUM, field: 'clen'});
-				columns.push({ title: TEXT_SUM, field: 'csum'});
-				columns.push({ title: TEXT_MIN, field: 'cmin', formatter: stats_nan_formatter});
-				columns.push({ title: TEXT_MAX, field: 'cmax', formatter: stats_nan_formatter});
-				columns.push({ title: TEXT_AVG, field: 'cavg', formatter: stats_nan_formatter});
-
 				setTimeout(function () {
-					var record = statistics.get_record(debug);
-					var h1 = $('<h1>' + TEXT_FIGHT + '</h1>');
-					stats_elem.append(h1);
-					for (var i = 0; i < record.fights.length; i++) {
-						var h2 = $('<h2>' + i + TEXT_DEPTH + '</h2>');
-						stats_elem.append(h2);
-						var div = $('<div></div>');
-						div.attr('id', 'fights' + i);
-						stats_elem.append(div);
-
-						var table = new Tabulator('#fights' + i, {
-							height: 512,
-							data: record.fights[i],
-							columns: columns
-						});
-					}
+					create_statistics_html(stats_elem, statistics.get_record(debug), debug);
 
 					stats_aux_elem.text('');
 				}, 0);
