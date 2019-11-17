@@ -131,7 +131,7 @@ $(function () {
 				draw();
 			}
 			else if (e.keyCode === 83) {
-				navigator.clipboard.writeText(JSON.stringify(statistics.get_fights_all()));
+				navigator.clipboard.writeText(JSON.stringify(statistics.get_record()));
 				stats_aux_elem.text(TEXT_SAVE_CLIPBOARD);
 			}
 
@@ -186,19 +186,19 @@ $(function () {
 				columns.push({ title: TEXT_AVG, field: 'cavg', formatter: stats_nan_formatter});
 
 				setTimeout(function () {
+					var record = statistics.get_record();
 					var h1 = $('<h1>' + TEXT_FIGHT + '</h1>');
 					stats_elem.append(h1);
-					for (var i = 0; i <= player.depth; i++) {
+					for (var i = 0; i < record.fights.length; i++) {
 						var h2 = $('<h2>' + i + TEXT_DEPTH + '</h2>');
 						stats_elem.append(h2);
 						var div = $('<div></div>');
 						div.attr('id', 'fights' + i);
-						div.css('width', SCREEN_X - 64 * 3);
 						stats_elem.append(div);
 
 						var table = new Tabulator('#fights' + i, {
 							height: 512,
-							data: statistics.get_fights(i),
+							data: record.fights[i],
 							columns: columns
 						});
 					}
