@@ -26,21 +26,21 @@ class Statistics {
 		});
 	}
 
-	get_record () {
+	get_record (secret) {
 		return {
-			fights: this.get_fights_all()
+			fights: this.get_fights_all(secret)
 		};
 	}
 
-	get_fights_all () {
+	get_fights_all (secret) {
 		var all = [];
 		for (var i = 0; i <= player.depth; i++) {
-			all.push(this.get_fights(i));
+			all.push(this.get_fights(i, secret));
 		}
 		return all;
 	}
 
-	get_fights (depth) {
+	get_fights (depth, secret) {
 		var fights = [];
 		var fs = this.fights[depth];
 		if (fs) {
@@ -65,11 +65,11 @@ class Statistics {
 				var cstats = calculate_stats(cs);
 
 				var fight = {};
-				if (debug) {
+				if (secret) {
 					fight.id = c.id;
 				}
 				fight.dname = c.dname;
-				if (debug) {
+				if (secret) {
 					fight.level = c.level;
 				}
 				fight.exp = c.exp;

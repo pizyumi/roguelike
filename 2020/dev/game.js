@@ -131,7 +131,7 @@ $(function () {
 				draw();
 			}
 			else if (e.keyCode === 83) {
-				navigator.clipboard.writeText(JSON.stringify(statistics.get_record()));
+				navigator.clipboard.writeText(JSON.stringify(statistics.get_record(debug)));
 				stats_aux_elem.text(TEXT_SAVE_CLIPBOARD);
 			}
 
@@ -186,7 +186,7 @@ $(function () {
 				columns.push({ title: TEXT_AVG, field: 'cavg', formatter: stats_nan_formatter});
 
 				setTimeout(function () {
-					var record = statistics.get_record();
+					var record = statistics.get_record(debug);
 					var h1 = $('<h1>' + TEXT_FIGHT + '</h1>');
 					stats_elem.append(h1);
 					for (var i = 0; i < record.fights.length; i++) {
@@ -214,7 +214,7 @@ $(function () {
 
 		if (gameover) {
 			if (e.keyCode === 90) {
-				var record = statistics.get_record();
+				var record = statistics.get_record(true);
 				record.id = time.toString(10);
 				record.version = version;
 				record.name = name;
