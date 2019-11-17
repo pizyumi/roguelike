@@ -23,6 +23,7 @@ obj = _.extend(obj, {
         app.use('/', express.static('../public'));
         app.use('/lib', express.static('../lib'));
         app.use('/img', express.static('../img'));
+        app.use('/mp3', express.static('../mp3'));
         app.use('/dev', express.static('../dev'));
         app.use(bodyparser.json());
         app.post('/add-record', (req, res, next) => {
