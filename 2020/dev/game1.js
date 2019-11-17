@@ -131,11 +131,12 @@ function create_field (depth, upstairs, base_seed) {
 			}
 
 			var ctable = new Map();
-			ctable.set(I_CAT_FOOD, 20);
-			ctable.set(I_CAT_POTION, 50);
+			ctable.set(I_CAT_FOOD, 25);
+			ctable.set(I_CAT_POTION, 45);
 			if (depth >= 2) {
-				ctable.set(I_CAT_WEAPON, 15);
-				ctable.set(I_CAT_ARMOR, 15);
+				ctable.set(I_CAT_WEAPON, 10);
+				ctable.set(I_CAT_ARMOR, 10);
+				ctable.set(I_CAT_SCROLL, 10);
 			}
 			var cat = random.select(ctable);
 			if (cat === I_CAT_FOOD) {
@@ -205,6 +206,13 @@ function create_field (depth, upstairs, base_seed) {
 				ltable.set(baselevel + 2, 5);
 				var level = Math.max(random.select(ltable) - e.level, 0);
 				blocks[x][y].items.push(new Armor(type, cat, level));
+			}
+			else if (cat === I_CAT_SCROLL) {
+				var itable = new Map();
+				itable.set(I_WEAPON_SCROLL, 1);
+				itable.set(I_ARMOR_SCROLL, 1);
+				var type = random.select(itable);
+				blocks[x][y].items.push(new Item(type, cat));
 			}
 		}
 	}
@@ -596,6 +604,12 @@ class Weapon extends Item {
 	get atk () {
 		return this.atkbase + this.level;
 	}
+
+	levelup (d) {
+		var old = this.atk;
+		this.level += d;
+		return this.atk - old;
+	}
 }
 
 class Armor extends Item {
@@ -613,5 +627,11 @@ class Armor extends Item {
 
 	get def () {
 		return this.defbase + this.level;
+	}
+
+	levelup (d) {
+		var old = this.def;
+		this.level += d;
+		return this.def - old;
 	}
 }

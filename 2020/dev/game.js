@@ -56,6 +56,9 @@ var MSG_EQUIP_WEAPON = ({name, diff}) => `${name}を装備しました。攻撃�
 var MSG_UNEQUIP_WEAPON = ({name, diff}) => `${name}を外しました。攻撃力が${diff}減少しました。`;
 var MSG_EQUIP_ARMOR = ({name, diff}) => `${name}を装備しました。防御力が${diff}増加しました。`;
 var MSG_UNEQUIP_ARMOR = ({name, diff}) => `${name}を外しました。防御力が${diff}減少しました。`;
+var MSG_READ_WEAPON_SCROLL = ({name, diff}) => `${name}を読みました。装備している武器の攻撃力が${diff}上昇しました。`;
+var MSG_READ_ARMOR_SCROLL = ({name, diff}) => `${name}を読みました。装備している防具の防御力が${diff}上昇しました。`;
+var MSG_NO_EFFECT = '何も起きませんでした。';
 var MSG_EMPTY_INV = '何も持っていません。';
 var MSG_REST = 'ほんの少しの間休憩しました。';
 var MSG_CANT_REST_ENERGY = '休憩する前に空腹を満たさないとです。';
@@ -85,11 +88,14 @@ var I_RIVET_ARMOR_NAME = 'リベットアーマー';
 var I_SCALE_ARMOR_NAME = 'スケールアーマー';
 var I_CHAIN_MAIL_NAME = 'チェーンメール';
 var I_PLATE_ARMOR_NAME = 'プレートアーマー';
+var I_WEAPON_SCROLL_NAME = '武器屋の巻物';
+var I_ARMOR_SCROLL_NAME = '防具屋の巻物';
 
 var ACTION_EAT = '食べる';
 var ACTION_QUAFF = '飲む';
 var ACTION_EQUIP = '装備する';
 var ACTION_UNEQUIP = '外す';
+var ACTION_READ = '読む';
 var ACTION_PUT = '置く';
 
 var SCREEN_X = 1600;
@@ -205,6 +211,8 @@ var I_RIVET_ARMOR = 301;
 var I_SCALE_ARMOR = 302;
 var I_CHAIN_MAIL = 303;
 var I_PLATE_ARMOR = 304;
+var I_WEAPON_SCROLL = 400;
+var I_ARMOR_SCROLL = 401;
 
 var I_INFO = [];
 I_INFO[I_APPLE] = {
@@ -279,11 +287,20 @@ I_INFO[I_PLATE_ARMOR] = {
 	weight: 0.8,
 	def: 5
 };
+I_INFO[I_WEAPON_SCROLL] = {
+	dname: I_WEAPON_SCROLL_NAME,
+	weight: 0.1
+};
+I_INFO[I_ARMOR_SCROLL] = {
+	dname: I_ARMOR_SCROLL_NAME,
+	weight: 0.1
+};
 
 var I_CAT_FOOD = 0;
 var I_CAT_POTION = 1;
 var I_CAT_WEAPON = 2;
 var I_CAT_ARMOR = 3;
+var I_CAT_SCROLL = 4;
 
 var NUM_MESSAGE = 8;
 
@@ -1315,6 +1332,12 @@ function get_item_actions (item) {
 		}
 		return actions;
 	}
+	else if (item.cat === I_CAT_SCROLL) {
+		return [
+			{ name: 'read', dname: ACTION_READ, exec: async () => await read() },
+			{ name: 'put', dname: ACTION_PUT, exec: async () => await put() }
+		];
+	}
 	else {
 		throw new Error('not supported.');
 	}
@@ -1453,6 +1476,46 @@ async function unequip_armor () {
 	return true;
 }
 
+async function read () {
+	var item = consume_item();
+	if (item.type === I_WEAPON_SCROLL) {
+		if (player.weapon === null) {
+			add_message({
+				text: MSG_NO_EFFECT,
+				type: 'important'
+			});
+		}
+		else {
+			var diff = player.weapon.levelup(1);
+			add_message({
+				text: MSG_READ_WEAPON_SCROLL({name: item.dname, diff}),
+				type: 'important'
+			});
+		}
+	}
+	else if (item.type === I_ARMOR_SCROLL) {
+		if (player.armor === null) {
+			add_message({
+				text: MSG_NO_EFFECT,
+				type: 'important'
+			});
+		}
+		else {
+			var diff = player.armor.levelup(1);
+			add_message({
+				text: MSG_READ_ARMOR_SCROLL({name: item.dname, diff}),
+				type: 'important'
+			});
+		}
+	}
+	else {
+		throw new Error('not supported.');
+	}
+	await execute_turn();
+	draw();
+	return true;
+}
+
 function draw () {
 	con.fillStyle = 'black';
 	con.fillRect(0, 0, SCREEN_X, SCREEN_Y);
@@ -1550,6 +1613,9 @@ function draw () {
 						}
 						else if (item.cat === I_CAT_ARMOR) {
 							con.drawImage(img2, 10 * 32, 7 * 32, 32, 32, i * PX, j * PY, PX, PY);
+						}
+						else if (item.cat === I_CAT_SCROLL) {
+							con.drawImage(img2, 6 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
 						}
 						else {
 							throw new Error('not supported.');
@@ -1697,6 +1763,9 @@ function draw () {
 			}
 			else if (items[i].cat === I_CAT_ARMOR) {
 				con.drawImage(img2, 10 * 32, 7 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+			}
+			else if (items[i].cat === I_CAT_SCROLL) {
+				con.drawImage(img2, 6 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 			}
 			else {
 				throw new Error('not supported.');
