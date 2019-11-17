@@ -12,6 +12,9 @@ obj = _.extend(obj, {
   save_text_to_path: async (p, text) => {
     await fsextra.mkdirsAsync(path.dirname(p));
     await fs.writeFileAsync(p, text, 'utf-8');
+  }, 
+  save_json_to_path: async (p, json) => {
+    await obj.save_text_to_path(p, JSON.stringify(json));
   }
 });
 
