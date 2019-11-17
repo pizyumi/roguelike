@@ -485,6 +485,16 @@ class Player {
 	get def () {
 		return this.defbase + this.defext + (this.armor === null ? 0 : this.armor.def);
 	}
+
+	increase_energy (max) {
+		var old = this.energy;
+		this.energy += max;
+		if (this.energy >= this.energyfull) {
+			this.energy = this.energyfull;
+			this.energy_turn = 0;
+		}
+		return this.energy - old;
+	}
 }
 
 class Enemy {

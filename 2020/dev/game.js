@@ -1332,14 +1332,9 @@ async function put () {
 async function eat () {
 	var item = consume_item();
 	if (item.type === I_APPLE) {
-		var old = player.energy;
-		player.energy += 50;
-		if (player.energy >= player.energyfull) {
-			player.energy = player.energyfull;
-			player.energy_turn = 0;
-		}
+		var diff = player.increase_energy(50);
 		add_message({
-			text: MSG_EAT_FOOD({name: item.dname, diff: player.energy - old}),
+			text: MSG_EAT_FOOD({name: item.dname, diff}),
 			type: 'normal'
 		});
 	}
