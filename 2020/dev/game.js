@@ -53,7 +53,7 @@ function get_query () {
 
 function stats_nan_formatter (cell, formatterParams, onRendered) {
 	var val = cell.getValue();
-	return isNaN(val) ? '-' : val;
+	return isNaN(val) || val === null ? '-' : val;
 }
 
 $(function () {
