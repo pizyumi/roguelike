@@ -143,12 +143,19 @@ class Random {
 		return parseInt(value, 16);
 	}
 
+	twobytes () {
+		return this.byte() * 256 + this.byte();
+	}
+
 	num (max) {
 		if (max <= 0) {
 			throw new Error('max of random.num must be positive.');
 		}
-		else if (max <= 256) {
+		else if (max <= 128) {
 			return this.byte() % max;
+		}
+		else if (max <= 32768) {
+			return this.twobytes() % max;
 		}
 		else {
 			throw new Error('not supported.');
@@ -195,12 +202,32 @@ function test_random_class_byte () {
 	}
 }
 
+function test_random_class_twobytes () {
+	var a = [17417, 38466, 18360, 10904, 21535, 38083, 20345, 65003];
+	var r = new Random('yurina');
+	for (var i = 0; i < a.length; i++) {
+		if (r.twobytes() !== a[i]) {
+			throw new Error('test_random_class_twobytes');
+		}
+	}
+}
+
 function test_random_class_num () {
 	var a = [0, 1, 0, 2, 1, 4, 0, 0, 3, 1, 5, 3, 1, 9, 13, 11];
 	var r = new Random('yurina');
 	for (var i = 0; i < a.length; i++) {
 		if (r.num(i + 1) !== a[i]) {
 			throw new Error('test_random_class_num');
+		}
+	}
+}
+
+function test_random_class_num2 () {
+	var a = [2, 116, 20, 80, 122, 27, 95, 131];
+	var r = new Random('yurina');
+	for (var i = 0; i < a.length; i++) {
+		if (r.num(i + 129) !== a[i]) {
+			throw new Error('test_random_class_num2');
 		}
 	}
 }
