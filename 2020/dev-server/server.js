@@ -25,6 +25,37 @@ obj = _.extend(obj, {
         app.use('/img', express.static('../img'));
         app.use('/mp3', express.static('../mp3'));
         app.use('/dev', express.static('../dev'));
+        app.get('/get-versions', (req, res, next) => {
+          co(function* () {
+            var p = path.join('..', 'record');
+            var versions = (yield common.load_folders_from_path(p)).map((i) => path.basename(i));
+            yield common.send_res_with_json(res, versions);
+          }).catch(next);
+        });
+        app.get('/get-names', (req, res, next) => {
+          co(function* () {
+            var data = req.query;
+            var p = path.join('..', 'record', data.version);
+            var names = (yield common.load_folders_from_path(p)).map((i) => path.basename(i));
+            yield common.send_res_with_json(res, names);
+          }).catch(next);
+        });
+        app.get('/get-records', (req, res, next) => {
+          co(function* () {
+            var data = req.query;
+            var p = path.join('..', 'record', data.version, data.name);
+            var records = (yield common.load_files_from_path(p)).map((i) => path.basename(i, path.extname(i)));
+            yield common.send_res_with_json(res, records);
+          }).catch(next);
+        });
+        app.get('/get-record', (req, res, next) => {
+          co(function* () {
+            var data = req.query;
+            var p = path.join('..', 'record', data.version, data.name, data.record + '.json');
+            var record = yield common.load_json_from_path(p);
+            yield common.send_res_with_json(res, record);
+          }).catch(next);
+        });
         app.use(bodyparser.json());
         app.post('/add-record', (req, res, next) => {
           co(function* () {

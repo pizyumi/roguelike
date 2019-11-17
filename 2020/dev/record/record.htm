@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>シンプルローグライク - 記録</title>
+	<link href="/lib/bootstrap.min.css" rel="stylesheet">
+	<link href="/lib/tabulator.min.css" rel="stylesheet">
+</head>
+<script src="/lib/jquery.min.js"></script>
+<script src="/lib/vue.min.js"></script>
+<script src="/lib/popper.min.js"></script>
+<script src="/lib/bootstrap.min.js"></script>
+<script src="/lib/axios.min.js"></script>
+<script src="/lib/tabulator.min.js"></script>
+<script src="record.js"></script>
+<script src="../game-constant.js"></script>
+<script src="../game2.js"></script>
+<div id="app" class="container-fluid">
+	<div class="row">
+		<div class="col">
+			<ul class="list-group">
+				<li class="list-group-item list-group-item-action" v-for="v in versions" v-on:click.stop="names(v)">
+					{{ v.name }}
+					<ul class="list-group">
+						<li class="list-group-item list-group-item-action" v-for="n in v.names" v-on:click.stop="records(v, n)">
+							{{ n.name }}
+							<ul class="list-group">
+								<li class="list-group-item list-group-item-action" v-for="r in n.records" v-on:click.stop="record(v, n, r)">
+									{{ r.name }}
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<div id="record" class="col-10">
+		</div>
+	</div>
+</div>
+</body>
+
+</html>
