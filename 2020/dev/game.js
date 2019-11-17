@@ -14,6 +14,7 @@ img2.src = '/img/fighting_fantasy_icons.png';
 
 var time = null;
 var seed = null;
+var name = null;
 
 var con = null;
 var env = null;
@@ -108,6 +109,7 @@ $(function () {
 			if (e.keyCode === 90) {
 				startf = true;
 
+				name = 'anonymous';
 				init();
 
 				draw();
@@ -215,6 +217,7 @@ $(function () {
 				var record = statistics.get_record();
 				record.id = time.toString(10);
 				record.version = version;
+				record.name = name;
 
 				axios.post('/add-record', record).then((res) => {
 				}).catch((err) => {

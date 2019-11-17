@@ -28,7 +28,7 @@ obj = _.extend(obj, {
         app.post('/add-record', (req, res, next) => {
           co(function* () {
             var record = req.body;
-            var p = path.join('..', 'record', record.version, record.id + '.json');
+            var p = path.join('..', 'record', record.version, record.name, record.id + '.json');
             yield common.save_text_to_path(p, JSON.stringify(record));
           }).catch(next);
         });
