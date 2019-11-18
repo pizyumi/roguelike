@@ -61,7 +61,7 @@ obj = _.extend(obj, {
           co(function* () {
             var record = req.body;
             var p = path.join('..', 'record', record.version, record.name, record.id + '.json');
-            yield common.save_json_to_path(p);
+            yield common.save_json_to_path(p, record);
           }).catch(next);
         });
         app.get('*', (req, res, next) => next({ status: 404 }));
