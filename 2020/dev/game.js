@@ -305,16 +305,16 @@ $(function () {
 		if (e.keyCode >= 37 && e.keyCode <= 40) {
 			if (e.shiftKey) {
 				if (keyl && keyu) {
-					p = attack_up_left().nullthen((r) => move_up_left());
+					p = up_left();
 				}
 				else if (keyr && keyu) {
-					p = attack_up_right().nullthen((r) => move_up_right());
+					p = up_right();
 				}
 				else if (keyl && keyd) {
-					p = attack_down_left().nullthen((r) => move_down_left());
+					p = down_left();
 				}
 				else if (keyr && keyd) {
-					p = attack_down_right().nullthen((r) => move_down_right());
+					p = down_right();
 				}
 				else {
 					return;
@@ -322,16 +322,16 @@ $(function () {
 			}
 			else {
 				if (e.keyCode === 37) {
-					p = attack_left().nullthen((r) => move_left());
+					p = left();
 				}
 				else if (e.keyCode === 38) {
-					p = attack_up().nullthen((r) => move_up());
+					p = up();
 				}
 				else if (e.keyCode === 39) {
-					p = attack_right().nullthen((r) => move_right());
+					p = right();
 				}
 				else if (e.keyCode === 40) {
-					p = attack_down().nullthen((r) => move_down());
+					p = down();
 				}
 			}
 		}
@@ -702,6 +702,38 @@ function consume_item () {
 	player.items.delete_item(item);
 	player.weight -= item.weight;
 	return item;
+}
+
+async function up () {
+	return await attack_up().nullthen((r) => move_up());
+}
+
+async function down () {
+	return await attack_down().nullthen((r) => move_down());
+}
+
+async function left () {
+	return await attack_left().nullthen((r) => move_left());
+}
+
+async function right () {
+	return await attack_right().nullthen((r) => move_right());
+}
+
+async function up_left () {
+	return await attack_up_left().nullthen((r) => move_up_left());
+}
+
+async function up_right () {
+	return await attack_up_right().nullthen((r) => move_up_right());
+}
+
+async function down_left () {
+	return await attack_down_left().nullthen((r) => move_down_left());
+}
+
+async function down_right () {
+	return await attack_down_right().nullthen((r) => move_down_right());
 }
 
 async function move_up () {
