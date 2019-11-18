@@ -501,32 +501,16 @@ async function execute_turn () {
 					});
 				}
 				if (c.x > player.x && c.y > player.y && cl && cu && clu) {
-					ps.unshift({
-						x: c.x - 1,
-						y: c.y - 1,
-						p: 1.0
-					});
+					ps.unshift({ x: c.x - 1, y: c.y - 1, p: 1.0 });
 				}
 				else if (c.x < player.x && c.y > player.y && cr && cu && cru) {
-					ps.unshift({
-						x: c.x + 1,
-						y: c.y - 1,
-						p: 1.0
-					});
+					ps.unshift({ x: c.x + 1, y: c.y - 1, p: 1.0 });
 				}
 				else if (c.x > player.x && c.y < player.y && cl && cd && cld) {
-					ps.unshift({
-						x: c.x - 1,
-						y: c.y + 1,
-						p: 1.0
-					});
+					ps.unshift({ x: c.x - 1, y: c.y + 1, p: 1.0 });
 				}
 				else if (c.x < player.x && c.y < player.y && cr && cd && crd) {
-					ps.unshift({
-						x: c.x + 1,
-						y: c.y + 1,
-						p: 1.0
-					});
+					ps.unshift({ x: c.x + 1, y: c.y + 1, p: 1.0 });
 				}
 			}
 			else {
