@@ -299,6 +299,10 @@ function test_random_class_select () {
 	}
 }
 
+Array.prototype.pushrandom = function (item) {
+	this.splice(Math.floor(Math.random() * (this.length + 1)), 0, item);
+}
+
 Promise.prototype.nullthen = function (next) {
 	return this.then((r) => {
 		if (r === null) {

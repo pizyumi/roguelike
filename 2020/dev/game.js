@@ -473,32 +473,16 @@ async function execute_turn () {
 			var same = room && within_room(c.x, c.y, room);
 			if (same && c.type >= 3) {
 				if (c.x > player.x && cl) {
-					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
-						x: c.x - 1,
-						y: c.y,
-						p: 1.0
-					});
+					ps.pushrandom({ x: c.x - 1, y: c.y, p: 1.0 });
 				}
 				else if (c.x < player.x && cr) {
-					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
-						x: c.x + 1,
-						y: c.y,
-						p: 1.0
-					});
+					ps.pushrandom({ x: c.x + 1, y: c.y, p: 1.0 });
 				}
 				if (c.y > player.y && cu) {
-					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
-						x: c.x,
-						y: c.y - 1,
-						p: 1.0
-					});
+					ps.pushrandom({ x: c.x, y: c.y - 1, p: 1.0 });
 				}
 				else if (c.y < player.y && cd) {
-					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
-						x: c.x,
-						y: c.y + 1,
-						p: 1.0
-					});
+					ps.pushrandom({ x: c.x, y: c.y + 1, p: 1.0 });
 				}
 				if (c.x > player.x && c.y > player.y && cl && cu && clu) {
 					ps.unshift({ x: c.x - 1, y: c.y - 1, p: 1.0 });
@@ -515,60 +499,28 @@ async function execute_turn () {
 			}
 			else {
 				if (cl) {
-					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
-						x: c.x - 1,
-						y: c.y,
-						p: 0.5
-					});
+					ps.pushrandom({ x: c.x - 1, y: c.y, p: 0.5 });
 				}
 				if (cu) {
-					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
-						x: c.x,
-						y: c.y - 1,
-						p: 0.5
-					});
+					ps.pushrandom({ x: c.x, y: c.y - 1, p: 0.5 });
 				}
 				if (cr) {
-					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
-						x: c.x + 1,
-						y: c.y,
-						p: 0.5
-					});
+					ps.pushrandom({ x: c.x + 1, y: c.y, p: 0.5 });
 				}
 				if (cd) {
-					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
-						x: c.x,
-						y: c.y + 1,
-						p: 0.5
-					});
+					ps.pushrandom({ x: c.x, y: c.y + 1, p: 0.5 });
 				}
 				if (clu && cl && cu) {
-					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
-						x: c.x - 1,
-						y: c.y - 1,
-						p: 0.5
-					});
+					ps.pushrandom({ x: c.x - 1, y: c.y - 1, p: 0.5 });
 				}
 				if (cru && cr && cu) {
-					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
-						x: c.x + 1,
-						y: c.y - 1,
-						p: 0.5
-					});
+					ps.pushrandom({ x: c.x + 1, y: c.y - 1, p: 0.5 });
 				}
 				if (cld && cl && cd) {
-					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
-						x: c.x - 1,
-						y: c.y + 1,
-						p: 0.5
-					});
+					ps.pushrandom({ x: c.x - 1, y: c.y + 1, p: 0.5 });
 				}
 				if (crd && cr && cd) {
-					ps.splice(Math.floor(Math.random() * (ps.length + 1)), 0, {
-						x: c.x + 1,
-						y: c.y + 1,
-						p: 0.5
-					});
+					ps.pushrandom({ x: c.x + 1, y: c.y + 1, p: 0.5 });
 				}
 			}
 			for (var j = 0; j < ps.length; j++) {
