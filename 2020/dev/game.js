@@ -26,6 +26,7 @@ var invoffset = 0;
 var invactf = false;
 var invactindex = 0;
 var dataf = false;
+var autof = false;
 var gameover = false;
 var waiting = false;
 
@@ -186,6 +187,24 @@ $(function () {
 			}
 
 			return;
+		}
+
+		if (autof) {
+			if (e.keyCode === 65) {
+				autof = !autof;
+				draw();
+			}
+
+			return;
+		}
+		else {
+			if (e.keyCode === 65) {
+				autof = !autof;
+				auto_forever();
+				draw();
+			
+				return;
+			}
 		}
 
 		if (e.keyCode === 16) {
@@ -377,6 +396,7 @@ function init () {
 	invactf = false;
 	invactindex = 0;
 	dataf = false;
+	autof = false;
 	gameover = false;
 	waiting = false;
 
@@ -609,6 +629,10 @@ function within_room_surrounding (x, y, room) {
 	return x >= room.x1 - 1 && x <= room.x2 + 1 && y >= room.y1 - 1 && y <= room.y2 + 1;
 }
 
+function is_room_surrounding (x, y, room) {
+	return (x >= room.x1 - 1 && x <= room.x2 + 1 && (y === room.y1 - 1 || y === room.y2 + 1)) || (y >= room.y1 - 1 && y <= room.y2 + 1 && (x === room.x1 - 1 || x === room.x2 + 1));
+}
+
 function within_player_surrounding (x, y) {
 	return x >= player.x - 1 && x <= player.x + 1 && y >= player.y - 1 && y <= player.y + 1;
 }
@@ -638,6 +662,194 @@ function consume_item () {
 	player.items.delete_item(item);
 	player.weight -= item.weight;
 	return item;
+}
+
+async function auto_forever () {
+	while (autof) {
+		var r = await auto();
+		if (r === null || !r || gameover) {
+			autof = !autof;
+			draw();
+			return false;
+		}
+		await sleep(128);
+	}
+}
+
+async function auto () {
+	if (player.maps[player.depth].room === null) {
+		return await move_to_unknown_room().nullthen((r) => move_to_uncleared_passage().nullthen((r) => act_to_downstair()));
+	}
+	else {
+		return await search_in_room().nullthen((r) => move_to_uncleared_passage().nullthen((r) => act_to_downstair()));
+	}
+}
+
+async function move_to_unknown_room () {
+	var route = find_unknown_room(player.maps[player.depth], player.x, player.y);
+	if (route === null) {
+		return null;
+	}
+	else {
+		return await move_to_target(route[0]);
+	}
+}
+
+async function search_in_room () {
+	var route = find_object_in_room(player.maps[player.depth], player.x, player.y);
+	if (route === null) {
+		return null;
+	}
+	else if (route.length === 0) {
+		return await pickup();
+	}
+	else {
+		return await move_to_target(route[0]);
+	}
+}
+
+async function move_to_uncleared_passage () {
+	var route = find_uncleared_passage(player.maps[player.depth], player.x, player.y);
+	if (route === null) {
+		return null;
+	}
+	else {
+		return await move_to_target(route[0]);
+	}
+}
+
+async function act_to_downstair () {
+	var route = find_downstair(player.maps[player.depth], player.x, player.y);
+	if (route === null) {
+		return null;
+	}
+	else if (route.length === 0) {
+		return await downstair();
+	}
+	else {
+		return await move_to_target(route[0]);
+	}
+}
+
+async function move_to_target (target) {
+	if (player.x > target.x) {
+		return await left();
+	}
+	else if (player.x < target.x) {
+		return await right();
+	}
+	if (player.y > target.y) {
+		return await up();
+	}
+	else if (player.y < target.y) {
+		return await down();
+	}
+	return false;
+}
+
+function find_unknown_room (map, x, y) {
+	return find_route(map, x, y, (map, x, y) => {
+		return within_player_surrounding(x, y);
+	}, (map, x, y) => {
+		if (x === player.x && y === player.y) {
+			return false;
+		}
+		var f = true;
+		for (var i = 0; i < map.rooms.length; i++) {
+			if (within_room_surrounding(x, y, map.rooms[i])) {
+				f = false;
+				break;
+			}
+		}
+		return f;
+	});
+}
+
+function find_object_in_room (map, x, y) {
+	return find_route(map, x, y, (map, x, y) => {
+		return within_room_surrounding(x, y, map.room);
+	}, (map, x, y) => {
+		for (var i = 0; i < map.room.items.length; i++) {
+			var item = map.room.items[i];
+			if (x === item.x && y === item.y) {
+				return true;
+			}
+		}
+		for (var i = 0; i < map.room.npcs.length; i++) {
+			var c = map.room.npcs[i];
+			if (x === c.x && y === c.y) {
+				return true;
+			}
+		}
+		return false;
+	});
+}
+
+function find_uncleared_passage (map, x, y) {
+	return find_route(map, x, y, (map, x, y) => {
+		return B_CAN_STAND[map.blocks[x][y]];
+	}, (map, x, y) => {
+		for (var i = 0; i < map.rooms.length; i++) {
+			var room = map.rooms[i];
+			if (is_room_surrounding(x, y, room)) {
+				for (var j = 0; j < room.passages.length; j++) {
+					var passage = room.passages[j];
+					if (x === passage.x && y === passage.y && (!passage.to || !passage.to.clear)) {
+						return true;
+					}
+				}
+				return false;
+			}
+		}
+		return false;
+	});
+}
+
+function find_downstair (map, x, y) {
+	return find_route(map, x, y, (map, x, y) => {
+		return B_CAN_STAND[map.blocks[x][y]];
+	}, (map, x, y) => {
+		return x === map.downstair.x && y === map.downstair.y;
+	});
+}
+
+function find_route (map, x, y, range, condition) {
+	var checked = [];
+	for (var i = 0; i < map.nx; i++) {
+		checked[i] = [];
+		for (var j = 0; j < map.ny; j++) {
+			checked[i][j] = false;
+		}
+	}
+	checked[x][y] = true;
+	var queue = [{
+		x: x, 
+		y: y, 
+		route: []
+	}];
+	while (queue.length > 0) {
+		var p = queue.shift();
+		if (condition(map, p.x, p.y)) {
+			return p.route;
+		}
+		var ns = [];
+		ns.pushrandom({ x: p.x, y: p.y - 1 });
+		ns.pushrandom({ x: p.x, y: p.y + 1 });
+		ns.pushrandom({ x: p.x - 1, y: p.y });
+		ns.pushrandom({ x: p.x + 1, y: p.y });
+		for (var i = 0; i < ns.length; i++) {
+			if (range(map, ns[i].x, ns[i].y) && !checked[ns[i].x][ns[i].y]) {
+				checked[ns[i].x][ns[i].y] = true;
+				var route = p.route.concat([{ x: ns[i].x, y: ns[i].y }])
+				queue.push({
+					x: ns[i].x, 
+					y: ns[i].y, 
+					route: route
+				});
+			}
+		}
+	}
+	return null;
 }
 
 async function up () {
@@ -1496,6 +1708,17 @@ function draw () {
 	con.fillRect(player.x * px, player.y * py, px, py);
 	con.restore();
 
+	if (autof) {
+		con.save();
+		con.textBaseline = 'bottom';
+		con.textAlign = 'right';
+		con.font = '24px consolas';
+		con.fillStyle = 'white';
+		con.translate(SCREEN_X, SCREEN_Y);
+		con.fillText(TEXT_AUTO, 0, 0);
+		con.restore();
+	}
+
 	if (dataf) {
 		con.fillStyle = 'rgba(0, 0, 0, 0.75)';
 		con.fillRect(32, 32, SCREEN_X - 32 * 2, SCREEN_Y - 32 * 2);
@@ -1514,5 +1737,13 @@ async function play_sound (name) {
 		else {
 			resolve(true);
 		}
+	});
+}
+
+async function sleep (msec) {
+	return new Promise((resolve) => {
+		setTimeout(function () {
+			resolve(true);
+		}, msec);
 	});
 }

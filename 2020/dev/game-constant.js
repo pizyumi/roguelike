@@ -10,6 +10,7 @@ var TEXT_ATK = '攻撃力';
 var TEXT_DEF = '防御力';
 var TEXT_EXP = '経験値';
 var TEXT_EQUIPPED = '装備中';
+var TEXT_AUTO = '自動';
 var TEXT_GENERATE_STATS = '情報を収集中です。';
 var TEXT_SAVE_CLIPBOARD = 'クリップボードに保存しました。';
 var TEXT_FIGHT = '戦闘詳細';
