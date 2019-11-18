@@ -339,6 +339,8 @@ class FMap {
 		this.ny = field.ny;
 		this.blocks = blocks;
 		this.room = null;
+		this.rooms = [];
+		this.downstair = null;
 	}
 
 	update (x, y) {
@@ -358,6 +360,13 @@ class FMap {
 								room.items.push(item);
 							}
 						}
+						if (block.base === B_DOWNSTAIR) {
+							room.downstair = true;
+							this.downstair = {
+								x: j, 
+								y: k
+							};
+						}
 					}
 				}
 				room.npcs = [];
@@ -367,7 +376,89 @@ class FMap {
 						room.npcs.push(c);
 					}
 				}
+				if (room.items.length === 0 && room.npcs.length === 0) {
+					room.clear = true;
+				}
 				this.room = room;
+				var f = true;
+				for (var j = 0; j < this.rooms.length; j++) {
+					if (room === this.rooms[j]) {
+						f = false;
+						break;
+					}
+				}
+				if (f) {
+					room.passages = [];
+					for (var j = room.x1; j <= room.x2; j++) {
+						var block = this.blocks[j][room.y1 - 1];
+						if (B_CAN_STAND[block]) {
+							room.passages.push({
+								x: j, 
+								y: room.y1 - 1, 
+								direction: DIR_UP
+							});
+						}
+					}
+					for (var j = room.x1; j <= room.x2; j++) {
+						var block = this.blocks[j][room.y2 + 1];
+						if (B_CAN_STAND[block]) {
+							room.passages.push({
+								x: j, 
+								y: room.y2 + 1, 
+								direction: DIR_DOWN
+							});
+						}
+					}
+					for (var j = room.y1; j <= room.y2; j++) {
+						var block = this.blocks[room.x1 - 1][j];
+						if (B_CAN_STAND[block]) {
+							room.passages.push({
+								x: room.x1 - 1, 
+								y: j, 
+								direction: DIR_LEFT
+							});
+						}
+					}
+					for (var j = room.y1; j <= room.y2; j++) {
+						var block = this.blocks[room.x2 + 1][j];
+						if (B_CAN_STAND[block]) {
+							room.passages.push({
+								x: room.x2 + 1, 
+								y: j, 
+								direction: DIR_RIGHT
+							});
+						}
+					}
+					for (var j = 0; j < room.passages.length; j++) {
+						var passage = room.passages[j];
+						var x = passage.x;
+						var y = passage.y;
+						if (passage.direction === DIR_UP) {
+							y--;
+						}
+						else if (passage.direction === DIR_DOWN) {
+							y++;
+						}
+						else if (passage.direction === DIR_LEFT) {
+							x--;
+						}
+						else if (passage.direction === DIR_RIGHT) {
+							x++;
+						}
+						var proom = this.get_room(x, y);
+						if (proom !== null) {
+							passage.to = proom;
+							for (var k = 0; k < proom.passages.length; k++) {
+								var ppassage = proom.passages[k];
+								if (ppassage.x === passage.x && ppassage.y === passage.y) {
+									ppassage.to = room;
+									break;
+								}
+							}
+						}
+					}
+					this.rooms.push(room);
+				}
 				return;
 			}
 		}
@@ -381,6 +472,16 @@ class FMap {
 		this.blocks[x - 1][y + 1] = this.field.blocks[x - 1][y + 1].base;
 		this.blocks[x + 1][y + 1] = this.field.blocks[x + 1][y + 1].base;
 		this.room = null;
+	}
+
+	get_room (x, y) {
+		for (var i = 0; i < this.rooms.length; i++) {
+			var room = this.rooms[i];
+			if (within_room(x, y, room)) {
+				return room;
+			}
+		}
+		return null;
 	}
 }
 

@@ -100,6 +100,11 @@ var PY = 48;
 var MAP_WIDTH = 256;
 var MAP_HEIGHT = 256;
 
+var DIR_UP = 0;
+var DIR_DOWN = 1;
+var DIR_LEFT = 2;
+var DIR_RIGHT = 3;
+
 var OBJ_ENEMY = 0;
 var OBJ_ITEM = 1;
 
