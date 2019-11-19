@@ -19,7 +19,10 @@ var name = null;
 var con = null;
 var env = null;
 
+var title_choices = get_title_choices();
+
 var startf = false;
+var titleindex = 0;
 var invf = false;
 var invindex = 0;
 var invoffset = 0;
@@ -52,6 +55,19 @@ function get_query () {
 	return obj;
 }
 
+function get_title_choices () {
+	var choices = [];
+	choices.push({ text: TEXT_START, exec: () => manual() });
+	return choices;
+}
+
+async function manual () {
+	startf = true;
+	name = 'anonymous';
+	init();
+	draw();
+}
+
 async function finish () {
 	var record = statistics.get_record(true);
 	record.id = time.toString(10);
@@ -63,6 +79,7 @@ async function finish () {
 	});
 
 	startf = false;
+	titleindex = 0;
 	draw();
 }
 
@@ -116,14 +133,25 @@ $(function () {
 	});
 	c.on('keydown', function (e) {
 		if (!startf) {
-			if (e.keyCode === 90) {
-				startf = true;
-
-				name = 'anonymous';
-				init();
-
-				draw();
+			if (e.keyCode === 38) {
+				titleindex--;
+				if (titleindex < 0) {
+					titleindex = title_choices.length - 1;
+				}
 			}
+			else if (e.keyCode === 40) {
+				titleindex++;
+				if (titleindex >= title_choices.length) {
+					titleindex = 0;
+				}
+			}
+			else if (e.keyCode === 90) {
+				title_choices[titleindex].exec();
+
+				return;
+			}
+
+			draw();
 
 			return;
 		}
@@ -1375,7 +1403,9 @@ function draw () {
 		con.fillText(TITLE, SCREEN_X / 2, SCREEN_Y / 4);
 
 		con.font = '32px consolas';
-		con.fillText('> ' + TEXT_START, SCREEN_X / 2, SCREEN_Y / 4 * 3);
+		for (var i = 0; i < title_choices.length; i++) {
+			con.fillText((titleindex === i ? '> ' : '  ') + title_choices[i].text, SCREEN_X / 2, SCREEN_Y / 4 * 3 + (32 + 8) * i);
+		}
 
 		return;
 	}
