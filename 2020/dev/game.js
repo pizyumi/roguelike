@@ -52,6 +52,20 @@ function get_query () {
 	return obj;
 }
 
+async function finish () {
+	var record = statistics.get_record(true);
+	record.id = time.toString(10);
+	record.version = version;
+	record.name = name;
+
+	axios.post('/add-record', record).then((res) => {
+	}).catch((err) => {
+	});
+
+	startf = false;
+	draw();
+}
+
 $(function () {
 	var canvas = document.getElementById('game');
 	con = canvas.getContext('2d');
@@ -172,18 +186,7 @@ $(function () {
 
 		if (gameover) {
 			if (e.keyCode === 90) {
-				var record = statistics.get_record(true);
-				record.id = time.toString(10);
-				record.version = version;
-				record.name = name;
-
-				axios.post('/add-record', record).then((res) => {
-				}).catch((err) => {
-				});
-
-				startf = false;
-
-				draw();
+				finish();
 			}
 
 			return;
