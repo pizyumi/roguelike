@@ -325,6 +325,40 @@ function split_room (blocks, r, dp, random) {
 	return [];
 }
 
+var MODE_MANUAL = 0;
+var MODE_AI = 1;
+
+class Settings {
+	constructor () {
+		this._mode = MODE_MANUAL;
+		this._sound = true;
+	}
+
+	get mode () {
+		return this._mode;
+	}
+
+	set mode (val) {
+		this._mode = val;
+	}
+
+	get sound () {
+		if (this.mode === MODE_MANUAL) {
+			return this._sound;
+		}
+		else if (this.mode === MODE_AI) {
+			return false;
+		}
+		else {
+			throw new Error('not supported.');
+		}
+	}
+
+	set sound (val) {
+		this._sound = val;
+	}
+}
+
 class FMap {
 	constructor (field) {
 		var blocks = [];

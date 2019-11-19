@@ -3,10 +3,6 @@ var query = get_query();
 var version = 'dev';
 var debug = query.debug ? true : version.substring(0, 3) === 'dev';
 
-var option = {
-	sound: true
-};
-
 var img = new Image();
 img.src = '/img/Dungeon_B_Freem7.png';
 var img2 = new Image();
@@ -14,6 +10,7 @@ img2.src = '/img/fighting_fantasy_icons.png';
 
 var time = null;
 var seed = null;
+var settings = null;
 var name = null;
 
 var con = null;
@@ -67,6 +64,8 @@ function get_title_choices () {
 
 async function manual () {
 	startf = true;
+	settings = new Settings();
+	settings.mode = MODE_MANUAL;
 	name = 'anonymous';
 	init();
 	draw();
@@ -74,6 +73,8 @@ async function manual () {
 
 async function ai () {
 	startf = true;
+	settings = new Settings();
+	settings.mode = MODE_AI;
 	name = 'ai0';
 	init();
 	draw();
@@ -1788,7 +1789,7 @@ function draw () {
 
 async function play_sound (name) {
 	return new Promise((resolve) => {
-		if (option.sound) {
+		if (settings.sound) {
 			var audio = document.getElementById('se_' + name);
 			audio.play();
 			audio.addEventListener('ended', function() {
