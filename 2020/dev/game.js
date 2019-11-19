@@ -30,6 +30,7 @@ var invactf = false;
 var invactindex = 0;
 var dataf = false;
 var autof = false;
+var aif = false;
 var gameover = false;
 var waiting = false;
 
@@ -58,6 +59,9 @@ function get_query () {
 function get_title_choices () {
 	var choices = [];
 	choices.push({ text: TEXT_START, exec: () => manual() });
+	if (debug) {
+		choices.push({ text: TEXT_START_AI, exec: () => ai() });
+	}
 	return choices;
 }
 
@@ -66,6 +70,26 @@ async function manual () {
 	name = 'anonymous';
 	init();
 	draw();
+}
+
+async function ai () {
+	startf = true;
+	name = 'ai0';
+	init();
+	draw();
+
+	aif = true;
+	while (aif) {
+		var r = await auto();
+		if (r === null || !r) {
+			throw new Error('ai error.');
+		}
+		await sleep(128);
+		if (gameover) {
+			aif = !aif;
+			return await finish();
+		}
+	}
 }
 
 async function finish () {
@@ -153,6 +177,10 @@ $(function () {
 
 			draw();
 
+			return;
+		}
+
+		if (aif) {
 			return;
 		}
 

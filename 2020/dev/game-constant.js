@@ -1,6 +1,7 @@
 var TITLE = 'シンプルローグライク';
 
 var TEXT_START = 'はじめる';
+var TEXT_START_AI = 'はじめる（AI）';
 var TEXT_DEPTH = '階';
 var TEXT_LEVEL = 'レベル';
 var TEXT_HP = 'HP';
