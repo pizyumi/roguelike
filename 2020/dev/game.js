@@ -85,7 +85,7 @@ async function ai () {
 		if (r === null || !r) {
 			throw new Error('ai error.');
 		}
-		await sleep(128);
+		await sleep(settings.auto_sleep);
 		if (gameover) {
 			aif = !aif;
 			return await finish();
@@ -732,7 +732,7 @@ async function auto_forever () {
 			draw();
 			return false;
 		}
-		await sleep(128);
+		await sleep(settings.auto_sleep);
 	}
 }
 

@@ -332,6 +332,7 @@ class Settings {
 	constructor () {
 		this._mode = MODE_MANUAL;
 		this._sound = true;
+		this._auto_rate = 1;
 	}
 
 	get mode () {
@@ -356,6 +357,26 @@ class Settings {
 
 	set sound (val) {
 		this._sound = val;
+	}
+
+	get auto_rate () {
+		if (this.mode === MODE_MANUAL) {
+			return this._auto_rate;
+		}
+		else if (this.mode === MODE_AI) {
+			return 2;
+		}
+		else {
+			throw new Error('not supported.');
+		}
+	}
+
+	set auto_rate (val) {
+		this._auto_rate = val;
+	}
+
+	get auto_sleep () {
+		return 128 / this.auto_rate;
 	}
 }
 
