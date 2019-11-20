@@ -155,7 +155,7 @@ function create_statistics_html (parent, record, secret) {
     columns.push({ title: TEXT_MAX, field: 'cmax', formatter: stats_nan_formatter});
     columns.push({ title: TEXT_AVG, field: 'cavg', formatter: stats_nan_formatter});
 
-    var h1 = $('<h1>' + TEXT_FIGHT + '</h1>');
+    var h1 = $('<h1>' + TEXT_FIGHT + TEXT_DETAIL + '</h1>');
     parent.append(h1);
     for (var i = 0; i < record.fights.length; i++) {
         var h2 = $('<h2>' + i + TEXT_DEPTH + '</h2>');
