@@ -787,7 +787,7 @@ async function move_to_target (target) {
 
 function find_unknown_room (map, x, y) {
 	return find_route(map, x, y, (map, x, y) => {
-		return within_player_surrounding(x, y);
+		return within_player_surrounding(x, y) && B_CAN_STAND[map.blocks[x][y]];
 	}, (map, x, y) => {
 		if (x === player.x && y === player.y) {
 			return false;
