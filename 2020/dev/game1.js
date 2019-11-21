@@ -662,6 +662,45 @@ class Player {
 		return this.defbase + this.defext + (this.armor === null ? 0 : this.armor.def);
 	}
 
+	get famine () {
+		return this.energy === 0;
+	}
+
+	next_hp () {
+		if (this.famine) {
+			this.hp_fraction -= this.hpfull * 0.005;
+			while (this.hp_fraction <= -1) {
+				this.hp--;
+				this.hp_fraction += 1;
+			}
+		}
+		else {
+			if (this.hp < this.hpfull) {
+				this.hp_fraction += this.hpfull * 0.005;
+				while (this.hp_fraction >= 1) {
+					this.hp++;
+					this.hp_fraction -= 1;
+				}
+			}
+			else {
+				this.hp_fraction = 0;
+			}
+		}
+	}
+
+	next_energy () {
+		if (this.famine) {
+			this.energy_turn = 0;
+		}
+		else {
+			this.energy_turn++;
+			if (this.energy_turn === 10) {
+				this.energy_turn = 0;
+				this.energy--;
+			}
+		}
+	}
+
 	increase_energy (max) {
 		var old = this.energy;
 		this.energy += max;

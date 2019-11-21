@@ -639,59 +639,36 @@ async function execute_turn () {
 		}
 	}
 
-	var delta = player.hpfull * 0.005;
-	if (player.energy === 0) {
-		player.energy_turn = 0;
-		player.hp_fraction -= delta;
-		if (player.hp_fraction <= -1) {
-			player.hp--;
-			player.hp_fraction += 1;
-		}
-		if (player.hp <= 0) {
-			player.hp = 0;
-			gameover = true;
-			add_message({
-				text: MSG_DIE,
-				type: 'special'
-			});
-			return;
-		}
+	player.next_hp();
+	if (player.hp <= 0) {
+		player.hp = 0;
+		gameover = true;
+		add_message({
+			text: MSG_DIE,
+			type: 'special'
+		});
+		return;
 	}
-	else {
-		player.energy_turn++;
-		if (player.energy_turn === 10) {
-			player.energy_turn = 0;
-			player.energy--;
-			if (player.energy === 20) {
-				add_message({
-					text: MSG_ENERGY20,
-					type: 'normal'
-				});
-			}
-			else if (player.energy === 10) {
-				add_message({
-					text: MSG_ENERGY10,
-					type: 'normal'
-				});
-			}
-			else if (player.energy === 0) {
-				add_message({
-					text: MSG_ENERGY0,
-					type: 'important'
-				});
-			}
-		}
 
-		if (player.hp < player.hpfull) {
-			player.hp_fraction += delta;
-			if (player.hp_fraction >= 1) {
-				player.hp++;
-				player.hp_fraction -= 1;
-			}
-		}
-		else {
-			player.hp_fraction = 0;
-		}
+	var old = player.energy;
+	player.next_energy();
+	if (old > 20 && player.energy === 20) {
+		add_message({
+			text: MSG_ENERGY20,
+			type: 'normal'
+		});
+	}
+	else if (old > 10 && player.energy === 10) {
+		add_message({
+			text: MSG_ENERGY10,
+			type: 'normal'
+		});
+	}
+	else if (old > 0 && player.energy === 0) {
+		add_message({
+			text: MSG_ENERGY0,
+			type: 'important'
+		});
 	}
 
 	player.maps[player.depth].update(player.x, player.y);
