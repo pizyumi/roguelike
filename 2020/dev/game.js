@@ -34,6 +34,7 @@ var invactf = false;
 var invactindex = 0;
 var autof = false;
 var aif = false;
+var aicount = 0;
 var gameover = false;
 var waiting = false;
 
@@ -97,21 +98,30 @@ async function ai (option, id) {
 	settings = new Settings();
 	settings.mode = MODE_AI;
 	name = 'ai-' + id;
-	init();
-	draw();
 
-	aif = true;
-	while (aif) {
-		var r = await auto(option);
-		if (r === null || !r) {
-			throw new Error('ai error.');
-		}
-		await sleep(settings.auto_sleep);
-		if (gameover) {
-			aif = !aif;
-			return await finish();
+	aicount = 0;
+	while (aicount < settings.ai_count) {
+		aicount++;
+		init();
+		draw();
+	
+		aif = true;
+		while (aif) {
+			var r = await auto(option);
+			if (r === null || !r) {
+				throw new Error('ai error.');
+			}
+			await sleep(settings.auto_sleep);
+			if (gameover) {
+				aif = !aif;
+				await finish();
+			}
 		}
 	}
+
+	screen = SCREEN_TITLE;
+	titleindex = 0;
+	draw();
 }
 
 async function finish () {
@@ -123,10 +133,6 @@ async function finish () {
 	axios.post('/add-record', record).then((res) => {
 	}).catch((err) => {
 	});
-
-	screen = SCREEN_TITLE;
-	titleindex = 0;
-	draw();
 }
 
 $(function () {
@@ -224,6 +230,9 @@ $(function () {
 			if (gameover) {
 				if (e.keyCode === 90) {
 					finish();
+					screen = SCREEN_TITLE;
+					titleindex = 0;
+					draw();
 				}
 				return;
 			}
@@ -1800,6 +1809,17 @@ function draw () {
 			con.fillStyle = 'white';
 			con.translate(SCREEN_X, SCREEN_Y);
 			con.fillText(TEXT_AUTO, 0, 0);
+			con.restore();
+		}
+
+		if (aif) {
+			con.save();
+			con.textBaseline = 'bottom';
+			con.textAlign = 'right';
+			con.font = '24px consolas';
+			con.fillStyle = 'white';
+			con.translate(SCREEN_X, SCREEN_Y);
+			con.fillText(TEXT_AI + aicount + TEXT_COUNT, 0, 0);
 			con.restore();
 		}
 	

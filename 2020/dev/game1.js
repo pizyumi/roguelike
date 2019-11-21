@@ -333,6 +333,7 @@ class Settings {
 		this._mode = MODE_MANUAL;
 		this._sound = true;
 		this._auto_rate = 1;
+		this._ai_count = 2;
 	}
 
 	get mode () {
@@ -377,6 +378,14 @@ class Settings {
 
 	get auto_sleep () {
 		return 128 / this.auto_rate;
+	}
+
+	get ai_count () {
+		return this._ai_count;
+	}
+
+	set ai_count (val) {
+		this._ai_count = val;
 	}
 }
 
