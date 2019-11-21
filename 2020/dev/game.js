@@ -17,14 +17,17 @@ var con = null;
 var env = null;
 
 var title_choices = get_title_choices();
+var ai_choices = get_ai_choices();
 
 var SCREEN_TITLE = 0;
+var SCREEN_AI_SELECTION = 1;
 var SCREEN_GAME = 2;
 var SCREEN_ITEM = 3;
 var SCREEN_DATA = 4;
 
 var screen = SCREEN_TITLE;
 var titleindex = 0;
+var aiindex = 0;
 var invindex = 0;
 var invoffset = 0;
 var invactf = false;
@@ -60,9 +63,24 @@ function get_title_choices () {
 	var choices = [];
 	choices.push({ text: TEXT_START, exec: () => manual() });
 	if (debug) {
-		choices.push({ text: TEXT_START_AI, exec: () => ai() });
+		choices.push({ text: TEXT_START_AI, exec: () => ai_selection() });
 	}
 	return choices;
+}
+
+function get_ai_choices () {
+	var options = [{}, {
+
+	}];
+
+	return options.map((item, index) => {
+		return { text: (index + 1), exec: () => ai(item, index) };
+	});
+}
+
+async function ai_selection () {
+	screen = SCREEN_AI_SELECTION;
+	draw();
 }
 
 async function manual () {
@@ -74,17 +92,17 @@ async function manual () {
 	draw();
 }
 
-async function ai () {
+async function ai (option, id) {
 	screen = SCREEN_GAME;
 	settings = new Settings();
 	settings.mode = MODE_AI;
-	name = 'ai0';
+	name = 'ai-' + id;
 	init();
 	draw();
 
 	aif = true;
 	while (aif) {
-		var r = await auto();
+		var r = await auto(option);
 		if (r === null || !r) {
 			throw new Error('ai error.');
 		}
@@ -175,6 +193,25 @@ $(function () {
 			}
 			else if (e.keyCode === 90) {
 				title_choices[titleindex].exec();
+				return;
+			}
+			draw();
+		}
+		else if (screen === SCREEN_AI_SELECTION) {
+			if (e.keyCode === 38) {
+				aiindex--;
+				if (aiindex < 0) {
+					aiindex = ai_choices.length - 1;
+				}
+			}
+			else if (e.keyCode === 40) {
+				aiindex++;
+				if (aiindex >= ai_choices.length) {
+					aiindex = 0;
+				}
+			}
+			else if (e.keyCode === 90) {
+				ai_choices[aiindex].exec();
 				return;
 			}
 			draw();
@@ -714,7 +751,7 @@ async function auto_forever () {
 	}
 }
 
-async function auto () {
+async function auto (option) {
 	if (player.maps[player.depth].room === null) {
 		return await move_to_unknown_room().nullthen((r) => move_to_uncleared_passage().nullthen((r) => act_to_downstair()));
 	}
@@ -1412,6 +1449,15 @@ function draw () {
 		con.font = '32px consolas';
 		for (var i = 0; i < title_choices.length; i++) {
 			con.fillText((titleindex === i ? '> ' : '  ') + title_choices[i].text, SCREEN_X / 2, SCREEN_Y / 4 * 3 + (32 + 8) * i);
+		}
+	}
+	else if (screen === SCREEN_AI_SELECTION) {
+		con.textBaseline = 'alphabetic';
+		con.textAlign = 'center';
+		con.fillStyle = 'white';
+		con.font = '32px consolas';
+		for (var i = 0; i < ai_choices.length; i++) {
+			con.fillText((aiindex === i ? '> ' : '  ') + ai_choices[i].text, SCREEN_X / 2, SCREEN_Y / 4 + (32 + 8) * i);
 		}
 	}
 	else if (screen === SCREEN_GAME || screen === SCREEN_ITEM || screen === SCREEN_DATA) {
