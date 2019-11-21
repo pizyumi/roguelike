@@ -1636,12 +1636,19 @@ function draw () {
 			con.stroke();
 			con.restore();
 		}
+
+		var states = [];
+		var color = 'white';
+		if (player.famine) {
+			states.push(TEXT_FAMINE);
+			color = 'red';
+		}
 	
 		con.save();
 		con.textBaseline = 'top';
 		con.textAlign = 'left';
 		con.font = '24px consolas';
-		con.fillStyle = 'white';
+		con.fillStyle = color;
 		con.translate(SX * PX, 0);
 		con.fillText(player.depth + TEXT_DEPTH, 8, (24 + 6) * 0 + 8);
 		con.fillText(TEXT_LEVEL + '：' + player.level, 8, (24 + 6) * 1 + 8);
@@ -1651,6 +1658,7 @@ function draw () {
 		con.fillText(TEXT_ATK + '：' + player.atk, 8, (24 + 6) * 5 + 8);
 		con.fillText(TEXT_DEF + '：' + player.def, 8, (24 + 6) * 6 + 8);
 		con.fillText(TEXT_EXP + '：' + player.exp + '/' + player.expfull, 8, (24 + 6) * 7 + 8);
+		con.fillText(TEXT_STATES + '：' + states.join(','), 8 + 256, (24 + 6) * 1 + 8);
 		con.restore();
 	
 		con.save();
