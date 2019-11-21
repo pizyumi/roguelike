@@ -18,14 +18,17 @@ var env = null;
 
 var title_choices = get_title_choices();
 
-var startf = false;
+var SCREEN_TITLE = 0;
+var SCREEN_GAME = 2;
+var SCREEN_ITEM = 3;
+var SCREEN_DATA = 4;
+
+var screen = SCREEN_TITLE;
 var titleindex = 0;
-var invf = false;
 var invindex = 0;
 var invoffset = 0;
 var invactf = false;
 var invactindex = 0;
-var dataf = false;
 var autof = false;
 var aif = false;
 var gameover = false;
@@ -63,7 +66,7 @@ function get_title_choices () {
 }
 
 async function manual () {
-	startf = true;
+	screen = SCREEN_GAME;
 	settings = new Settings();
 	settings.mode = MODE_MANUAL;
 	name = 'anonymous';
@@ -72,7 +75,7 @@ async function manual () {
 }
 
 async function ai () {
-	startf = true;
+	screen = SCREEN_GAME;
 	settings = new Settings();
 	settings.mode = MODE_AI;
 	name = 'ai0';
@@ -103,7 +106,7 @@ async function finish () {
 	}).catch((err) => {
 	});
 
-	startf = false;
+	screen = SCREEN_TITLE;
 	titleindex = 0;
 	draw();
 }
@@ -157,7 +160,7 @@ $(function () {
 		}
 	});
 	c.on('keydown', function (e) {
-		if (!startf) {
+		if (screen === SCREEN_TITLE) {
 			if (e.keyCode === 38) {
 				titleindex--;
 				if (titleindex < 0) {
@@ -172,41 +175,48 @@ $(function () {
 			}
 			else if (e.keyCode === 90) {
 				title_choices[titleindex].exec();
-
+				return;
+			}
+			draw();
+		}
+		else if (screen === SCREEN_GAME) {
+			if (aif) {
 				return;
 			}
 
-			draw();
-
-			return;
-		}
-
-		if (aif) {
-			return;
-		}
-
-		if (dataf) {
-			if (e.keyCode === 68) {
-				dataf = !dataf;
-
-				stats_elem.remove();
-				stats_elem = null;
-
-				stats_aux_elem.remove();
-				stats_aux_elem = null;
-
-				draw();
-			}
-			else if (e.keyCode === 83) {
-				navigator.clipboard.writeText(JSON.stringify(statistics.get_record(debug)));
-				stats_aux_elem.text(TEXT_SAVE_CLIPBOARD);
+			if (gameover) {
+				if (e.keyCode === 90) {
+					finish();
+				}
+				return;
 			}
 
-			return;
-		}
-		else {
+			if (autof) {
+				if (e.keyCode === 65) {
+					autof = !autof;
+					draw();
+				}
+				return;
+			}
+			else {
+				if (e.keyCode === 65) {
+					autof = !autof;
+					auto_forever();
+					draw();
+					return;
+				}
+			}
+
+			if (e.keyCode === 16) {
+				if (!env.diagonal) {
+					env.diagonal = true;
+					draw();
+				}
+				return;
+			}
+
 			if (e.keyCode === 68) {
-				dataf = !dataf;
+				screen = SCREEN_DATA;
 
 				stats_elem = $('<div></div>');
 				stats_elem.css('position', 'absolute');
@@ -231,59 +241,84 @@ $(function () {
 
 				setTimeout(function () {
 					create_statistics_html(stats_elem, statistics.get_record(debug), debug);
-
 					stats_aux_elem.text('');
 				}, 0);
 
 				draw();
-
 				return;
 			}
-		}
 
-		if (gameover) {
-			if (e.keyCode === 90) {
-				finish();
+			if (waiting) {
+				return;
 			}
-
-			return;
-		}
-
-		if (autof) {
-			if (e.keyCode === 65) {
-				autof = !autof;
-				draw();
-			}
-
-			return;
-		}
-		else {
-			if (e.keyCode === 65) {
-				autof = !autof;
-				auto_forever();
-				draw();
 			
+			if (e.keyCode === 88) {
+				if (player.items.length === 0) {
+					add_message({
+						text: MSG_EMPTY_INV,
+						type: 'normal'
+					});
+				}
+				else {
+					screen = SCREEN_ITEM;
+					if (invindex < 0) {
+						invindex = 0;
+					}
+					else if (invindex >= player.items.length) {
+						invindex = player.items.length - 1;
+					}
+				}
+				draw();
 				return;
 			}
-		}
 
-		if (e.keyCode === 16) {
-			if (!env.diagonal) {
-				env.diagonal = true;
-
-				draw();
+			var p = Promise.resolve(null);
+			if (e.keyCode >= 37 && e.keyCode <= 40) {
+				if (e.shiftKey) {
+					if (keyl && keyu) {
+						p = up_left();
+					}
+					else if (keyr && keyu) {
+						p = up_right();
+					}
+					else if (keyl && keyd) {
+						p = down_left();
+					}
+					else if (keyr && keyd) {
+						p = down_right();
+					}
+					else {
+						return;
+					}
+				}
+				else {
+					if (e.keyCode === 37) {
+						p = left();
+					}
+					else if (e.keyCode === 38) {
+						p = up();
+					}
+					else if (e.keyCode === 39) {
+						p = right();
+					}
+					else if (e.keyCode === 40) {
+						p = down();
+					}
+				}
 			}
-
-			return;
+			else if (e.keyCode === 32) {
+				p = pickup().nullthen((r) => downstair()).nullthen((r) => rest());
+			}
+			else {
+				return;
+			}
+	
+			waiting = true;
+			p.then((r) => {
+				waiting = false;
+			});
 		}
-
-		if (waiting) {
-			return;
-		}
-
-		var p = Promise.resolve(null);
-
-		if (invf) {
+		else if (screen === SCREEN_ITEM) {
 			if (invactf) {
 				var actions = get_item_actions(player.items.get_item(invindex));
 				if (e.keyCode === 38) {
@@ -302,16 +337,15 @@ $(function () {
 					invactf = !invactf;
 				}
 				else if (e.keyCode === 90) {
-					p = actions[invactindex].exec();
+					var p = actions[invactindex].exec();
 
+					screen = SCREEN_GAME;
 					invactf = !invactf;
-					invf = !invf;
 
 					waiting = true;
 					p.then((r) => {
 						waiting = false;
 					});
-
 					return;
 				}
 			}
@@ -345,86 +379,32 @@ $(function () {
 					}
 				}
 				else if (e.keyCode === 88) {
-					invf = !invf;
+					screen = SCREEN_GAME;
 				}
 				else if (e.keyCode === 90) {
 					invactf = !invactf;
 					invactindex = 0;
 				}
 			}
-
 			draw();
-
 			return;
 		}
-		else {
-			if (e.keyCode === 88) {
-				if (player.items.length === 0) {
-					add_message({
-						text: MSG_EMPTY_INV,
-						type: 'normal'
-					});
-				}
-				else {
-					invf = !invf;
-					if (invindex < 0) {
-						invindex = 0;
-					}
-					else if (invindex >= player.items.length) {
-						invindex = player.items.length - 1;
-					}
-				}
+		else if (screen === SCREEN_DATA) {
+			if (e.keyCode === 68) {
+				screen = SCREEN_GAME;
 
+				stats_elem.remove();
+				stats_aux_elem.remove();
 				draw();
-
-				return;
 			}
-		}
-
-		if (e.keyCode >= 37 && e.keyCode <= 40) {
-			if (e.shiftKey) {
-				if (keyl && keyu) {
-					p = up_left();
-				}
-				else if (keyr && keyu) {
-					p = up_right();
-				}
-				else if (keyl && keyd) {
-					p = down_left();
-				}
-				else if (keyr && keyd) {
-					p = down_right();
-				}
-				else {
-					return;
-				}
+			else if (e.keyCode === 83) {
+				navigator.clipboard.writeText(JSON.stringify(statistics.get_record(debug)));
+				stats_aux_elem.text(TEXT_SAVE_CLIPBOARD);
 			}
-			else {
-				if (e.keyCode === 37) {
-					p = left();
-				}
-				else if (e.keyCode === 38) {
-					p = up();
-				}
-				else if (e.keyCode === 39) {
-					p = right();
-				}
-				else if (e.keyCode === 40) {
-					p = down();
-				}
-			}
-		}
-		else if (e.keyCode === 32) {
-			p = pickup().nullthen((r) => downstair()).nullthen((r) => rest());
 		}
 		else {
-			return;
+			throw new Error('not supported.');
 		}
-
-		waiting = true;
-		p.then((r) => {
-			waiting = false;
-		});
 	});
 	c.on('keyup', function (e) {
 		if (e.keyCode === 16) {
@@ -450,12 +430,10 @@ function init () {
 	time = Date.now();
 	seed = time.toString(10);
 
-	invf = false;
 	invindex = 0;
 	invoffset = 0;
 	invactf = false;
 	invactindex = 0;
-	dataf = false;
 	autof = false;
 	gameover = false;
 	waiting = false;
@@ -1423,7 +1401,7 @@ function draw () {
 	con.fillStyle = 'black';
 	con.fillRect(0, 0, SCREEN_X, SCREEN_Y);
 
-	if (!startf) {
+	if (screen === SCREEN_TITLE) {
 		con.textBaseline = 'alphabetic';
 		con.textAlign = 'center';
 		con.fillStyle = 'white';
@@ -1435,355 +1413,357 @@ function draw () {
 		for (var i = 0; i < title_choices.length; i++) {
 			con.fillText((titleindex === i ? '> ' : '  ') + title_choices[i].text, SCREEN_X / 2, SCREEN_Y / 4 * 3 + (32 + 8) * i);
 		}
-
-		return;
 	}
-
-	var nx = fields[player.depth].nx;
-	var ny = fields[player.depth].ny;
-
-	var ox = 0;
-	if (player.x <= Math.floor(SX / 2)) {
-		ox = 0;
-	}
-	else if (player.x >= nx - Math.floor(SX / 2)) {
-		ox = nx - SX;
-	}
-	else {
-		ox = player.x - Math.floor(SX / 2);
-	}
-
-	var oy = 0;
-	if (player.y <= Math.floor(SY / 2)) {
-		oy = 0;
-	}
-	else if (player.y >= ny - Math.floor(SY / 2)) {
-		oy = ny - SY;
-	}
-	else {
-		oy = player.y - Math.floor(SY / 2);
-	}
-
-	var npcs = fields[player.depth].npcs;
-	var room = player.maps[player.depth].room;
-
-	for (var i = 0; i < SX; i++) {
-		for (var j = 0; j < SY; j++) {
-			var block = fields[player.depth].blocks[ox + i][oy + j];
-			var mblock = player.maps[player.depth].blocks[ox + i][oy + j];
-			if (mblock !== M_UNKNOWN) {
-				if ((room !== null && within_room_surrounding(ox + i, oy + j, room)) || (room === null && within_player_surrounding(ox + i, oy + j))) {
-					con.fillStyle = 'white';
-					con.strokeStyle = 'white';
-				}
-				else {
-					con.fillStyle = 'gray';
-					con.strokeStyle = 'gray';
-				}
-
-				if (block.base === B_FLOOR) {
-					con.beginPath();
-					con.arc((i + 0.5) * PX, (j + 0.5) * PY, 1, 0, Math.PI * 2);
-					con.closePath();
-					con.fill();
-				}
-				else if (block.base === B_WALL) {
-					con.strokeRect(i * PX, j * PY, PX, PY);
-					con.beginPath();
-					con.moveTo(i * PX, j * PY);
-					con.lineTo((i + 1) * PX, (j + 1) * PY);
-					con.moveTo((i + 1) * PX, j * PY);
-					con.lineTo(i * PX, (j + 1) * PY);
-					con.closePath();
-					con.stroke();
-				}
-				else if (block.base === B_DOWNSTAIR) {
-					con.drawImage(img, 4 * 32, 5 * 32, 32, 32, i * PX, j * PY, PX, PY);
-				}
-
-				if (block.items) {
-					for (var k = 0; k < block.items.length; k++) {
-						var item = block.items[k];
-						if (item.type === I_APPLE) {
-							con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
-						}
-						else if (item.type === I_HP_GRASS) {
-							con.drawImage(img2, 1 * 32, 1 * 32, 32, 32, i * PX, j * PY, PX, PY);
-						}
-						else if (item.cat === I_CAT_POTION) {
-							con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
-						}
-						else if (item.cat === I_CAT_WEAPON) {
-							con.drawImage(img2, 2 * 32, 10 * 32, 32, 32, i * PX, j * PY, PX, PY);
-						}
-						else if (item.cat === I_CAT_ARMOR) {
-							con.drawImage(img2, 10 * 32, 7 * 32, 32, 32, i * PX, j * PY, PX, PY);
-						}
-						else if (item.cat === I_CAT_SCROLL) {
-							con.drawImage(img2, 6 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
-						}
-						else {
-							throw new Error('not supported.');
+	else if (screen === SCREEN_GAME || screen === SCREEN_ITEM || screen === SCREEN_DATA) {
+		var nx = fields[player.depth].nx;
+		var ny = fields[player.depth].ny;
+	
+		var ox = 0;
+		if (player.x <= Math.floor(SX / 2)) {
+			ox = 0;
+		}
+		else if (player.x >= nx - Math.floor(SX / 2)) {
+			ox = nx - SX;
+		}
+		else {
+			ox = player.x - Math.floor(SX / 2);
+		}
+	
+		var oy = 0;
+		if (player.y <= Math.floor(SY / 2)) {
+			oy = 0;
+		}
+		else if (player.y >= ny - Math.floor(SY / 2)) {
+			oy = ny - SY;
+		}
+		else {
+			oy = player.y - Math.floor(SY / 2);
+		}
+	
+		var npcs = fields[player.depth].npcs;
+		var room = player.maps[player.depth].room;
+	
+		for (var i = 0; i < SX; i++) {
+			for (var j = 0; j < SY; j++) {
+				var block = fields[player.depth].blocks[ox + i][oy + j];
+				var mblock = player.maps[player.depth].blocks[ox + i][oy + j];
+				if (mblock !== M_UNKNOWN) {
+					if ((room !== null && within_room_surrounding(ox + i, oy + j, room)) || (room === null && within_player_surrounding(ox + i, oy + j))) {
+						con.fillStyle = 'white';
+						con.strokeStyle = 'white';
+					}
+					else {
+						con.fillStyle = 'gray';
+						con.strokeStyle = 'gray';
+					}
+	
+					if (block.base === B_FLOOR) {
+						con.beginPath();
+						con.arc((i + 0.5) * PX, (j + 0.5) * PY, 1, 0, Math.PI * 2);
+						con.closePath();
+						con.fill();
+					}
+					else if (block.base === B_WALL) {
+						con.strokeRect(i * PX, j * PY, PX, PY);
+						con.beginPath();
+						con.moveTo(i * PX, j * PY);
+						con.lineTo((i + 1) * PX, (j + 1) * PY);
+						con.moveTo((i + 1) * PX, j * PY);
+						con.lineTo(i * PX, (j + 1) * PY);
+						con.closePath();
+						con.stroke();
+					}
+					else if (block.base === B_DOWNSTAIR) {
+						con.drawImage(img, 4 * 32, 5 * 32, 32, 32, i * PX, j * PY, PX, PY);
+					}
+	
+					if (block.items) {
+						for (var k = 0; k < block.items.length; k++) {
+							var item = block.items[k];
+							if (item.type === I_APPLE) {
+								con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
+							}
+							else if (item.type === I_HP_GRASS) {
+								con.drawImage(img2, 1 * 32, 1 * 32, 32, 32, i * PX, j * PY, PX, PY);
+							}
+							else if (item.cat === I_CAT_POTION) {
+								con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
+							}
+							else if (item.cat === I_CAT_WEAPON) {
+								con.drawImage(img2, 2 * 32, 10 * 32, 32, 32, i * PX, j * PY, PX, PY);
+							}
+							else if (item.cat === I_CAT_ARMOR) {
+								con.drawImage(img2, 10 * 32, 7 * 32, 32, 32, i * PX, j * PY, PX, PY);
+							}
+							else if (item.cat === I_CAT_SCROLL) {
+								con.drawImage(img2, 6 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
+							}
+							else {
+								throw new Error('not supported.');
+							}
 						}
 					}
 				}
 			}
 		}
-	}
-
-	con.textBaseline = 'middle';
-	con.textAlign = 'center';
-	con.fillStyle = 'gray';
-	con.font = '24px consolas';
-	for (var i = 0; i < npcs.length; i++) {
-		if (npcs[i].x >= ox && npcs[i].x < ox + SX && npcs[i].y >= oy && npcs[i].y < oy + SY) {
-			if ((room !== null && within_room_surrounding(npcs[i].x, npcs[i].y, room)) || (room === null && within_player_surrounding(npcs[i].x, npcs[i].y))) {
-				if (npcs[i].type === E_RAT) {
-					con.fillText('🐀\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+	
+		con.textBaseline = 'middle';
+		con.textAlign = 'center';
+		con.fillStyle = 'gray';
+		con.font = '24px consolas';
+		for (var i = 0; i < npcs.length; i++) {
+			if (npcs[i].x >= ox && npcs[i].x < ox + SX && npcs[i].y >= oy && npcs[i].y < oy + SY) {
+				if ((room !== null && within_room_surrounding(npcs[i].x, npcs[i].y, room)) || (room === null && within_player_surrounding(npcs[i].x, npcs[i].y))) {
+					if (npcs[i].type === E_RAT) {
+						con.fillText('🐀\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+					}
+					else if (npcs[i].type === E_BAT) {
+						con.fillText('🦇\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+					}
+					else if (npcs[i].type === E_SLIME) {
+						con.fillText('s', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+					}
+					else if (npcs[i].type === E_SPIDER) {
+						con.fillText('🕷️\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+					}
+					else if (npcs[i].type === E_SNAKE) {
+						con.fillText('🐍\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+					}
+					else if (npcs[i].type === E_CARACAL) {
+						con.fillText('🐈\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+					}
+					else if (npcs[i].type === E_WOLF) {
+						con.fillText('ϝ', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+					}
+					else if (npcs[i].type === E_GOBLIN) {
+						con.fillText('g', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+					}
+					else {
+						throw new Error('not supported.');
+					}
 				}
-				else if (npcs[i].type === E_BAT) {
-					con.fillText('🦇\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+			}
+		}
+	
+		var px = player.x - ox;
+		var py = player.y - oy;
+	
+		con.textBaseline = 'middle';
+		con.textAlign = 'center';
+		con.fillStyle = 'red';
+		con.font = '32px consolas';
+		con.fillText('🚶\uFE0E', px * PX + (PX / 2), py * PY + (PY / 2));
+	
+		if (env.diagonal) {
+			con.save();
+			con.strokeStyle = 'white';
+			con.translate(px * PX + (PX / 2), py * PY + (PY / 2));
+			con.rotate(Math.PI / 4);
+			con.beginPath();
+			con.moveTo((PX / 2) + 4, -4);
+			con.lineTo((PX / 2) + 4 + 8, -4);
+			con.lineTo((PX / 2) + 4 + 8, -4 - 4);
+			con.lineTo((PX / 2) + 4 + 8 + 8, 0);
+			con.lineTo((PX / 2) + 4 + 8, 4 + 4);
+			con.lineTo((PX / 2) + 4 + 8, 4);
+			con.lineTo((PX / 2) + 4, 4);
+			con.closePath();
+			con.stroke();
+			con.rotate(Math.PI / 4 * 2);
+			con.beginPath();
+			con.moveTo((PX / 2) + 4, -4);
+			con.lineTo((PX / 2) + 4 + 8, -4);
+			con.lineTo((PX / 2) + 4 + 8, -4 - 4);
+			con.lineTo((PX / 2) + 4 + 8 + 8, 0);
+			con.lineTo((PX / 2) + 4 + 8, 4 + 4);
+			con.lineTo((PX / 2) + 4 + 8, 4);
+			con.lineTo((PX / 2) + 4, 4);
+			con.closePath();
+			con.stroke();
+			con.rotate(Math.PI / 4 * 2);
+			con.beginPath();
+			con.moveTo((PX / 2) + 4, -4);
+			con.lineTo((PX / 2) + 4 + 8, -4);
+			con.lineTo((PX / 2) + 4 + 8, -4 - 4);
+			con.lineTo((PX / 2) + 4 + 8 + 8, 0);
+			con.lineTo((PX / 2) + 4 + 8, 4 + 4);
+			con.lineTo((PX / 2) + 4 + 8, 4);
+			con.lineTo((PX / 2) + 4, 4);
+			con.closePath();
+			con.stroke();
+			con.rotate(Math.PI / 4 * 2);
+			con.beginPath();
+			con.moveTo((PX / 2) + 4, -4);
+			con.lineTo((PX / 2) + 4 + 8, -4);
+			con.lineTo((PX / 2) + 4 + 8, -4 - 4);
+			con.lineTo((PX / 2) + 4 + 8 + 8, 0);
+			con.lineTo((PX / 2) + 4 + 8, 4 + 4);
+			con.lineTo((PX / 2) + 4 + 8, 4);
+			con.lineTo((PX / 2) + 4, 4);
+			con.closePath();
+			con.stroke();
+			con.restore();
+		}
+	
+		con.save();
+		con.textBaseline = 'top';
+		con.textAlign = 'left';
+		con.font = '24px consolas';
+		con.fillStyle = 'white';
+		con.translate(SX * PX, 0);
+		con.fillText(player.depth + TEXT_DEPTH, 8, (24 + 6) * 0 + 8);
+		con.fillText(TEXT_LEVEL + '：' + player.level, 8, (24 + 6) * 1 + 8);
+		con.fillText(TEXT_HP + '：' + player.hp + '/' + player.hpfull, 8, (24 + 6) * 2 + 8);
+		con.fillText(TEXT_ENERGY + '：' + player.energy + '/' + player.energyfull, 8, (24 + 6) * 3 + 8);
+		con.fillText(TEXT_WEIGHT + '：' + (Math.round(player.weight * 10) / 10) + '/' + player.weightfull, 8, (24 + 6) * 4 + 8);
+		con.fillText(TEXT_ATK + '：' + player.atk, 8, (24 + 6) * 5 + 8);
+		con.fillText(TEXT_DEF + '：' + player.def, 8, (24 + 6) * 6 + 8);
+		con.fillText(TEXT_EXP + '：' + player.exp + '/' + player.expfull, 8, (24 + 6) * 7 + 8);
+		con.restore();
+	
+		con.save();
+		con.textBaseline = 'middle';
+		con.textAlign = 'left';
+		con.font = '24px consolas';
+		con.fillStyle = 'white';
+		con.translate(SX * PX, 284);
+		if (!invactf) {
+			var items = player.items.get_items();
+			for (var i = invoffset; i < invoffset + 10 && i < items.length; i++) {
+				if (items[i].type === I_APPLE) {
+					con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 				}
-				else if (npcs[i].type === E_SLIME) {
-					con.fillText('s', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+				else if (items[i].type === I_HP_GRASS) {
+					con.drawImage(img2, 1 * 32, 1 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 				}
-				else if (npcs[i].type === E_SPIDER) {
-					con.fillText('🕷️\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+				else if (items[i].cat === I_CAT_POTION) {
+					con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 				}
-				else if (npcs[i].type === E_SNAKE) {
-					con.fillText('🐍\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+				else if (items[i].cat === I_CAT_WEAPON) {
+					con.drawImage(img2, 2 * 32, 10 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 				}
-				else if (npcs[i].type === E_CARACAL) {
-					con.fillText('🐈\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+				else if (items[i].cat === I_CAT_ARMOR) {
+					con.drawImage(img2, 10 * 32, 7 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 				}
-				else if (npcs[i].type === E_WOLF) {
-					con.fillText('ϝ', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
-				}
-				else if (npcs[i].type === E_GOBLIN) {
-					con.fillText('g', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+				else if (items[i].cat === I_CAT_SCROLL) {
+					con.drawImage(img2, 6 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 				}
 				else {
 					throw new Error('not supported.');
 				}
+				con.fillText(items[i].dname + (items[i].num > 1 ? 'x' + items[i].num : '') + (items[i].equipped ? '[' + TEXT_EQUIPPED + ']' : ''), 8 + 12 + 32 + 4, (24 + 6) * (i - invoffset));
+				if (screen === SCREEN_ITEM && i === invindex) {
+					con.fillText('>', 8, (24 + 6) * (i - invoffset));
+				}
 			}
 		}
-	}
-
-	var px = player.x - ox;
-	var py = player.y - oy;
-
-	con.textBaseline = 'middle';
-	con.textAlign = 'center';
-	con.fillStyle = 'red';
-	con.font = '32px consolas';
-	con.fillText('🚶\uFE0E', px * PX + (PX / 2), py * PY + (PY / 2));
-
-	if (env.diagonal) {
-		con.save();
-		con.strokeStyle = 'white';
-		con.translate(px * PX + (PX / 2), py * PY + (PY / 2));
-		con.rotate(Math.PI / 4);
-		con.beginPath();
-		con.moveTo((PX / 2) + 4, -4);
-		con.lineTo((PX / 2) + 4 + 8, -4);
-		con.lineTo((PX / 2) + 4 + 8, -4 - 4);
-		con.lineTo((PX / 2) + 4 + 8 + 8, 0);
-		con.lineTo((PX / 2) + 4 + 8, 4 + 4);
-		con.lineTo((PX / 2) + 4 + 8, 4);
-		con.lineTo((PX / 2) + 4, 4);
-		con.closePath();
-		con.stroke();
-		con.rotate(Math.PI / 4 * 2);
-		con.beginPath();
-		con.moveTo((PX / 2) + 4, -4);
-		con.lineTo((PX / 2) + 4 + 8, -4);
-		con.lineTo((PX / 2) + 4 + 8, -4 - 4);
-		con.lineTo((PX / 2) + 4 + 8 + 8, 0);
-		con.lineTo((PX / 2) + 4 + 8, 4 + 4);
-		con.lineTo((PX / 2) + 4 + 8, 4);
-		con.lineTo((PX / 2) + 4, 4);
-		con.closePath();
-		con.stroke();
-		con.rotate(Math.PI / 4 * 2);
-		con.beginPath();
-		con.moveTo((PX / 2) + 4, -4);
-		con.lineTo((PX / 2) + 4 + 8, -4);
-		con.lineTo((PX / 2) + 4 + 8, -4 - 4);
-		con.lineTo((PX / 2) + 4 + 8 + 8, 0);
-		con.lineTo((PX / 2) + 4 + 8, 4 + 4);
-		con.lineTo((PX / 2) + 4 + 8, 4);
-		con.lineTo((PX / 2) + 4, 4);
-		con.closePath();
-		con.stroke();
-		con.rotate(Math.PI / 4 * 2);
-		con.beginPath();
-		con.moveTo((PX / 2) + 4, -4);
-		con.lineTo((PX / 2) + 4 + 8, -4);
-		con.lineTo((PX / 2) + 4 + 8, -4 - 4);
-		con.lineTo((PX / 2) + 4 + 8 + 8, 0);
-		con.lineTo((PX / 2) + 4 + 8, 4 + 4);
-		con.lineTo((PX / 2) + 4 + 8, 4);
-		con.lineTo((PX / 2) + 4, 4);
-		con.closePath();
-		con.stroke();
+		else {
+			var actions = get_item_actions(player.items.get_item(invindex));
+			for (var i = 0; i < actions.length; i++) {
+				con.fillText(actions[i].dname, 8 + 12, (24 + 6) * i);
+				if (i === invactindex) {
+					con.fillText('>', 8, (24 + 6) * i);
+				}
+			}
+		}
 		con.restore();
-	}
-
-	con.save();
-	con.textBaseline = 'top';
-	con.textAlign = 'left';
-	con.font = '24px consolas';
-	con.fillStyle = 'white';
-	con.translate(SX * PX, 0);
-	con.fillText(player.depth + TEXT_DEPTH, 8, (24 + 6) * 0 + 8);
-	con.fillText(TEXT_LEVEL + '：' + player.level, 8, (24 + 6) * 1 + 8);
-	con.fillText(TEXT_HP + '：' + player.hp + '/' + player.hpfull, 8, (24 + 6) * 2 + 8);
-	con.fillText(TEXT_ENERGY + '：' + player.energy + '/' + player.energyfull, 8, (24 + 6) * 3 + 8);
-	con.fillText(TEXT_WEIGHT + '：' + (Math.round(player.weight * 10) / 10) + '/' + player.weightfull, 8, (24 + 6) * 4 + 8);
-	con.fillText(TEXT_ATK + '：' + player.atk, 8, (24 + 6) * 5 + 8);
-	con.fillText(TEXT_DEF + '：' + player.def, 8, (24 + 6) * 6 + 8);
-	con.fillText(TEXT_EXP + '：' + player.exp + '/' + player.expfull, 8, (24 + 6) * 7 + 8);
-	con.restore();
-
-	con.save();
-	con.textBaseline = 'middle';
-	con.textAlign = 'left';
-	con.font = '24px consolas';
-	con.fillStyle = 'white';
-	con.translate(SX * PX, 284);
-	if (!invactf) {
-		var items = player.items.get_items();
-		for (var i = invoffset; i < invoffset + 10 && i < items.length; i++) {
-			if (items[i].type === I_APPLE) {
-				con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+	
+		con.save();
+		con.textBaseline = 'top';
+		con.textAlign = 'left';
+		con.font = '16px consolas';
+		con.translate(SX * PX, SCREEN_Y - ((16 + 6) * NUM_MESSAGE + 8 * 2));
+		for (var i = 0; i < messages.length; i++) {
+			if (messages[i].type === 'normal') {
+				con.fillStyle = 'white';
 			}
-			else if (items[i].type === I_HP_GRASS) {
-				con.drawImage(img2, 1 * 32, 1 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+			else if (messages[i].type === 'special') {
+				con.fillStyle = 'yellow';
 			}
-			else if (items[i].cat === I_CAT_POTION) {
-				con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+			else if (messages[i].type === 'important') {
+				con.fillStyle = 'pink';
 			}
-			else if (items[i].cat === I_CAT_WEAPON) {
-				con.drawImage(img2, 2 * 32, 10 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+			else if (messages[i].type === 'pattack') {
+				con.fillStyle = 'yellowgreen';
 			}
-			else if (items[i].cat === I_CAT_ARMOR) {
-				con.drawImage(img2, 10 * 32, 7 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
-			}
-			else if (items[i].cat === I_CAT_SCROLL) {
-				con.drawImage(img2, 6 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+			else if (messages[i].type === 'eattack') {
+				con.fillStyle = 'aqua';
 			}
 			else {
 				throw new Error('not supported.');
 			}
-			con.fillText(items[i].dname + (items[i].num > 1 ? 'x' + items[i].num : '') + (items[i].equipped ? '[' + TEXT_EQUIPPED + ']' : ''), 8 + 12 + 32 + 4, (24 + 6) * (i - invoffset));
-			if (invf && i === invindex) {
-				con.fillText('>', 8, (24 + 6) * (i - invoffset));
+			var text = messages[i].text;
+			if (messages[i].repeat) {
+				text += '（' + 'x' + messages[i].repeat + '）';
+			}
+			con.fillText(text, 8, (16 + 6) * i + 8);
+		}
+		con.restore();
+	
+		con.save();
+		var nx = player.maps[player.depth].nx;
+		var ny = player.maps[player.depth].nx;
+		var px = Math.floor(MAP_WIDTH / nx);
+		var py = Math.floor(MAP_HEIGHT / ny);
+		con.translate(SCREEN_X - nx * px, 0);
+		for (var i = 0; i < nx; i++) {
+			for (var j = 0; j < ny; j++) {
+				var block = fields[player.depth].blocks[i][j];
+				var mblock = player.maps[player.depth].blocks[i][j];
+				if (mblock === M_UNKNOWN) {
+					con.fillStyle = 'gray';
+				}
+				else if (mblock === B_FLOOR) {
+					if (block.items && block.items.length > 0) {
+						con.fillStyle = 'yellow';
+					}
+					else if (room !== null && within_room_surrounding(i, j, room)) {
+						con.fillStyle = 'dodgerblue';
+					}
+					else if (room === null && within_player_surrounding(i, j)) {
+						con.fillStyle = 'dodgerblue';
+					}
+					else {
+						con.fillStyle = 'royalblue';
+					}
+				}
+				else if (mblock === B_WALL) {
+					con.fillStyle = 'black';
+				}
+				else if (mblock === B_DOWNSTAIR) {
+					con.fillStyle = 'yellowgreen';
+				}
+				con.fillRect(i * px, j * py, px, py);
 			}
 		}
+		for (var i = 0; i < npcs.length; i++) {
+			if ((room !== null && within_room_surrounding(npcs[i].x, npcs[i].y, room)) || (room === null && within_player_surrounding(npcs[i].x, npcs[i].y))) {
+				con.fillStyle = 'red';
+				con.fillRect(npcs[i].x * px, npcs[i].y * py, px, py);
+			}
+		}
+		con.fillStyle = 'pink';
+		con.fillRect(player.x * px, player.y * py, px, py);
+		con.restore();
+	
+		if (autof) {
+			con.save();
+			con.textBaseline = 'bottom';
+			con.textAlign = 'right';
+			con.font = '24px consolas';
+			con.fillStyle = 'white';
+			con.translate(SCREEN_X, SCREEN_Y);
+			con.fillText(TEXT_AUTO, 0, 0);
+			con.restore();
+		}
+	
+		if (screen === SCREEN_DATA) {
+			con.fillStyle = 'rgba(0, 0, 0, 0.75)';
+			con.fillRect(32, 32, SCREEN_X - 32 * 2, SCREEN_Y - 32 * 2);
+		}	
 	}
 	else {
-		var actions = get_item_actions(player.items.get_item(invindex));
-		for (var i = 0; i < actions.length; i++) {
-			con.fillText(actions[i].dname, 8 + 12, (24 + 6) * i);
-			if (i === invactindex) {
-				con.fillText('>', 8, (24 + 6) * i);
-			}
-		}
-	}
-	con.restore();
-
-	con.save();
-	con.textBaseline = 'top';
-	con.textAlign = 'left';
-	con.font = '16px consolas';
-	con.translate(SX * PX, SCREEN_Y - ((16 + 6) * NUM_MESSAGE + 8 * 2));
-	for (var i = 0; i < messages.length; i++) {
-		if (messages[i].type === 'normal') {
-			con.fillStyle = 'white';
-		}
-		else if (messages[i].type === 'special') {
-			con.fillStyle = 'yellow';
-		}
-		else if (messages[i].type === 'important') {
-			con.fillStyle = 'pink';
-		}
-		else if (messages[i].type === 'pattack') {
-			con.fillStyle = 'yellowgreen';
-		}
-		else if (messages[i].type === 'eattack') {
-			con.fillStyle = 'aqua';
-		}
-		else {
-			throw new Error('not supported.');
-		}
-		var text = messages[i].text;
-		if (messages[i].repeat) {
-			text += '（' + 'x' + messages[i].repeat + '）';
-		}
-		con.fillText(text, 8, (16 + 6) * i + 8);
-	}
-	con.restore();
-
-	con.save();
-	var nx = player.maps[player.depth].nx;
-	var ny = player.maps[player.depth].nx;
-	var px = Math.floor(MAP_WIDTH / nx);
-	var py = Math.floor(MAP_HEIGHT / ny);
-	con.translate(SCREEN_X - nx * px, 0);
-	for (var i = 0; i < nx; i++) {
-		for (var j = 0; j < ny; j++) {
-			var block = fields[player.depth].blocks[i][j];
-			var mblock = player.maps[player.depth].blocks[i][j];
-			if (mblock === M_UNKNOWN) {
-				con.fillStyle = 'gray';
-			}
-			else if (mblock === B_FLOOR) {
-				if (block.items && block.items.length > 0) {
-					con.fillStyle = 'yellow';
-				}
-				else if (room !== null && within_room_surrounding(i, j, room)) {
-					con.fillStyle = 'dodgerblue';
-				}
-				else if (room === null && within_player_surrounding(i, j)) {
-					con.fillStyle = 'dodgerblue';
-				}
-				else {
-					con.fillStyle = 'royalblue';
-				}
-			}
-			else if (mblock === B_WALL) {
-				con.fillStyle = 'black';
-			}
-			else if (mblock === B_DOWNSTAIR) {
-				con.fillStyle = 'yellowgreen';
-			}
-			con.fillRect(i * px, j * py, px, py);
-		}
-	}
-	for (var i = 0; i < npcs.length; i++) {
-		if ((room !== null && within_room_surrounding(npcs[i].x, npcs[i].y, room)) || (room === null && within_player_surrounding(npcs[i].x, npcs[i].y))) {
-			con.fillStyle = 'red';
-			con.fillRect(npcs[i].x * px, npcs[i].y * py, px, py);
-		}
-	}
-	con.fillStyle = 'pink';
-	con.fillRect(player.x * px, player.y * py, px, py);
-	con.restore();
-
-	if (autof) {
-		con.save();
-		con.textBaseline = 'bottom';
-		con.textAlign = 'right';
-		con.font = '24px consolas';
-		con.fillStyle = 'white';
-		con.translate(SCREEN_X, SCREEN_Y);
-		con.fillText(TEXT_AUTO, 0, 0);
-		con.restore();
-	}
-
-	if (dataf) {
-		con.fillStyle = 'rgba(0, 0, 0, 0.75)';
-		con.fillRect(32, 32, SCREEN_X - 32 * 2, SCREEN_Y - 32 * 2);
+		throw new Error('not supported.');
 	}
 }
 
