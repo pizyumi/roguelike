@@ -11,6 +11,7 @@ var TEXT_ATK = '攻撃力';
 var TEXT_DEF = '防御力';
 var TEXT_EXP = '経験値';
 var TEXT_STATES = '状態';
+var TEXT_HUNGRY = '空腹';
 var TEXT_FAMINE = '飢餓';
 var TEXT_EQUIPPED = '装備中';
 var TEXT_AUTO = '自動';

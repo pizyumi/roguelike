@@ -655,11 +655,33 @@ class Player {
 	}
 
 	get atk () {
-		return this.atkbase + this.atkext + (this.weapon === null ? 0 : this.weapon.atk);
+		var atk = this.atkbase + this.atkext;
+		if (this.weapon !== null) {
+			atk += this.weapon.atk;
+		}
+
+		if (this.hungry) {
+			atk = Math.ceil(atk * 0.8);
+		}
+
+		return atk;
 	}
 
 	get def () {
-		return this.defbase + this.defext + (this.armor === null ? 0 : this.armor.def);
+		var def = this.defbase + this.defext;
+		if (this.armor !== null) {
+			def += this.armor.def;
+		}
+
+		if (this.hungry) {
+			def = Math.ceil(def * 0.8);
+		}
+
+		return def;
+	}
+
+	get hungry () {
+		return this.energy > 0 && this.energy < 10;
 	}
 
 	get famine () {

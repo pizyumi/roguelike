@@ -1639,7 +1639,11 @@ function draw () {
 
 		var states = [];
 		var color = 'white';
-		if (player.famine) {
+		if (player.hungry) {
+			states.push(TEXT_HUNGRY);
+			color = 'yellow';
+		}
+		else if (player.famine) {
 			states.push(TEXT_FAMINE);
 			color = 'red';
 		}
