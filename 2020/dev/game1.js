@@ -663,6 +663,9 @@ class Player {
 		if (this.hungry) {
 			atk = Math.ceil(atk * 0.8);
 		}
+		else if (this.famine) {
+			atk = Math.ceil(atk * 0.2);
+		}
 
 		return atk;
 	}
@@ -675,6 +678,9 @@ class Player {
 
 		if (this.hungry) {
 			def = Math.ceil(def * 0.8);
+		}
+		else if (this.famine) {
+			def = Math.ceil(def * 0.2);
 		}
 
 		return def;
