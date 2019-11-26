@@ -150,8 +150,8 @@ function create_statistics_html (parent, record, secret, dark) {
     columns.push({ dname: TEXT_MAX, name: 'cmax', formatter: (value) => value === null ? '-' : value });
     columns.push({ dname: TEXT_AVG, name: 'cavg', formatter: (value) => value === null ? '-' : value });
 
-    var h1 = $('<h1>' + TEXT_FIGHT + TEXT_DETAIL + '</h1>');
-    parent.append(h1);
+    var h1_fights = $('<h1>' + TEXT_FIGHT + TEXT_DETAIL + '</h1>');
+    parent.append(h1_fights);
     for (var i = 0; i < record.fights.length; i++) {
         var h2 = $('<h2>' + i + TEXT_DEPTH + '</h2>');
 		parent.append(h2);
