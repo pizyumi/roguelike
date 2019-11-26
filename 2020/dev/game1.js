@@ -654,36 +654,44 @@ class Player {
 		return this.weightbase + this.weightext;
 	}
 
-	get atk () {
+	get atkfull () {
 		var atk = this.atkbase + this.atkext;
 		if (this.weapon !== null) {
 			atk += this.weapon.atk;
 		}
-
-		if (this.hungry) {
-			atk = Math.ceil(atk * 0.8);
-		}
-		else if (this.famine) {
-			atk = Math.ceil(atk * 0.2);
-		}
-
 		return atk;
 	}
 
-	get def () {
+	get atk () {
+		if (this.hungry) {
+			return Math.ceil(this.atkfull * 0.8);
+		}
+		else if (this.famine) {
+			return Math.ceil(this.atkfull * 0.2);
+		}
+		else {
+			return this.atkfull;
+		}
+	}
+
+	get deffull () {
 		var def = this.defbase + this.defext;
 		if (this.armor !== null) {
 			def += this.armor.def;
 		}
+		return def;
+	}
 
+	get def () {
 		if (this.hungry) {
-			def = Math.ceil(def * 0.8);
+			return Math.ceil(this.deffull * 0.8);
 		}
 		else if (this.famine) {
-			def = Math.ceil(def * 0.2);
+			return Math.ceil(this.deffull * 0.2);
 		}
-
-		return def;
+		else {
+			return this.deffull;
+		}
 	}
 
 	get hungry () {

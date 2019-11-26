@@ -1659,8 +1659,8 @@ function draw () {
 		con.fillText(TEXT_HP + '：' + player.hp + '/' + player.hpfull, 8, (24 + 6) * 2 + 8);
 		con.fillText(TEXT_ENERGY + '：' + player.energy + '/' + player.energyfull, 8, (24 + 6) * 3 + 8);
 		con.fillText(TEXT_WEIGHT + '：' + (Math.round(player.weight * 10) / 10) + '/' + player.weightfull, 8, (24 + 6) * 4 + 8);
-		con.fillText(TEXT_ATK + '：' + player.atk, 8, (24 + 6) * 5 + 8);
-		con.fillText(TEXT_DEF + '：' + player.def, 8, (24 + 6) * 6 + 8);
+		con.fillText(TEXT_ATK + '：' + player.atk + '/' + player.atkfull, 8, (24 + 6) * 5 + 8);
+		con.fillText(TEXT_DEF + '：' + player.def + '/' + player.deffull, 8, (24 + 6) * 6 + 8);
 		con.fillText(TEXT_EXP + '：' + player.exp + '/' + player.expfull, 8, (24 + 6) * 7 + 8);
 		con.fillText(TEXT_STATES + '：' + states.join(','), 8 + 256, (24 + 6) * 1 + 8);
 		con.restore();
