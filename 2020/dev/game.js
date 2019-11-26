@@ -727,7 +727,7 @@ function consume_item () {
 
 async function auto_forever () {
 	while (autof) {
-		var r = await auto();
+		var r = await auto({});
 		if (r === null || !r || gameover) {
 			autof = !autof;
 			draw();
