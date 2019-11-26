@@ -40,7 +40,7 @@ $(function () {
                     var record_elem = $('#record');
                     record_elem.empty();
 
-                    create_statistics_html(record_elem, res.data, true);
+                    create_statistics_html(record_elem, res.data, true, false);
                 }).catch((err) => {
                 }).finally(() => {
                 });            

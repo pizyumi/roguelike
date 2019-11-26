@@ -126,50 +126,66 @@ function calculate_stats (ds) {
 	}
 }
 
-function stats_nan_formatter (cell, formatterParams, onRendered) {
-	var val = cell.getValue();
-	return isNaN(val) || val === null ? '-' : val;
-}
-
-function create_statistics_html (parent, record, secret) {
-    var columns = [];
-    columns.push({ title: TEXT_KILL, field: 'killed', formatter: 'tickCross'});
+function create_statistics_html (parent, record, secret, dark) {
+	var columns = [];
+    columns.push({ dname: TEXT_KILL, name: 'killed', formatter: (value) => value ? '' : '×' });
     if (secret) {
-        columns.push({ title: TEXT_ID, field: 'id'});
+        columns.push({ dname: TEXT_ID, name: 'id' });
     }
-    columns.push({ title: TEXT_NAME, field: 'dname'});
+    columns.push({ dname: TEXT_NAME, name: 'dname' });
     if (secret) {
-        columns.push({ title: TEXT_LEVEL, field: 'level'});
+        columns.push({ dname: TEXT_LEVEL, name: 'level' });
     }
-    columns.push({ title: TEXT_EXP, field: 'exp'});
-    columns.push({ title: TEXT_IN_DAMAGE, field: 'ps'});
-    columns.push({ title: TEXT_NUM, field: 'plen'});
-    columns.push({ title: TEXT_SUM, field: 'psum'});
-    columns.push({ title: TEXT_MIN, field: 'pmin', formatter: stats_nan_formatter});
-    columns.push({ title: TEXT_MAX, field: 'pmax', formatter: stats_nan_formatter});
-    columns.push({ title: TEXT_AVG, field: 'pavg', formatter: stats_nan_formatter});
-    columns.push({ title: TEXT_OUT_DAMAGE, field: 'cs'});
-    columns.push({ title: TEXT_NUM, field: 'clen'});
-    columns.push({ title: TEXT_SUM, field: 'csum'});
-    columns.push({ title: TEXT_MIN, field: 'cmin', formatter: stats_nan_formatter});
-    columns.push({ title: TEXT_MAX, field: 'cmax', formatter: stats_nan_formatter});
-    columns.push({ title: TEXT_AVG, field: 'cavg', formatter: stats_nan_formatter});
+    columns.push({ dname: TEXT_EXP, name: 'exp' });
+    columns.push({ dname: TEXT_IN_DAMAGE, name: 'ps', formatter: (value) => value.join(',') });
+    columns.push({ dname: TEXT_NUM, name: 'plen' });
+    columns.push({ dname: TEXT_SUM, name: 'psum' });
+    columns.push({ dname: TEXT_MIN, name: 'pmin', formatter: (value) => value === null ? '-' : value });
+    columns.push({ dname: TEXT_MAX, name: 'pmax', formatter: (value) => value === null ? '-' : value });
+    columns.push({ dname: TEXT_AVG, name: 'pavg', formatter: (value) => value === null ? '-' : value });
+    columns.push({ dname: TEXT_OUT_DAMAGE, name: 'cs', formatter: (value) => value.join(',') });
+    columns.push({ dname: TEXT_NUM, name: 'clen' });
+    columns.push({ dname: TEXT_SUM, name: 'csum' });
+    columns.push({ dname: TEXT_MIN, name: 'cmin', formatter: (value) => value === null ? '-' : value });
+    columns.push({ dname: TEXT_MAX, name: 'cmax', formatter: (value) => value === null ? '-' : value });
+    columns.push({ dname: TEXT_AVG, name: 'cavg', formatter: (value) => value === null ? '-' : value });
 
     var h1 = $('<h1>' + TEXT_FIGHT + TEXT_DETAIL + '</h1>');
     parent.append(h1);
     for (var i = 0; i < record.fights.length; i++) {
         var h2 = $('<h2>' + i + TEXT_DEPTH + '</h2>');
-        parent.append(h2);
-        var div = $('<div></div>');
-        div.attr('id', 'fights' + i);
-        parent.append(div);
-
-        var table = new Tabulator('#fights' + i, {
-            height: 512,
-            data: record.fights[i],
-            columns: columns
-        });
+		parent.append(h2);
+		var table = create_table(columns, record.fights[i]);
+		if (dark) {
+			table.addClass('table-dark');
+		}
+		parent.append(table);
     }
+}
+
+function create_table (columns, data) {
+	var table = $('<table class="table table-striped"></table>');
+	var thead = $('<thead></thead>');
+	table.append(thead);
+	var theadr = $('<tr></tr>');
+	thead.append(theadr);
+	for (var i = 0; i < columns.length; i++) {
+		theadr.append($('<th>' + columns[i].dname + '</th>'));
+	}
+	var tbody = $('<tbody></tbody>');
+	table.append(tbody);
+	for (var i = 0; i < data.length; i++) {
+		var tbodyr = $('<tr></tr>');
+		tbody.append(tbodyr);
+		for (var j = 0; j < columns.length; j++) {
+			var d = data[i][columns[j].name];
+			if (columns[j].formatter) {
+				d = columns[j].formatter(d);
+			}
+			tbodyr.append($('<td>' + d + '</td>'));
+		}
+	}
+	return table;
 }
 
 class Random {

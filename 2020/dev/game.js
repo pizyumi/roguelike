@@ -286,7 +286,7 @@ $(function () {
 				$(document.body).prepend(stats_elem);
 
 				setTimeout(function () {
-					create_statistics_html(stats_elem, statistics.get_record(debug), debug);
+					create_statistics_html(stats_elem, statistics.get_record(debug), debug, true);
 					stats_aux_elem.text('');
 				}, 0);
 
