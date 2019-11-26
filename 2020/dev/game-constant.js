@@ -60,9 +60,6 @@ var MSG_READ_ARMOR_SCROLL = ({name, diff}) => `${name}を読みました。装�
 var MSG_NO_EFFECT = '何も起きませんでした。';
 var MSG_EMPTY_INV = '何も持っていません。';
 var MSG_REST = 'ほんの少しの間休憩しました。';
-var MSG_CANT_REST_ENERGY = '休憩する前に空腹を満たさないとです。';
-var MSG_CANT_REST_ENEMY = '敵が近くにいて休憩できません。';
-var MSG_CANT_REST_PASSAGE = '部屋の中でないと休憩できません。';
 var MSG_SUFFICIENT_HP = '休憩の必要はなさそうです。';
 
 var E_RAT_NAME = 'ネズミ';

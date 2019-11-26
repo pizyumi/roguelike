@@ -1168,30 +1168,6 @@ async function rest () {
 		draw();
 		return false;
 	}
-	if (player.energy <= 10) {
-		add_message({
-			text: MSG_CANT_REST_ENERGY,
-			type: 'important'
-		});
-		draw();
-		return false;
-	}
-	if (room === null) {
-		add_message({
-			text: MSG_CANT_REST_PASSAGE,
-			type: 'important'
-		});
-		draw();
-		return false;
-	}
-	if (npcs_within_room(room)) {
-		add_message({
-			text: MSG_CANT_REST_ENEMY,
-			type: 'important'
-		});
-		draw();
-		return false;
-	}
 	add_message({
 		text: MSG_REST,
 		type: 'normal'
