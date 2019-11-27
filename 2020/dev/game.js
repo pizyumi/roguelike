@@ -86,7 +86,7 @@ async function ai_selection () {
 
 async function manual () {
 	screen = SCREEN_GAME;
-	settings = new Settings();
+	settings = new Settings(debug);
 	settings.mode = MODE_MANUAL;
 	name = 'anonymous';
 	init();
@@ -95,7 +95,7 @@ async function manual () {
 
 async function ai (option, id) {
 	screen = SCREEN_GAME;
-	settings = new Settings();
+	settings = new Settings(debug);
 	settings.mode = MODE_AI;
 	name = 'ai-' + id;
 

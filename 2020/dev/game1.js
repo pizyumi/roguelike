@@ -329,7 +329,8 @@ var MODE_MANUAL = 0;
 var MODE_AI = 1;
 
 class Settings {
-	constructor () {
+	constructor (debug) {
+		this._debug = debug;
 		this._mode = MODE_MANUAL;
 		this._sound = true;
 		this._auto_rate = 1;
@@ -345,7 +346,10 @@ class Settings {
 	}
 
 	get sound () {
-		if (this.mode === MODE_MANUAL) {
+		if (this._debug) {
+			return false;
+		}
+		else if (this.mode === MODE_MANUAL) {
 			return this._sound;
 		}
 		else if (this.mode === MODE_AI) {
