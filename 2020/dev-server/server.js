@@ -56,6 +56,34 @@ obj = _.extend(obj, {
             yield common.send_res_with_json(res, record);
           }).catch(next);
         });
+        app.get('/get-summary', (req, res, next) => {
+          co(function* () {
+            var data = req.query;
+            var p = path.join('..', 'record', data.version, data.name);
+            var files = yield common.load_files_from_path(p);
+            var fights = [];
+            for (var i = 0; i < files.length; i++) {
+              var record = yield common.load_json_from_path(files[i]);
+              for (var j = 0; j < record.fights.length; j++) {
+                var c = fights[j];
+                if (c) {
+                  fights[j] = fights[j].concat(record.fights[j]);
+                }
+                else {
+                  fights[j] = record.fights[j];
+                }
+              }
+            }
+            var fights_summary = [];
+            for (var i = 0; i < fights.length; i++) {
+              fights_summary[i] = calculate_fights_summary(fights[i]);
+            }
+            var summary = {
+              fights: fights_summary
+            };
+            yield common.send_res_with_json(res, summary);
+          }).catch(next);
+        });
         app.use(bodyparser.json());
         app.post('/add-record', (req, res, next) => {
           co(function* () {
@@ -101,5 +129,71 @@ obj = _.extend(obj, {
     });
   }
 });
+
+function calculate_stats (ds) {
+	var sum = 0;
+	var min = 65535;
+	var max = 0;
+	if (ds.length === 0) {
+		return {
+			sum: 0,
+			min: NaN,
+			max: NaN,
+			avg: NaN
+		};
+	}
+	else {
+		for (var i = 0; i < ds.length; i++) {
+			sum += ds[i];
+			if (ds[i] < min) {
+				min = ds[i];
+			}
+			if (ds[i] > max) {
+				max = ds[i];
+			}
+		}
+		var avg = sum / ds.length;
+		return {
+			sum: sum,
+			min: min,
+			max: max,
+			avg: avg
+		};
+	}
+}
+
+function calculate_fights_summary (fights) {
+	var levels = [];
+	var exps = [];
+	var plens = [];
+	var clens = [];
+	var cpdiffs = [];
+	var psums = [];
+	var csums = [];
+	var ps = [];
+	var cs = [];
+	for (var i = 0; i < fights.length; i++) {
+		levels.push(fights[i].level);
+		exps.push(fights[i].exp);
+		plens.push(fights[i].plen);
+		clens.push(fights[i].clen);
+		cpdiffs.push(fights[i].clen - fights[i].plen);
+		psums.push(fights[i].psum);
+		csums.push(fights[i].csum);
+		Array.prototype.push.apply(ps, fights[i].ps);
+		Array.prototype.push.apply(cs, fights[i].cs);
+	}
+	return {
+		level: calculate_stats(levels), 
+		exp: calculate_stats(exps), 
+		plen: calculate_stats(plens), 
+		clen: calculate_stats(clens), 
+		cpdiff: calculate_stats(cpdiffs), 
+		psum: calculate_stats(psums), 
+		csum: calculate_stats(csums), 
+		p: calculate_stats(ps), 
+		c: calculate_stats(cs)
+	};
+}
 
 module.exports = obj;

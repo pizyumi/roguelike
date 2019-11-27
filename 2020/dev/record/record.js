@@ -44,6 +44,20 @@ $(function () {
                 }).catch((err) => {
                 }).finally(() => {
                 });            
+            }, 
+            summary: function (version, name) {
+                var params = {
+                    version: version.name, 
+                    name: name.name
+                };
+                axios.get('/get-summary', { params: params }).then((res) => {
+                    var record_elem = $('#record');
+                    record_elem.empty();
+
+                    create_summary_html(record_elem, res.data);
+                }).catch((err) => {
+                }).finally(() => {
+                });
             }
         }
     });

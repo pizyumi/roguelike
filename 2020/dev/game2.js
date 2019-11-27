@@ -126,6 +126,36 @@ function calculate_stats (ds) {
 	}
 }
 
+function create_summary_html (parent, summary) {
+    var h1_per_depth = $('<h1>' + TEXT_DEPTH_SUMMARY + '</h1>');
+	parent.append(h1_per_depth);
+	create_fight_summary_table(parent, summary.fights, 'level', TEXT_LEVEL);
+	create_fight_summary_table(parent, summary.fights, 'exp', TEXT_EXP);
+	create_fight_summary_table(parent, summary.fights, 'plen', TEXT_IN_DAMAGE + TEXT_NUM);
+	create_fight_summary_table(parent, summary.fights, 'clen', TEXT_OUT_DAMAGE + TEXT_NUM);
+	create_fight_summary_table(parent, summary.fights, 'cpdiff', TEXT_DIFF);
+	create_fight_summary_table(parent, summary.fights, 'psum', TEXT_IN_DAMAGE + TEXT_SUM);
+	create_fight_summary_table(parent, summary.fights, 'csum', TEXT_OUT_DAMAGE + TEXT_SUM);
+	create_fight_summary_table(parent, summary.fights, 'p', TEXT_IN_DAMAGE);
+	create_fight_summary_table(parent, summary.fights, 'c', TEXT_OUT_DAMAGE);
+}
+
+var fight_summary_columns = [
+	{ dname: TEXT_DEPTH, name: 'depth' }, 
+	{ dname: TEXT_MIN, name: 'min' }, 
+	{ dname: TEXT_MAX, name: 'max' }, 
+	{ dname: TEXT_AVG, name: 'avg' }
+];
+
+function create_fight_summary_table (parent, summary, name, text) {
+	var data = summary.map((item, index) => _.extend(item[name], { depth: index }));
+
+	var h2 = $('<h2>' + text + '</h2>');
+	parent.append(h2);
+	var table = create_table(fight_summary_columns, data);
+	parent.append(table);
+}
+
 function create_statistics_html (parent, record, secret, dark) {
 	var columns = [];
     columns.push({ dname: TEXT_KILL, name: 'killed', formatter: (value) => value ? '' : '×' });

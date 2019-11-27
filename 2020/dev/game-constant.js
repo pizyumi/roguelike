@@ -34,6 +34,8 @@ var TEXT_SUM = '合計';
 var TEXT_MIN = '最小';
 var TEXT_MAX = '最大';
 var TEXT_AVG = '平均';
+var TEXT_DIFF = '差';
+var TEXT_DEPTH_SUMMARY = '階別集計';
 
 var MSG_INIT = 'あなたは目覚めました。';
 var MSG_DOWNSTAIR = '下り階段を降りました。';
