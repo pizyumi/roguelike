@@ -678,6 +678,16 @@ async function execute_turn () {
 		});
 	}
 
+	if (player.poison) {
+		if (Math.random() < player.poison_remedy) {
+			player.poison = false;
+			add_message({
+				text: MSG_POISON_REMEDY,
+				type: 'normal'
+			});
+		}
+	}
+
 	player.maps[player.depth].update(player.x, player.y);
 }
 
@@ -1628,6 +1638,10 @@ function draw () {
 		}
 		else if (player.famine) {
 			states.push(TEXT_FAMINE);
+			color = 'red';
+		}
+		else if (player.poison) {
+			states.push(TEXT_POISON);
 			color = 'red';
 		}
 	

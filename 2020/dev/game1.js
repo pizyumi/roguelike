@@ -638,6 +638,10 @@ class Player {
 		this.weapon = null;
 		this.armor = null;
 
+		this.poison = false;
+		this.poison_strength = 1;
+		this.poison_remedy = 0.05;
+
 		this.items = new Items();
 		this.maps = [];
 	}
@@ -705,6 +709,13 @@ class Player {
 	next_hp () {
 		if (this.famine) {
 			this.hp_fraction -= this.hpfull * 0.005;
+			while (this.hp_fraction <= -1) {
+				this.hp--;
+				this.hp_fraction += 1;
+			}
+		}
+		else if (this.poison) {
+			this.hp_fraction -= this.hpfull * 0.01 * this.poison_strength;
 			while (this.hp_fraction <= -1) {
 				this.hp--;
 				this.hp_fraction += 1;
