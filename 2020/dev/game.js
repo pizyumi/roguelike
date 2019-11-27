@@ -552,12 +552,19 @@ async function execute_turn () {
 		var ld = player.x === c.x - 1 && player.y === c.y + 1;
 		var rd = player.x === c.x + 1 && player.y === c.y + 1;
 		if (attack && (l || u || r || d || (lu && cl && cu) || (ru && cr && cu) || (ld && cl && cd) || (rd && cr && cd))) {
+			var table = new Map();
+			for (var j = 0; j < c.attacks.length; j++) {
+				table.set(c.attacks[j].type, c.attacks[j].p);
+			}
+			var type = randomselect(table);
 			var dam = calculate_damage(c.atk, player.def);
 			player.hp -= dam;
-			add_message({
-				text: MSG_EATTACK({name: c.dname, dam}),
-				type: 'eattack'
-			});
+			if (type === ATTACK_NORMAL) {
+				add_message({
+					text: MSG_EATTACK({name: c.dname, dam}),
+					type: 'eattack'
+				});
+			}
 			draw();
 			await play_sound('eattack');
 			statistics.add_fight(c, STATS_FIGHT_INBOUND, dam);

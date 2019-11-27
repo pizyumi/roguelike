@@ -188,6 +188,21 @@ function create_table (columns, data) {
 	return table;
 }
 
+function randomselect (table) {
+	var sum = 0;
+	for (var i of table.entries()) {
+		sum += i[1];
+	}
+	var num = Math.floor(Math.random() * sum);
+	var sum2 = 0;
+	for (var i of table.entries()) {
+		sum2 += i[1];
+		if (num < sum2) {
+			return i[0];
+		}
+	}
+}
+
 class Random {
 	constructor (seed) {
 		this.seed = seed;

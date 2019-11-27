@@ -122,6 +122,8 @@ var E_CARACAL = 5;
 var E_WOLF = 6;
 var E_GOBLIN = 7;
 
+var ATTACK_NORMAL = 0;
+
 var E_INFO = [];
 E_INFO[E_RAT] = {
 	dname: E_RAT_NAME,
@@ -129,7 +131,10 @@ E_INFO[E_RAT] = {
 	hp: 4,
 	atk: 3,
 	def: 3,
-	exp: 1
+	exp: 1, 
+	attacks: [
+		{ type: ATTACK_NORMAL, p: 100 }
+	]
 };
 E_INFO[E_BAT] = {
 	dname: E_BAT_NAME,
@@ -137,7 +142,10 @@ E_INFO[E_BAT] = {
 	hp: 6,
 	atk: 4,
 	def: 4,
-	exp: 2
+	exp: 2, 
+	attacks: [
+		{ type: ATTACK_NORMAL, p: 100 }
+	]
 };
 E_INFO[E_SLIME] = {
 	dname: E_SLIME_NAME,
@@ -145,7 +153,10 @@ E_INFO[E_SLIME] = {
 	hp: 8,
 	atk: 4,
 	def: 4,
-	exp: 3
+	exp: 3, 
+	attacks: [
+		{ type: ATTACK_NORMAL, p: 100 }
+	]
 };
 E_INFO[E_SPIDER] = {
 	dname: E_SPIDER_NAME,
@@ -153,7 +164,10 @@ E_INFO[E_SPIDER] = {
 	hp: 10,
 	atk: 5,
 	def: 4,
-	exp: 4
+	exp: 4, 
+	attacks: [
+		{ type: ATTACK_NORMAL, p: 100 }
+	]
 };
 E_INFO[E_SNAKE] = {
 	dname: E_SNAKE_NAME,
@@ -161,7 +175,10 @@ E_INFO[E_SNAKE] = {
 	hp: 14,
 	atk: 6,
 	def: 5,
-	exp: 5
+	exp: 5, 
+	attacks: [
+		{ type: ATTACK_NORMAL, p: 100 }
+	]
 };
 E_INFO[E_CARACAL] = {
 	dname: E_CARACAL_NAME,
@@ -169,7 +186,10 @@ E_INFO[E_CARACAL] = {
 	hp: 16,
 	atk: 6,
 	def: 6,
-	exp: 6
+	exp: 6, 
+	attacks: [
+		{ type: ATTACK_NORMAL, p: 100 }
+	]
 };
 E_INFO[E_WOLF] = {
 	dname: E_WOLF_NAME,
@@ -177,7 +197,10 @@ E_INFO[E_WOLF] = {
 	hp: 20,
 	atk: 7,
 	def: 7,
-	exp: 8
+	exp: 8, 
+	attacks: [
+		{ type: ATTACK_NORMAL, p: 100 }
+	]
 };
 E_INFO[E_GOBLIN] = {
 	dname: E_GOBLIN_NAME,
@@ -185,7 +208,10 @@ E_INFO[E_GOBLIN] = {
 	hp: 24,
 	atk: 8,
 	def: 8,
-	exp: 10
+	exp: 10, 
+	attacks: [
+		{ type: ATTACK_NORMAL, p: 100 }
+	]
 };
 
 var B_FLOOR = 0;

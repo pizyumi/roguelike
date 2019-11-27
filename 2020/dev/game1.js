@@ -759,6 +759,7 @@ class Enemy {
 		this.y = y;
 
 		this.dname = e.dname;
+		this.attacks = e.attacks;
 
 		this.level = e.level;
 		this.hpbase = e.hp;
