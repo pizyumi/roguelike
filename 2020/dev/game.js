@@ -565,6 +565,13 @@ async function execute_turn () {
 					type: 'eattack'
 				});
 			}
+			else if (type === ATTACK_POISON) {
+				player.poison = true;
+				add_message({
+					text: MSG_EATTACK_POISON({name: c.dname, dam}),
+					type: 'eattack'
+				});
+			}
 			draw();
 			await play_sound('eattack');
 			statistics.add_fight(c, STATS_FIGHT_INBOUND, dam);

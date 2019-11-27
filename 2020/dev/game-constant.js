@@ -40,6 +40,7 @@ var MSG_DOWNSTAIR = '下り階段を降りました。';
 var MSG_WALL = '壁に阻まれました。';
 var MSG_PATTACK = ({name, dam}) => `${name}に${dam}のダメージを与えました。`;
 var MSG_EATTACK = ({name, dam}) => `${name}から${dam}のダメージを受けました。`;
+var MSG_EATTACK_POISON = ({name, dam}) => `${name}は毒を吐きました。${dam}のダメージを受けました。毒に侵されました。`;
 var MSG_KILL = ({name, exp}) => `${name}を倒しました。${exp}の経験値を得ました。`;
 var MSG_DIE = 'あなたは倒れました。';
 var MSG_LEVELUP = ({level}) => `おめでとうございます。あなたはレベル${level}になりました。`;
@@ -125,6 +126,7 @@ var E_WOLF = 6;
 var E_GOBLIN = 7;
 
 var ATTACK_NORMAL = 0;
+var ATTACK_POISON = 1;
 
 var E_INFO = [];
 E_INFO[E_RAT] = {
@@ -168,7 +170,8 @@ E_INFO[E_SPIDER] = {
 	def: 4,
 	exp: 4, 
 	attacks: [
-		{ type: ATTACK_NORMAL, p: 100 }
+		{ type: ATTACK_NORMAL, p: 70 }, 
+		{ type: ATTACK_POISON, p: 30 }
 	]
 };
 E_INFO[E_SNAKE] = {
@@ -179,7 +182,8 @@ E_INFO[E_SNAKE] = {
 	def: 5,
 	exp: 5, 
 	attacks: [
-		{ type: ATTACK_NORMAL, p: 100 }
+		{ type: ATTACK_NORMAL, p: 50 }, 
+		{ type: ATTACK_POISON, p: 50 }
 	]
 };
 E_INFO[E_CARACAL] = {
