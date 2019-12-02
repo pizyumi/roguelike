@@ -21,10 +21,10 @@ obj = _.extend(obj, {
         app.set('strict routing', true);
         app.use(morgan('dev'));
         app.use('/', express.static('../public'));
-        app.use('/lib', express.static('../lib'));
-        app.use('/img', express.static('../img'));
-        app.use('/mp3', express.static('../mp3'));
-        app.use('/dev', express.static('../dev'));
+        app.use('/lib', express.static('lib'));
+        app.use('/img', express.static('img'));
+        app.use('/mp3', express.static('mp3'));
+        app.use('/dev', express.static('dev'));
         app.get('/get-versions', (req, res, next) => {
           co(function* () {
             var p = path.join('..', 'record');
