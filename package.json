@@ -4,6 +4,7 @@
   "description": "a roguelike game",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js", 
     "test": "mocha --ui exports"
   },
   "author": "yurina washida",
