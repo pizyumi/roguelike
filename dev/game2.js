@@ -211,7 +211,7 @@ function create_fight_summary_table (parent, summary, name, text) {
 
 function create_statistics_html (parent, record, secret, dark) {
 	var columns = [];
-    columns.push({ dname: TEXT_KILL, name: 'killed', formatter: (value) => value ? '' : '×' });
+    columns.push({ dname: TEXT_KILL, name: 'killed', formatter: (value, row) => value ? '' : '×' });
     if (secret) {
         columns.push({ dname: TEXT_ID, name: 'id' });
     }
@@ -220,18 +220,18 @@ function create_statistics_html (parent, record, secret, dark) {
         columns.push({ dname: TEXT_LEVEL, name: 'level' });
     }
     columns.push({ dname: TEXT_EXP, name: 'exp' });
-    columns.push({ dname: TEXT_IN_DAMAGE, name: 'ps', formatter: (value) => value.join(',') });
+    columns.push({ dname: TEXT_IN_DAMAGE, name: 'ps', formatter: (value, row) => value.join(',') });
     columns.push({ dname: TEXT_NUM, name: 'plen' });
     columns.push({ dname: TEXT_SUM, name: 'psum' });
-    columns.push({ dname: TEXT_MIN, name: 'pmin', formatter: (value) => value === null ? '-' : value });
-    columns.push({ dname: TEXT_MAX, name: 'pmax', formatter: (value) => value === null ? '-' : value });
-    columns.push({ dname: TEXT_AVG, name: 'pavg', formatter: (value) => value === null ? '-' : value });
-    columns.push({ dname: TEXT_OUT_DAMAGE, name: 'cs', formatter: (value) => value.join(',') });
+    columns.push({ dname: TEXT_MIN, name: 'pmin', formatter: (value, row) => value === null ? '-' : value });
+    columns.push({ dname: TEXT_MAX, name: 'pmax', formatter: (value, row) => value === null ? '-' : value });
+    columns.push({ dname: TEXT_AVG, name: 'pavg', formatter: (value, row) => value === null ? '-' : value });
+    columns.push({ dname: TEXT_OUT_DAMAGE, name: 'cs', formatter: (value, row) => value.join(',') });
     columns.push({ dname: TEXT_NUM, name: 'clen' });
     columns.push({ dname: TEXT_SUM, name: 'csum' });
-    columns.push({ dname: TEXT_MIN, name: 'cmin', formatter: (value) => value === null ? '-' : value });
-    columns.push({ dname: TEXT_MAX, name: 'cmax', formatter: (value) => value === null ? '-' : value });
-    columns.push({ dname: TEXT_AVG, name: 'cavg', formatter: (value) => value === null ? '-' : value });
+    columns.push({ dname: TEXT_MIN, name: 'cmin', formatter: (value, row) => value === null ? '-' : value });
+    columns.push({ dname: TEXT_MAX, name: 'cmax', formatter: (value, row) => value === null ? '-' : value });
+    columns.push({ dname: TEXT_AVG, name: 'cavg', formatter: (value, row) => value === null ? '-' : value });
 
     var h1_fights = $('<h1>' + TEXT_FIGHT + TEXT_DETAIL + '</h1>');
     parent.append(h1_fights);
@@ -263,7 +263,7 @@ function create_table (columns, data) {
 		for (var j = 0; j < columns.length; j++) {
 			var d = data[i][columns[j].name];
 			if (columns[j].formatter) {
-				d = columns[j].formatter(d);
+				d = columns[j].formatter(d, data[i]);
 			}
 			tbodyr.append($('<td>' + d + '</td>'));
 		}
