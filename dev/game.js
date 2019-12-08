@@ -515,6 +515,8 @@ function add_message (message) {
 }
 
 async function execute_turn () {
+	statistics.add_turn(player.depth);
+
 	var npcs = fields[player.depth].npcs;
 	for (var i = 0; i < npcs.length; i++) {
 		var c = npcs[i];
@@ -582,6 +584,7 @@ async function execute_turn () {
 					text: MSG_DIE,
 					type: 'special'
 				});
+				statistics.add_die(STATS_DIE_KILLED, player);
 				return;
 			}
 		}
@@ -661,6 +664,7 @@ async function execute_turn () {
 			text: MSG_DIE,
 			type: 'special'
 		});
+		statistics.add_die(STATS_DIE_FATAL_STATES, player);
 		return;
 	}
 
@@ -1033,6 +1037,7 @@ async function move (x, y) {
 	}
 	player.x = x;
 	player.y = y;
+	statistics.add_action(player.depth, STATS_ACTION_MOVE);
 	await execute_turn();
 	draw();
 	return true;
@@ -1126,6 +1131,7 @@ async function attack (index) {
 			});
 		}
 	}
+	statistics.add_action(player.depth, STATS_ACTION_ATTACK);
 	await execute_turn();
 	draw();
 	return true;
@@ -1152,6 +1158,7 @@ async function pickup () {
 		text: MSG_PICKUP({name: item.dname}),
 		type: 'normal'
 	});
+	statistics.add_action(player.depth, STATS_ACTION_PICKUP);
 	await execute_turn();
 	draw();
 	return true;
@@ -1177,6 +1184,7 @@ async function downstair () {
 		text: MSG_DOWNSTAIR,
 		type: 'normal'
 	});
+	statistics.add_action(player.depth, STATS_ACTION_MOVE);
 	await execute_turn();
 	draw();
 	return true;
@@ -1196,6 +1204,7 @@ async function rest () {
 		text: MSG_REST,
 		type: 'normal'
 	});
+	statistics.add_action(player.depth, STATS_ACTION_REST);
 	await execute_turn();
 	draw();
 	return true;
@@ -1258,6 +1267,7 @@ async function put () {
 		text: MSG_PUT({name: item.dname}),
 		type: 'normal'
 	});
+	statistics.add_action(player.depth, STATS_ACTION_PUT);
 	await execute_turn();
 	draw();
 	return true;
@@ -1285,6 +1295,7 @@ async function eat () {
 	else {
 		throw new Error('not supported.');
 	}
+	statistics.add_action(player.depth, STATS_ACTION_USE);
 	await execute_turn();
 	draw();
 	return true;
@@ -1307,6 +1318,7 @@ async function quaff () {
 	else {
 		throw new Error('not supported.');
 	}
+	statistics.add_action(player.depth, STATS_ACTION_USE);
 	await execute_turn();
 	draw();
 	return true;
@@ -1328,6 +1340,7 @@ async function equip_weapon () {
 		text: MSG_EQUIP_WEAPON({name: player.weapon.dname, diff: player.weapon.atk}),
 		type: 'normal'
 	});
+	statistics.add_action(player.depth, STATS_ACTION_USE);
 	await execute_turn();
 	draw();
 	return true;
@@ -1341,6 +1354,7 @@ async function unequip_weapon () {
 		text: MSG_UNEQUIP_WEAPON({name: old.dname, diff: old.atk}),
 		type: 'normal'
 	});
+	statistics.add_action(player.depth, STATS_ACTION_USE);
 	await execute_turn();
 	draw();
 	return true;
@@ -1362,6 +1376,7 @@ async function equip_armor () {
 		text: MSG_EQUIP_ARMOR({name: player.armor.dname, diff: player.armor.def}),
 		type: 'normal'
 	});
+	statistics.add_action(player.depth, STATS_ACTION_USE);
 	await execute_turn();
 	draw();
 	return true;
@@ -1375,6 +1390,7 @@ async function unequip_armor () {
 		text: MSG_UNEQUIP_ARMOR({name: old.dname, diff: old.def}),
 		type: 'normal'
 	});
+	statistics.add_action(player.depth, STATS_ACTION_USE);
 	await execute_turn();
 	draw();
 	return true;
@@ -1415,6 +1431,7 @@ async function read () {
 	else {
 		throw new Error('not supported.');
 	}
+	statistics.add_action(player.depth, STATS_ACTION_USE);
 	await execute_turn();
 	draw();
 	return true;

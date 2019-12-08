@@ -2,9 +2,22 @@ var STATS_FIGHT_INBOUND = 0;
 var STATS_FIGHT_OUTBOUND = 1;
 var STATS_FIGHT_KILLED = 2;
 
+var STATS_ACTION_MOVE = 0;
+var STATS_ACTION_ATTACK = 1;
+var STATS_ACTION_REST = 2;
+var STATS_ACTION_PICKUP = 3;
+var STATS_ACTION_PUT = 4;
+var STATS_ACTION_USE = 5;
+
+var STATS_DIE_KILLED = 0;
+var STATS_DIE_FATAL_STATES = 1;
+
 class Statistics {
 	constructor () {
 		this.fights = [];
+		this.turns = [];
+		this.actions = [];
+		this.die = null;
 	}
 
 	add_fight (depth, c, type, dam) {
@@ -26,9 +39,49 @@ class Statistics {
 		});
 	}
 
+	add_turn (depth) {
+		if (!this.turns[depth]) {
+			this.turns[depth] = 0;
+		}
+		this.turns[depth]++;
+	}
+
+	add_action (depth, type) {
+		var actions = this.actions[depth];
+		if (!actions) {
+			actions = this.actions[depth] = {};
+			actions[STATS_ACTION_MOVE] = 0;
+			actions[STATS_ACTION_ATTACK] = 0;
+			actions[STATS_ACTION_REST] = 0;
+			actions[STATS_ACTION_PICKUP] = 0;
+			actions[STATS_ACTION_PUT] = 0;
+			actions[STATS_ACTION_USE] = 0;			
+		}
+		actions[type]++;
+	}
+
+	add_die (reason, player) {
+		this.die = {
+			reason: reason, 
+			depth: player.depth, 
+			level: player.level, 
+			hp: player.hpfull, 
+			energy: player.energyfull, 
+			atk: player.atkfull, 
+			def: player.deffull, 
+			exp: player.exp, 
+			poison: player.poison, 
+			hungry: player.hungry, 
+			famine: player.famine
+		};
+	}
+
 	get_record (secret) {
 		return {
-			fights: this.get_fights_all(secret)
+			fights: this.get_fights_all(secret), 
+			turns: this.turns, 
+			actions: this.actions, 
+			die: this.die
 		};
 	}
 
