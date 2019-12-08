@@ -7,10 +7,10 @@ class Statistics {
 		this.fights = [];
 	}
 
-	add_fight (c, type, dam) {
-		var fs = this.fights[player.depth];
+	add_fight (depth, c, type, dam) {
+		var fs = this.fights[depth];
 		if (!fs) {
-			fs = this.fights[player.depth] = new Map();
+			fs = this.fights[depth] = new Map();
 		}
 		var f = fs.get(c.id);
 		if (!f) {
@@ -34,7 +34,7 @@ class Statistics {
 
 	get_fights_all (secret) {
 		var all = [];
-		for (var i = 0; i <= player.depth; i++) {
+		for (var i = 0; i < this.fights.length; i++) {
 			all.push(this.get_fights(i, secret));
 		}
 		return all;

@@ -574,7 +574,7 @@ async function execute_turn () {
 			}
 			draw();
 			await play_sound('eattack');
-			statistics.add_fight(c, STATS_FIGHT_INBOUND, dam);
+			statistics.add_fight(player.depth, c, STATS_FIGHT_INBOUND, dam);
 			if (player.hp <= 0) {
 				player.hp = 0;
 				gameover = true;
@@ -1104,7 +1104,7 @@ async function attack (index) {
 	});
 	draw();
 	await play_sound('pattack');
-	statistics.add_fight(c, STATS_FIGHT_OUTBOUND, dam);
+	statistics.add_fight(player.depth, c, STATS_FIGHT_OUTBOUND, dam);
 	if (c.hp <= 0) {
 		npcs.splice(index, 1);
 		player.exp += c.exp;
@@ -1112,7 +1112,7 @@ async function attack (index) {
 			text: MSG_KILL({name: c.dname, exp: c.exp}),
 			type: 'important'
 		});
-		statistics.add_fight(c, STATS_FIGHT_KILLED, 0);
+		statistics.add_fight(player.depth, c, STATS_FIGHT_KILLED, 0);
 
 		while (player.exp >= player.expfull) {
 			player.level++;
