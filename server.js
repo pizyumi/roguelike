@@ -20,14 +20,14 @@ obj = _.extend(obj, {
         app.set('case sensitive routing', true);
         app.set('strict routing', true);
         app.use(morgan('dev'));
-        app.use('/', express.static('../public'));
+        app.use('/', express.static('public'));
         app.use('/lib', express.static('lib'));
         app.use('/img', express.static('img'));
         app.use('/mp3', express.static('mp3'));
         app.use('/dev', express.static('dev'));
         app.get('/get-versions', (req, res, next) => {
           co(function* () {
-            var p = path.join('..', 'record');
+            var p = 'record';
             var versions = (yield common.load_folders_from_path(p)).map((i) => path.basename(i));
             yield common.send_res_with_json(res, versions);
           }).catch(next);
@@ -35,7 +35,7 @@ obj = _.extend(obj, {
         app.get('/get-names', (req, res, next) => {
           co(function* () {
             var data = req.query;
-            var p = path.join('..', 'record', data.version);
+            var p = path.join('record', data.version);
             var names = (yield common.load_folders_from_path(p)).map((i) => path.basename(i));
             yield common.send_res_with_json(res, names);
           }).catch(next);
@@ -43,7 +43,7 @@ obj = _.extend(obj, {
         app.get('/get-records', (req, res, next) => {
           co(function* () {
             var data = req.query;
-            var p = path.join('..', 'record', data.version, data.name);
+            var p = path.join('record', data.version, data.name);
             var records = (yield common.load_files_from_path(p)).map((i) => path.basename(i, path.extname(i)));
             yield common.send_res_with_json(res, records);
           }).catch(next);
@@ -51,7 +51,7 @@ obj = _.extend(obj, {
         app.get('/get-record', (req, res, next) => {
           co(function* () {
             var data = req.query;
-            var p = path.join('..', 'record', data.version, data.name, data.record + '.json');
+            var p = path.join('record', data.version, data.name, data.record + '.json');
             var record = yield common.load_json_from_path(p);
             yield common.send_res_with_json(res, record);
           }).catch(next);
@@ -59,7 +59,7 @@ obj = _.extend(obj, {
         app.get('/get-summary', (req, res, next) => {
           co(function* () {
             var data = req.query;
-            var p = path.join('..', 'record', data.version, data.name);
+            var p = path.join('record', data.version, data.name);
             var files = yield common.load_files_from_path(p);
             var fights = [];
             for (var i = 0; i < files.length; i++) {
@@ -88,7 +88,7 @@ obj = _.extend(obj, {
         app.post('/add-record', (req, res, next) => {
           co(function* () {
             var record = req.body;
-            var p = path.join('..', 'record', record.version, record.name, record.id + '.json');
+            var p = path.join('record', record.version, record.name, record.id + '.json');
             yield common.save_json_to_path(p, record);
           }).catch(next);
         });
