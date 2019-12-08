@@ -132,13 +132,13 @@ class Statistics {
 				fight.psum = pstats.sum;
 				fight.pmin = pstats.min;
 				fight.pmax = pstats.max;
-				fight.pavg = Math.round(pstats.avg * 10) / 10;
+				fight.pavg = round(pstats.avg, 1);
 				fight.cs = cs;
 				fight.clen = cs.length;
 				fight.csum = cstats.sum;
 				fight.cmin = cstats.min;
 				fight.cmax = cstats.max;
-				fight.cavg = Math.round(cstats.avg * 10) / 10;
+				fight.cavg = round(cstats.avg, 1);
 
 				fights.push(fight);
 			}
@@ -269,6 +269,11 @@ function create_table (columns, data) {
 		}
 	}
 	return table;
+}
+
+function round (val, level) {
+	var n = 10 ** level;
+	return Math.round(val * n) / n;
 }
 
 function randomselect (table) {
