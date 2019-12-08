@@ -210,6 +210,60 @@ function create_fight_summary_table (parent, summary, name, text) {
 }
 
 function create_statistics_html (parent, record, secret, dark) {
+	if (record.die) {
+		var h1_die = $('<h1>' + TEXT_DIE + '</h1>');
+		parent.append(h1_die);
+		var dl = $('<dl></dl>');
+		parent.append(dl);
+		dl.append($('<dt>' + TEXT_DIE_REASON + '</dt>'));
+		dl.append($('<dd>' + record.die.reason + '</dd>'));
+		dl.append($('<dt>' + TEXT_DEPTH + '</dt>'));
+		dl.append($('<dd>' + record.die.depth + '</dd>'));
+		dl.append($('<dt>' + TEXT_LEVEL + '</dt>'));
+		dl.append($('<dd>' + record.die.level + '</dd>'));
+		dl.append($('<dt>' + TEXT_HP + '</dt>'));
+		dl.append($('<dd>' + record.die.hp + '</dd>'));
+		dl.append($('<dt>' + TEXT_ENERGY + '</dt>'));
+		dl.append($('<dd>' + record.die.energy + '</dd>'));
+		dl.append($('<dt>' + TEXT_ATK + '</dt>'));
+		dl.append($('<dd>' + record.die.atk + '</dd>'));
+		dl.append($('<dt>' + TEXT_DEF + '</dt>'));
+		dl.append($('<dd>' + record.die.def + '</dd>'));
+		dl.append($('<dt>' + TEXT_EXP + '</dt>'));
+		dl.append($('<dd>' + record.die.exp + '</dd>'));
+		dl.append($('<dt>' + TEXT_POISON + '</dt>'));
+		dl.append($('<dd>' + record.die.poison + '</dd>'));
+		dl.append($('<dt>' + TEXT_HUNGRY + '</dt>'));
+		dl.append($('<dd>' + record.die.hungry + '</dd>'));
+		dl.append($('<dt>' + TEXT_FAMINE + '</dt>'));
+		dl.append($('<dd>' + record.die.famine + '</dd>'));	
+	}
+
+	var acolumns = [];
+	acolumns.push({ dname: TEXT_DEPTH, name: 'depth' });
+	acolumns.push({ dname: TEXT_MOVE, name: STATS_ACTION_MOVE, formatter: (value, row) => value + '(' + round((value / row.turn * 100), 1) + '%)' });
+	acolumns.push({ dname: TEXT_ATTACK, name: STATS_ACTION_ATTACK, formatter: (value, row) => value + '(' + round((value / row.turn * 100), 1) + '%)' });
+	acolumns.push({ dname: TEXT_REST, name: STATS_ACTION_REST, formatter: (value, row) => value + '(' + round((value / row.turn * 100), 1) + '%)' });
+	acolumns.push({ dname: TEXT_PICKUP, name: STATS_ACTION_PICKUP, formatter: (value, row) => value + '(' + round((value / row.turn * 100), 1) + '%)' });
+	acolumns.push({ dname: TEXT_PUT, name: STATS_ACTION_PUT, formatter: (value, row) => value + '(' + round((value / row.turn * 100), 1) + '%)' });
+	acolumns.push({ dname: TEXT_USE, name: STATS_ACTION_USE, formatter: (value, row) => value + '(' + round((value / row.turn * 100), 1) + '%)' });
+	acolumns.push({ dname: TEXT_SUM, name: 'turn' });
+
+    var h1_actions = $('<h1>' + TEXT_ACTION + TEXT_DETAIL + '</h1>');
+	parent.append(h1_actions);
+	var actions = [];
+	for (var i = 0; i < record.actions.length; i++) {
+		actions[i] = _.extend(record.actions[i], {
+			depth: i, 
+			turn: record.turns[i]
+		});
+	}
+	var table = create_table(acolumns, actions);
+	if (dark) {
+		table.addClass('table-dark');
+	}
+	parent.append(table);
+
 	var columns = [];
     columns.push({ dname: TEXT_KILL, name: 'killed', formatter: (value, row) => value ? '' : '×' });
     if (secret) {
