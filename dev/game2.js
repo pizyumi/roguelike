@@ -180,7 +180,7 @@ function calculate_stats (ds) {
 }
 
 function create_summary_html (parent, summary) {
-    var h1_per_depth = $('<h1>' + TEXT_DEPTH_SUMMARY + '</h1>');
+    var h1_per_depth = $('<h1>' + TEXT_DEPTH + TEXT_PER + TEXT_SUMMARY + '</h1>');
 	parent.append(h1_per_depth);
 	create_fight_summary_table(parent, summary.fights, 'level', TEXT_LEVEL);
 	create_fight_summary_table(parent, summary.fights, 'exp', TEXT_EXP);

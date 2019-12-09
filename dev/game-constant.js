@@ -20,7 +20,9 @@ var TEXT_AI = 'AI';
 var TEXT_COUNT = '回目';
 var TEXT_GENERATE_STATS = '情報を収集中です。';
 var TEXT_SAVE_CLIPBOARD = 'クリップボードに保存しました。';
+var TEXT_SUMMARY = '集計';
 var TEXT_DETAIL = '詳細';
+var TEXT_PER = '別';
 var TEXT_DIE = '死亡時';
 var TEXT_DIE_REASON = '死因';
 var TEXT_ACTION = '行動';
@@ -44,7 +46,6 @@ var TEXT_MIN = '最小';
 var TEXT_MAX = '最大';
 var TEXT_AVG = '平均';
 var TEXT_DIFF = '差';
-var TEXT_DEPTH_SUMMARY = '階別集計';
 
 var MSG_INIT = 'あなたは目覚めました。';
 var MSG_DOWNSTAIR = '下り階段を降りました。';
