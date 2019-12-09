@@ -62,6 +62,7 @@ obj = _.extend(obj, {
             var p = path.join('record', data.version, data.name);
             var files = yield common.load_files_from_path(p);
             var fights = [];
+            var dies = [];
             for (var i = 0; i < files.length; i++) {
               var record = yield common.load_json_from_path(files[i]);
               for (var j = 0; j < record.fights.length; j++) {
@@ -73,13 +74,15 @@ obj = _.extend(obj, {
                   fights[j] = record.fights[j];
                 }
               }
+              dies.push(record.die);
             }
             var fights_summary = [];
             for (var i = 0; i < fights.length; i++) {
               fights_summary[i] = calculate_fights_summary(fights[i]);
             }
             var summary = {
-              fights: fights_summary
+              fights: fights_summary, 
+              dies: calculate_dies_summary(dies)
             };
             yield common.send_res_with_json(res, summary);
           }).catch(next);
@@ -160,6 +163,34 @@ function calculate_stats (ds) {
 			avg: avg
 		};
 	}
+}
+
+function calculate_dies_summary (dies) {
+	var depths = [];
+	var levels = [];
+	var hps = [];
+	var energies = [];
+	var atks = [];
+	var defs = [];
+  var exps = [];
+  for (var i = 0; i < dies.length; i++) {
+		depths.push(dies[i].depth);
+		levels.push(dies[i].level);
+		hps.push(dies[i].hp);
+		energies.push(dies[i].energy);
+		atks.push(dies[i].atk);
+		defs.push(dies[i].def);
+		exps.push(dies[i].exp);
+	}
+	return {
+		depth: calculate_stats(depths), 
+		level: calculate_stats(levels), 
+		hp: calculate_stats(hps), 
+		energy: calculate_stats(energies), 
+		atk: calculate_stats(atks), 
+		def: calculate_stats(defs), 
+		exp: calculate_stats(exps)
+	};
 }
 
 function calculate_fights_summary (fights) {
