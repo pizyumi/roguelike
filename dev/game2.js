@@ -195,9 +195,9 @@ function create_summary_html (parent, summary) {
 
 var fight_summary_columns = [
 	{ dname: TEXT_DEPTH, name: 'depth' }, 
-	{ dname: TEXT_MIN, name: 'min' }, 
-	{ dname: TEXT_MAX, name: 'max' }, 
-	{ dname: TEXT_AVG, name: 'avg' }
+	{ dname: TEXT_MIN, name: 'min', formatter: (value, row) => value === null ? '-' : value }, 
+	{ dname: TEXT_MAX, name: 'max', formatter: (value, row) => value === null ? '-' : value }, 
+	{ dname: TEXT_AVG, name: 'avg', formatter: (value, row) => value === null ? '-' : round(value, 1) }
 ];
 
 function create_fight_summary_table (parent, summary, name, text) {
