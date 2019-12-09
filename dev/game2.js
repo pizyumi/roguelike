@@ -180,6 +180,9 @@ function calculate_stats (ds) {
 }
 
 function create_summary_html (parent, summary) {
+	var h1_die = $('<h1>' + TEXT_DIE + TEXT_SUMMARY + '</h1>');
+	parent.append(h1_die);
+	create_die_summary_table(parent, summary.dies);
     var h1_per_depth = $('<h1>' + TEXT_DEPTH + TEXT_PER + TEXT_SUMMARY + '</h1>');
 	parent.append(h1_per_depth);
 	create_fight_summary_table(parent, summary.fights, 'level', TEXT_LEVEL);
@@ -206,6 +209,29 @@ function create_fight_summary_table (parent, summary, name, text) {
 	var h2 = $('<h2>' + text + '</h2>');
 	parent.append(h2);
 	var table = create_table(fight_summary_columns, data);
+	parent.append(table);
+}
+
+var die_summary_columns = [
+	{ dname: TEXT_PROPERTY, name: 'prop' }, 
+	{ dname: TEXT_MIN, name: 'min', formatter: (value, row) => value === null ? '-' : value }, 
+	{ dname: TEXT_MAX, name: 'max', formatter: (value, row) => value === null ? '-' : value }, 
+	{ dname: TEXT_AVG, name: 'avg', formatter: (value, row) => value === null ? '-' : round(value, 1) }
+];
+
+function create_die_summary_table (parent, summary) {
+	var data = [];
+	data.push(_.extend(summary.depth, { prop: TEXT_DEPTH }));
+	data.push(_.extend(summary.level, { prop: TEXT_LEVEL }));
+	data.push(_.extend(summary.hp, { prop: TEXT_HP }));
+	data.push(_.extend(summary.energy, { prop: TEXT_ENERGY }));
+	data.push(_.extend(summary.atk, { prop: TEXT_ATK }));
+	data.push(_.extend(summary.def, { prop: TEXT_DEF }));
+	data.push(_.extend(summary.exp, { prop: TEXT_EXP }));
+
+	var h2 = $('<h2>' + TEXT_ABSTRACT + '</h2>');
+	parent.append(h2);
+	var table = create_table(die_summary_columns, data);
 	parent.append(table);
 }
 
