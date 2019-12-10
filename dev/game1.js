@@ -365,15 +365,7 @@ class Settings {
 	}
 
 	get auto_rate () {
-		if (this.mode === MODE_MANUAL) {
-			return this._auto_rate;
-		}
-		else if (this.mode === MODE_AI) {
-			return 2;
-		}
-		else {
-			throw new Error('not supported.');
-		}
+		return this._auto_rate;
 	}
 
 	set auto_rate (val) {
