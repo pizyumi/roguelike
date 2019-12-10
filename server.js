@@ -167,6 +167,23 @@ function calculate_stats (ds) {
 	}
 }
 
+function calculate_distribution (ds, span) {
+  var distribution = [];
+  for (var i = 0; i < ds.length; i++) {
+    var index = Math.floor(ds[i] / span);
+    if (distribution[index]) {
+      distribution[index]++;
+    }
+    else {
+      distribution[index] = 1;
+    }
+  }
+  return {
+    span: span, 
+    distribution: distribution
+  };
+}
+
 function calculate_dies_summary (dies) {
 	var depths = [];
 	var levels = [];
@@ -185,13 +202,13 @@ function calculate_dies_summary (dies) {
 		exps.push(dies[i].exp);
 	}
 	return {
-		depth: calculate_stats(depths), 
-		level: calculate_stats(levels), 
-		hp: calculate_stats(hps), 
-		energy: calculate_stats(energies), 
-		atk: calculate_stats(atks), 
-		def: calculate_stats(defs), 
-		exp: calculate_stats(exps)
+		depth: _.extend(calculate_stats(depths), calculate_distribution(depths, 1)), 
+		level: _.extend(calculate_stats(levels), calculate_distribution(levels, 1)), 
+		hp: _.extend(calculate_stats(hps), calculate_distribution(hps, 10)), 
+		energy: _.extend(calculate_stats(energies), calculate_distribution(energies, 100)), 
+		atk: _.extend(calculate_stats(atks), calculate_distribution(atks, 10)), 
+		def: _.extend(calculate_stats(defs), calculate_distribution(defs, 10)), 
+		exp: _.extend(calculate_stats(exps), calculate_distribution(exps, 100))
 	};
 }
 
