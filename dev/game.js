@@ -224,6 +224,12 @@ $(function () {
 		}
 		else if (screen === SCREEN_GAME) {
 			if (aif) {
+				if (e.keyCode === 38) {
+					settings.auto_rate_shift++;
+				}
+				else if (e.keyCode === 40) {
+					settings.auto_rate_shift--;
+				}
 				return;
 			}
 
@@ -241,6 +247,12 @@ $(function () {
 				if (e.keyCode === 65) {
 					autof = !autof;
 					draw();
+				}
+				else if (e.keyCode === 38) {
+					settings.auto_rate_shift++;
+				}
+				else if (e.keyCode === 40) {
+					settings.auto_rate_shift--;
 				}
 				return;
 			}

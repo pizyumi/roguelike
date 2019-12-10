@@ -334,6 +334,7 @@ class Settings {
 		this._mode = MODE_MANUAL;
 		this._sound = true;
 		this._auto_rate = 1;
+		this._auto_rate_shift = 0;
 		this._ai_count = 2;
 	}
 
@@ -365,11 +366,22 @@ class Settings {
 	}
 
 	get auto_rate () {
-		return this._auto_rate;
+		return this._auto_rate * (2 ** this._auto_rate_shift);
 	}
 
 	set auto_rate (val) {
 		this._auto_rate = val;
+	}
+
+	get auto_rate_shift () {
+		return this._auto_rate_shift;
+	}
+
+	set auto_rate_shift (val) {
+		var rate = this._auto_rate * (2 ** val);
+		if (rate >= 1 && rate <= 16) {
+			this._auto_rate_shift = val;
+		}
 	}
 
 	get auto_sleep () {
