@@ -601,6 +601,15 @@ class Items {
 		this.items = this.items.filter((i) => i !== item);
 		this.citems = Items.compress_items(this.items);
 	}
+
+	get_item_cat (cat) {
+		for (var item of this.items) {
+			if (item.cat === cat) {
+				return item;
+			}
+		}
+		return null;
+	}
 }
 
 Items.compress_items = function (items) {

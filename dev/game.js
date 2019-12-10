@@ -70,8 +70,24 @@ function get_title_choices () {
 }
 
 function get_ai_choices () {
-	var options = [{}, {
-
+	var options = [{
+		energy: true, 
+		energy_level: 0.2
+	}, {
+		energy: true, 
+		energy_level: 0.2, 
+		rest: true, 
+		rest_level: 0.5
+	}, {
+		energy: true, 
+		energy_level: 0.2, 
+		rest: true, 
+		rest_level: 0.7
+	}, {
+		energy: true, 
+		energy_level: 0.2, 
+		rest: true, 
+		rest_level: 0.9
 	}];
 
 	return options.map((item, index) => {
@@ -781,7 +797,22 @@ async function auto (option) {
 		return await move_to_unknown_room().nullthen((r) => move_to_uncleared_passage().nullthen((r) => act_to_downstair()));
 	}
 	else {
-		return await search_in_room().nullthen((r) => move_to_uncleared_passage().nullthen((r) => act_to_downstair()));
+		var r = await search_in_room();
+		if (r) {
+			return r;
+		}
+		else {
+			if (option.energy && player.energy < Math.ceil(player.energyfull * option.energy_level)) {
+				var food = player.items.get_item_cat(I_CAT_FOOD);
+				if (food) {
+					return await eat(food);
+				}
+			}
+			if (option.rest && player.hp < Math.ceil(player.hpfull * option.rest_level)) {
+				return await rest();
+			}
+			return await move_to_uncleared_passage().nullthen((r) => act_to_downstair());
+		}
 	}
 }
 
