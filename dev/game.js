@@ -366,7 +366,8 @@ $(function () {
 		}
 		else if (screen === SCREEN_ITEM) {
 			if (invactf) {
-				var actions = get_item_actions(player.items.get_item(invindex));
+				var item = player.items.get_item(invindex);
+				var actions = get_item_actions(item);
 				if (e.keyCode === 38) {
 					invactindex--;
 					if (invactindex < 0) {
@@ -383,7 +384,7 @@ $(function () {
 					invactf = !invactf;
 				}
 				else if (e.keyCode === 90) {
-					var p = actions[invactindex].exec();
+					var p = actions[invactindex].exec(item);
 
 					screen = SCREEN_GAME;
 					invactf = !invactf;
@@ -746,11 +747,9 @@ function get_npc_index (x, y) {
 	return null;
 }
 
-function consume_item () {
-	var item = player.items.get_item(invindex);
+function consume_item (item) {
 	player.items.delete_item(item);
 	player.weight -= item.weight;
-	return item;
 }
 
 async function auto_forever () {
@@ -1213,42 +1212,42 @@ async function rest () {
 function get_item_actions (item) {
 	if (item.cat === I_CAT_FOOD) {
 		return [
-			{ name: 'eat', dname: ACTION_EAT, exec: async () => await eat() },
-			{ name: 'put', dname: ACTION_PUT, exec: async () => await put() }
+			{ name: 'eat', dname: ACTION_EAT, exec: async (i) => await eat(i) },
+			{ name: 'put', dname: ACTION_PUT, exec: async (i) => await put(i) }
 		];
 	}
 	else if (item.cat === I_CAT_POTION) {
 		return [
-			{ name: 'quaff', dname: ACTION_QUAFF, exec: async () => await quaff() },
-			{ name: 'put', dname: ACTION_PUT, exec: async () => await put() }
+			{ name: 'quaff', dname: ACTION_QUAFF, exec: async (i) => await quaff(i) },
+			{ name: 'put', dname: ACTION_PUT, exec: async (i) => await put(i) }
 		];
 	}
 	else if (item.cat === I_CAT_WEAPON) {
 		var actions = [];
 		if (item !== player.weapon) {
-			actions.push({ name: 'equip', dname: ACTION_EQUIP, exec: async () => await equip_weapon() });
-			actions.push({ name: 'put', dname: ACTION_PUT, exec: async () => await put() });
+			actions.push({ name: 'equip', dname: ACTION_EQUIP, exec: async (i) => await equip_weapon(i) });
+			actions.push({ name: 'put', dname: ACTION_PUT, exec: async (i) => await put(i) });
 		}
 		else {
-			actions.push({ name: 'unequip', dname: ACTION_UNEQUIP, exec: async () => await unequip_weapon() });
+			actions.push({ name: 'unequip', dname: ACTION_UNEQUIP, exec: async (i) => await unequip_weapon(i) });
 		}
 		return actions;
 	}
 	else if (item.cat === I_CAT_ARMOR) {
 		var actions = [];
 		if (item !== player.armor) {
-			actions.push({ name: 'equip', dname: ACTION_EQUIP, exec: async () => await equip_armor() });
-			actions.push({ name: 'put', dname: ACTION_PUT, exec: async () => await put() });
+			actions.push({ name: 'equip', dname: ACTION_EQUIP, exec: async (i) => await equip_armor(i) });
+			actions.push({ name: 'put', dname: ACTION_PUT, exec: async (i) => await put(i) });
 		}
 		else {
-			actions.push({ name: 'unequip', dname: ACTION_UNEQUIP, exec: async () => await unequip_armor() });
+			actions.push({ name: 'unequip', dname: ACTION_UNEQUIP, exec: async (i) => await unequip_armor(i) });
 		}
 		return actions;
 	}
 	else if (item.cat === I_CAT_SCROLL) {
 		return [
-			{ name: 'read', dname: ACTION_READ, exec: async () => await read() },
-			{ name: 'put', dname: ACTION_PUT, exec: async () => await put() }
+			{ name: 'read', dname: ACTION_READ, exec: async (i) => await read(i) },
+			{ name: 'put', dname: ACTION_PUT, exec: async (i) => await put(i) }
 		];
 	}
 	else {
@@ -1256,8 +1255,8 @@ function get_item_actions (item) {
 	}
 }
 
-async function put () {
-	var item = consume_item();
+async function put (item) {
+	consume_item(item);
 	var block = fields[player.depth].blocks[player.x][player.y];
 	if (!block.items) {
 		block.items = [];
@@ -1273,8 +1272,8 @@ async function put () {
 	return true;
 }
 
-async function eat () {
-	var item = consume_item();
+async function eat (item) {
+	consume_item(item);
 	if (item.type === I_APPLE) {
 		var diff = player.increase_energy(50);
 		add_message({
@@ -1301,8 +1300,8 @@ async function eat () {
 	return true;
 }
 
-async function quaff () {
-	var item = consume_item();
+async function quaff (item) {
+	consume_item(item);
 	if (item.type === I_HEALTH_POTION) {
 		var old = player.hp;
 		player.hp += item.level * 10;
@@ -1324,7 +1323,7 @@ async function quaff () {
 	return true;
 }
 
-async function equip_weapon () {
+async function equip_weapon (item) {
 	if (player.weapon !== null) {
 		var old = player.weapon;
 		player.weapon.equipped = false;
@@ -1334,7 +1333,7 @@ async function equip_weapon () {
 			type: 'normal'
 		});
 	}
-	player.weapon = player.items.get_item(invindex);
+	player.weapon = item;
 	player.weapon.equipped = true;
 	add_message({
 		text: MSG_EQUIP_WEAPON({name: player.weapon.dname, diff: player.weapon.atk}),
@@ -1346,7 +1345,7 @@ async function equip_weapon () {
 	return true;
 }
 
-async function unequip_weapon () {
+async function unequip_weapon (item) {
 	var old = player.weapon;
 	player.weapon.equipped = false;
 	player.weapon = null;
@@ -1360,7 +1359,7 @@ async function unequip_weapon () {
 	return true;
 }
 
-async function equip_armor () {
+async function equip_armor (item) {
 	if (player.armor !== null) {
 		var old = player.armor;
 		player.armor.equipped = false;
@@ -1370,7 +1369,7 @@ async function equip_armor () {
 			type: 'normal'
 		});
 	}
-	player.armor = player.items.get_item(invindex);
+	player.armor = item;
 	player.armor.equipped = true;
 	add_message({
 		text: MSG_EQUIP_ARMOR({name: player.armor.dname, diff: player.armor.def}),
@@ -1382,7 +1381,7 @@ async function equip_armor () {
 	return true;
 }
 
-async function unequip_armor () {
+async function unequip_armor (item) {
 	var old = player.armor;
 	player.armor.equipped = false;
 	player.armor = null;
@@ -1396,8 +1395,8 @@ async function unequip_armor () {
 	return true;
 }
 
-async function read () {
-	var item = consume_item();
+async function read (item) {
+	consume_item(item);
 	if (item.type === I_WEAPON_SCROLL) {
 		if (player.weapon === null) {
 			add_message({
