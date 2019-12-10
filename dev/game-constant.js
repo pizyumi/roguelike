@@ -42,12 +42,15 @@ var TEXT_EXP = '経験値';
 var TEXT_IN_DAMAGE = '被ダメージ';
 var TEXT_OUT_DAMAGE = '与ダメージ';
 var TEXT_PROPERTY = '属性';
+var TEXT_VALUE = '値';
 var TEXT_NUM = '数';
 var TEXT_SUM = '合計';
 var TEXT_MIN = '最小';
 var TEXT_MAX = '最大';
 var TEXT_AVG = '平均';
 var TEXT_DIFF = '差';
+var TEXT_PERCENTAGE = '割合';
+var TEXT_DISTRIBUTION = '分布';
 
 var MSG_INIT = 'あなたは目覚めました。';
 var MSG_DOWNSTAIR = '下り階段を降りました。';

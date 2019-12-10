@@ -218,18 +218,40 @@ var die_summary_columns = [
 	{ dname: TEXT_PROPERTY, name: 'prop' }, 
 	{ dname: TEXT_MIN, name: 'min', formatter: (value, row) => value === null ? '-' : value }, 
 	{ dname: TEXT_MAX, name: 'max', formatter: (value, row) => value === null ? '-' : value }, 
-	{ dname: TEXT_AVG, name: 'avg', formatter: (value, row) => value === null ? '-' : round(value, 1) }
+	{ dname: TEXT_AVG, name: 'avg', formatter: (value, row) => value === null ? '-' : round(value, 1) }, 
+	{ dname: TEXT_DISTRIBUTION, name: 'distribution' }
 ];
 
 function create_die_summary_table (parent, summary) {
 	var data = [];
-	data.push(_.extend(summary.depth, { prop: TEXT_DEPTH }));
-	data.push(_.extend(summary.level, { prop: TEXT_LEVEL }));
-	data.push(_.extend(summary.hp, { prop: TEXT_HP }));
-	data.push(_.extend(summary.energy, { prop: TEXT_ENERGY }));
-	data.push(_.extend(summary.atk, { prop: TEXT_ATK }));
-	data.push(_.extend(summary.def, { prop: TEXT_DEF }));
-	data.push(_.extend(summary.exp, { prop: TEXT_EXP }));
+	data.push(_.extend({}, summary.depth, {
+		prop: TEXT_DEPTH, 
+		distribution: create_button(TEXT_DISTRIBUTION, () => show_distribution(summary.depth, TEXT_DEPTH))
+	}));
+	data.push(_.extend({}, summary.level, {
+		prop: TEXT_LEVEL, 
+		distribution: create_button(TEXT_DISTRIBUTION, () => show_distribution(summary.level, TEXT_LEVEL))
+	}));
+	data.push(_.extend({}, summary.hp, {
+		prop: TEXT_HP, 
+		distribution: create_button(TEXT_DISTRIBUTION, () => show_distribution(summary.hp, TEXT_HP))
+	}));
+	data.push(_.extend({}, summary.energy, {
+		prop: TEXT_ENERGY, 
+		distribution: create_button(TEXT_DISTRIBUTION, () => show_distribution(summary.energy, TEXT_ENERGY))
+	}));
+	data.push(_.extend({}, summary.atk, {
+		prop: TEXT_ATK, 
+		distribution: create_button(TEXT_DISTRIBUTION, () => show_distribution(summary.atk, TEXT_ATK))
+	}));
+	data.push(_.extend({}, summary.def, {
+		prop: TEXT_DEF, 
+		distribution: create_button(TEXT_DISTRIBUTION, () => show_distribution(summary.def, TEXT_DEF))
+	}));
+	data.push(_.extend({}, summary.exp, {
+		prop: TEXT_EXP, 
+		distribution: create_button(TEXT_DISTRIBUTION, () => show_distribution(summary.exp, TEXT_EXP))
+	}));
 
 	var h2 = $('<h2>' + TEXT_ABSTRACT + '</h2>');
 	parent.append(h2);
@@ -328,6 +350,34 @@ function create_statistics_html (parent, record, secret, dark) {
     }
 }
 
+var distribution_columns = [
+	{ dname: TEXT_VALUE, name: 'value', formatter: (value, row) => value + (row.span > 1 ? '-' + (value + row.span - 1) : '') }, 
+	{ dname: TEXT_NUM, name: 'num', formatter: (value, row) => value === null ? '0' : value }, 
+	{ dname: TEXT_PERCENTAGE, name: 'percentage', formatter: (value, row) => round(value * 100, 1) + '%' }
+];
+
+function show_distribution (summary, title) {
+	var data = summary.distribution.map((item, index) => {
+		return {
+			value: index * summary.span, 
+			span: summary.span, 
+			num: item, 
+			percentage: item / summary.len
+		};
+	});
+
+	$('#distribution_title').text(title);
+	$('#distribution_body').empty().append(create_table(distribution_columns, data));
+	$('#distribution').modal({});
+}
+
+function create_button (name, click) {
+	var button = $('<button>' + name + '</button>');
+	button.addClass('btn btn-primary');
+	button.click(click);
+	return button;
+}
+
 function create_table (columns, data) {
 	var table = $('<table class="table table-striped"></table>');
 	var thead = $('<thead></thead>');
@@ -347,7 +397,14 @@ function create_table (columns, data) {
 			if (columns[j].formatter) {
 				d = columns[j].formatter(d, data[i]);
 			}
-			tbodyr.append($('<td>' + d + '</td>'));
+			var td = $('<td></td>');
+			if (d instanceof jQuery) {
+				td.append(d);
+			}
+			else {
+				td.text(d);
+			}
+			tbodyr.append(td);
 		}
 	}
 	return table;
