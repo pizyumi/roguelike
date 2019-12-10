@@ -17,6 +17,7 @@ var TEXT_POISON = '毒';
 var TEXT_EQUIPPED = '装備中';
 var TEXT_AUTO = '自動';
 var TEXT_AI = 'AI';
+var TEXT_SPEED = '倍速';
 var TEXT_COUNT = '回目';
 var TEXT_GENERATE_STATS = '情報を収集中です。';
 var TEXT_SAVE_CLIPBOARD = 'クリップボードに保存しました。';
