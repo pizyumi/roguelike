@@ -1324,16 +1324,6 @@ async function eat (item) {
 			type: 'normal'
 		});
 	}
-	else if (item.type === I_HP_GRASS) {
-		var hpold = player.hpfull;
-		player.hpext += Math.ceil(player.hpfull * 0.1);
-		var hpdiff = player.hpfull - hpold;
-		var ediff = player.increase_energy(10);
-		add_message({
-			text: MSG_EAT_HP_GRASS({name: item.dname, hpdiff, ediff}),
-			type: 'important'
-		});
-	}
 	else {
 		throw new Error('not supported.');
 	}
@@ -1355,6 +1345,14 @@ async function quaff (item) {
 		add_message({
 			text: MSG_QUAFF_HPOTION({name: item.dname, diff: player.hp - old}),
 			type: 'normal'
+		});
+	}
+	else if (item.type === I_HP_UP_POTION) {
+		var old = player.hpfull;
+		player.hpext += Math.ceil(player.hpfull * 0.1);
+		add_message({
+			text: MSG_QUAFF_HUP_POTION({name: item.dname, diff: player.hpfull - old}),
+			type: 'important'
 		});
 	}
 	else {
@@ -1574,11 +1572,11 @@ function draw () {
 							if (item.type === I_APPLE) {
 								con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
 							}
-							else if (item.type === I_HP_GRASS) {
-								con.drawImage(img2, 1 * 32, 1 * 32, 32, 32, i * PX, j * PY, PX, PY);
-							}
-							else if (item.cat === I_CAT_POTION) {
+							else if (item.type === I_HEALTH_POTION) {
 								con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
+							}
+							else if (item.type === I_HP_UP_POTION) {
+								con.drawImage(img2, 7 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
 							}
 							else if (item.cat === I_CAT_WEAPON) {
 								con.drawImage(img2, 2 * 32, 10 * 32, 32, 32, i * PX, j * PY, PX, PY);
@@ -1740,11 +1738,11 @@ function draw () {
 				if (items[i].type === I_APPLE) {
 					con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 				}
-				else if (items[i].type === I_HP_GRASS) {
-					con.drawImage(img2, 1 * 32, 1 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
-				}
-				else if (items[i].cat === I_CAT_POTION) {
+				else if (items[i].type === I_HEALTH_POTION) {
 					con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+				}
+				else if (items[i].type === I_HP_UP_POTION) {
+					con.drawImage(img2, 7 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 				}
 				else if (items[i].cat === I_CAT_WEAPON) {
 					con.drawImage(img2, 2 * 32, 10 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);

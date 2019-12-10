@@ -141,21 +141,28 @@ function create_field (depth, upstairs, base_seed) {
 			var cat = random.select(ctable);
 			if (cat === I_CAT_FOOD) {
 				var itable = new Map();
-				itable.set(I_APPLE, 80);
-				itable.set(I_HP_GRASS, 20);
+				itable.set(I_APPLE, 100);
 				var type = random.select(itable);
 				blocks[x][y].items.push(new Item(type, cat));
 			}
 			else if (cat === I_CAT_POTION) {
-				var type = I_HEALTH_POTION;
-				var e = I_INFO[type];
-				var baselevel = Math.ceil(depth / 4);
-				var ltable = new Map();
-				ltable.set(random.num(baselevel) + 1, 75);
-				ltable.set(baselevel + 1, 20);
-				ltable.set(baselevel + 2, 5);
-				var level = random.select(ltable);
-				blocks[x][y].items.push(new HealthPotion(type, cat, level));
+				var itable = new Map();
+				itable.set(I_HEALTH_POTION, 80);
+				itable.set(I_HP_UP_POTION, 20);
+				var type = random.select(itable);
+				if (type === I_HEALTH_POTION) {
+					var e = I_INFO[type];
+					var baselevel = Math.ceil(depth / 4);
+					var ltable = new Map();
+					ltable.set(random.num(baselevel) + 1, 75);
+					ltable.set(baselevel + 1, 20);
+					ltable.set(baselevel + 2, 5);
+					var level = random.select(ltable);
+					blocks[x][y].items.push(new HealthPotion(type, cat, level));	
+				}
+				else {
+					blocks[x][y].items.push(new Item(type, cat));
+				}
 			}
 			else if (cat === I_CAT_WEAPON) {
 				var itable = new Map();
