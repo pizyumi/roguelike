@@ -1817,7 +1817,7 @@ function draw () {
 			con.font = '24px consolas';
 			con.fillStyle = 'white';
 			con.translate(SCREEN_X, SCREEN_Y);
-			con.fillText(TEXT_AUTO, 0, 0);
+			con.fillText(TEXT_AUTO + (settings.auto_rate === 1 ? '' : (settings.auto_rate + '倍速')), 0, 0);
 			con.restore();
 		}
 
@@ -1828,7 +1828,7 @@ function draw () {
 			con.font = '24px consolas';
 			con.fillStyle = 'white';
 			con.translate(SCREEN_X, SCREEN_Y);
-			con.fillText(TEXT_AI + aicount + TEXT_COUNT, 0, 0);
+			con.fillText(TEXT_AI + aicount + TEXT_COUNT + (settings.auto_rate === 1 ? '' : (settings.auto_rate + '倍速')), 0, 0);
 			con.restore();
 		}
 	
