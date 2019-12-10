@@ -139,6 +139,7 @@ function calculate_stats (ds) {
 	var max = 0;
 	if (ds.length === 0) {
 		return {
+      len: ds.length, 
 			sum: 0,
 			min: NaN,
 			max: NaN,
@@ -157,6 +158,7 @@ function calculate_stats (ds) {
 		}
 		var avg = sum / ds.length;
 		return {
+      len: ds.length, 
 			sum: sum,
 			min: min,
 			max: max,
