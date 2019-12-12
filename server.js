@@ -93,6 +93,7 @@ obj = _.extend(obj, {
             var record = req.body;
             var p = path.join('record', record.version, record.name, record.id + '.json');
             yield common.save_json_to_path(p, record);
+            yield common.send_res_with_json(res, {});
           }).catch(next);
         });
         app.get('*', (req, res, next) => next({ status: 404 }));
