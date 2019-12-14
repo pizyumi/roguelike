@@ -105,8 +105,8 @@ var I_RIVET_ARMOR_NAME = 'リベットアーマー';
 var I_SCALE_ARMOR_NAME = 'スケールアーマー';
 var I_CHAIN_MAIL_NAME = 'チェーンメール';
 var I_PLATE_ARMOR_NAME = 'プレートアーマー';
-var I_WEAPON_SCROLL_NAME = '武器屋の巻物';
-var I_ARMOR_SCROLL_NAME = '防具屋の巻物';
+var I_WEAPON_SCROLL_NAME = '武器強化の巻物';
+var I_ARMOR_SCROLL_NAME = '防具強化の巻物';
 
 var ACTION_EAT = '食べる';
 var ACTION_QUAFF = '飲む';
