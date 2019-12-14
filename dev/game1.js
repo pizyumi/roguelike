@@ -148,7 +148,9 @@ function create_field (depth, upstairs, base_seed) {
 			else if (cat === I_CAT_POTION) {
 				var itable = new Map();
 				itable.set(I_HEALTH_POTION, 80);
-				itable.set(I_HP_UP_POTION, 20);
+				if (depth >= 3) {
+					itable.set(I_HP_UP_POTION, 20);
+				}
 				var type = random.select(itable);
 				if (type === I_HEALTH_POTION) {
 					var e = I_INFO[type];
