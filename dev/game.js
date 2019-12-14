@@ -1569,14 +1569,24 @@ function draw () {
 					if (block.items) {
 						for (var k = 0; k < block.items.length; k++) {
 							var item = block.items[k];
-							if (item.type === I_APPLE) {
-								con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
+							if (item.cat === I_CAT_FOOD) {
+								if (item.type === I_APPLE) {
+									con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
+								}
+								else {
+									throw new Error('not supported.');
+								}
 							}
-							else if (item.type === I_HEALTH_POTION) {
-								con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
-							}
-							else if (item.type === I_HP_UP_POTION) {
-								con.drawImage(img2, 7 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
+							else if (item.cat === I_CAT_POTION) {
+								if (item.type === I_HEALTH_POTION) {
+									con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
+								}
+								else if (item.type === I_HP_UP_POTION) {
+									con.drawImage(img2, 7 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
+								}
+								else {
+									throw new Error('not supported.');
+								}
 							}
 							else if (item.cat === I_CAT_WEAPON) {
 								con.drawImage(img2, 2 * 32, 10 * 32, 32, 32, i * PX, j * PY, PX, PY);
@@ -1735,14 +1745,24 @@ function draw () {
 		if (!invactf) {
 			var items = player.items.get_items();
 			for (var i = invoffset; i < invoffset + 10 && i < items.length; i++) {
-				if (items[i].type === I_APPLE) {
-					con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+				if (items[i].cat === I_CAT_FOOD) {
+					if (items[i].type === I_APPLE) {
+						con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+					}
+					else {
+						throw new Error('not supported.');
+					}
 				}
-				else if (items[i].type === I_HEALTH_POTION) {
-					con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
-				}
-				else if (items[i].type === I_HP_UP_POTION) {
-					con.drawImage(img2, 7 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+				else if (items[i].cat === I_CAT_POTION) {
+					if (items[i].type === I_HEALTH_POTION) {
+						con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+					}
+					else if (items[i].type === I_HP_UP_POTION) {
+						con.drawImage(img2, 7 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+					}
+					else {
+						throw new Error('not supported.');
+					}
 				}
 				else if (items[i].cat === I_CAT_WEAPON) {
 					con.drawImage(img2, 2 * 32, 10 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
