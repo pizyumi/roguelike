@@ -43,7 +43,7 @@ $(function () {
                     create_statistics_html(record_elem, res.data, true, false);
                 }).catch((err) => {
                 }).finally(() => {
-                });            
+                });
             }, 
             summary: function (version, name) {
                 var params = {
