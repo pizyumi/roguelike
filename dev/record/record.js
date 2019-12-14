@@ -2,7 +2,8 @@ $(function () {
     var app = new Vue({
         el: '#app',
         data: {
-            versions: []
+            versions: [], 
+            active: null
         }, 
         methods: {
             names: function (version) {
@@ -44,6 +45,7 @@ $(function () {
                 }).catch((err) => {
                 }).finally(() => {
                 });
+                this.active = record.name;
             }, 
             summary: function (version, name) {
                 var params = {

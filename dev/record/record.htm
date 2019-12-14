@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -26,7 +26,7 @@
 						<li class="list-group-item list-group-item-action" v-for="n in v.names" v-on:click.stop="records(v, n)">
 							{{ n.name }}
 							<ul class="list-group">
-								<li class="list-group-item list-group-item-action" v-for="r in n.records" v-on:click.stop="record(v, n, r)">
+								<li class="list-group-item list-group-item-action" v-bind:class="{ active: active === r.name }" v-for="r in n.records" v-on:click.stop="record(v, n, r)">
 									{{ r.name }}
 								</li>
 							</ul>
