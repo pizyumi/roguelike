@@ -7,6 +7,10 @@ var img_field = new Image();
 img_field.src = '/img/Dungeon_B_Freem7.png';
 var img_item = new Image();
 img_item.src = '/img/fighting_fantasy_icons.png';
+var img_bat = new Image();
+img_bat.src = '/img/pipo-enemy001.png';
+var img_slime = new Image();
+img_slime.src = '/img/pipo-enemy009.png';
 
 var time = null;
 var seed = null;
@@ -1652,10 +1656,10 @@ function draw () {
 						con.fillText('🐀\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
 					}
 					else if (npcs[i].type === E_BAT) {
-						con.fillText('🦇\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+						con.drawImage(img_bat, 28, 24, 64, 64, (npcs[i].x - ox) * PX - ((64 - PX) / 2), (npcs[i].y - oy) * PY - ((64 - PY) / 2), 64, 64);
 					}
 					else if (npcs[i].type === E_SLIME) {
-						con.fillText('s', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
+						con.drawImage(img_slime, 28, 64, 64, 64, (npcs[i].x - ox) * PX - ((64 - PX) / 2), (npcs[i].y - oy) * PY - ((64 - PY) / 2), 64, 64);
 					}
 					else if (npcs[i].type === E_SPIDER) {
 						con.fillText('🕷️\uFE0E', (npcs[i].x - ox) * PX + (PX / 2), (npcs[i].y - oy) * PY + (PY / 2));
