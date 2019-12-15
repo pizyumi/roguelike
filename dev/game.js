@@ -3,10 +3,10 @@ var query = get_query();
 var version = 'dev';
 var debug = query.debug ? true : version.substring(0, 3) === 'dev';
 
-var img = new Image();
-img.src = '/img/Dungeon_B_Freem7.png';
-var img2 = new Image();
-img2.src = '/img/fighting_fantasy_icons.png';
+var img_field = new Image();
+img_field.src = '/img/Dungeon_B_Freem7.png';
+var img_item = new Image();
+img_item.src = '/img/fighting_fantasy_icons.png';
 
 var time = null;
 var seed = null;
@@ -1595,7 +1595,7 @@ function draw () {
 						con.stroke();
 					}
 					else if (block.base === B_DOWNSTAIR) {
-						con.drawImage(img, 4 * 32, 5 * 32, 32, 32, i * PX, j * PY, PX, PY);
+						con.drawImage(img_field, 4 * 32, 5 * 32, 32, 32, i * PX, j * PY, PX, PY);
 					}
 	
 					if (block.items) {
@@ -1603,7 +1603,7 @@ function draw () {
 							var item = block.items[k];
 							if (item.cat === I_CAT_FOOD) {
 								if (item.type === I_APPLE) {
-									con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
+									con.drawImage(img_item, 0 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
 								}
 								else {
 									throw new Error('not supported.');
@@ -1611,26 +1611,26 @@ function draw () {
 							}
 							else if (item.cat === I_CAT_POTION) {
 								if (item.type === I_HEALTH_POTION) {
-									con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
+									con.drawImage(img_item, 7 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
 								}
 								else if (item.type === I_HP_UP_POTION) {
-									con.drawImage(img2, 7 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
+									con.drawImage(img_item, 7 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
 								}
 								else if (item.type === I_POISON_POTION || item.type === I_ANTIDOTE_POTION) {
-									con.drawImage(img2, 7 * 32, 3 * 32, 32, 32, i * PX, j * PY, PX, PY);
+									con.drawImage(img_item, 7 * 32, 3 * 32, 32, 32, i * PX, j * PY, PX, PY);
 								}
 								else {
 									throw new Error('not supported.');
 								}
 							}
 							else if (item.cat === I_CAT_WEAPON) {
-								con.drawImage(img2, 2 * 32, 10 * 32, 32, 32, i * PX, j * PY, PX, PY);
+								con.drawImage(img_item, 2 * 32, 10 * 32, 32, 32, i * PX, j * PY, PX, PY);
 							}
 							else if (item.cat === I_CAT_ARMOR) {
-								con.drawImage(img2, 10 * 32, 7 * 32, 32, 32, i * PX, j * PY, PX, PY);
+								con.drawImage(img_item, 10 * 32, 7 * 32, 32, 32, i * PX, j * PY, PX, PY);
 							}
 							else if (item.cat === I_CAT_SCROLL) {
-								con.drawImage(img2, 6 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
+								con.drawImage(img_item, 6 * 32, 4 * 32, 32, 32, i * PX, j * PY, PX, PY);
 							}
 							else {
 								throw new Error('not supported.');
@@ -1782,7 +1782,7 @@ function draw () {
 			for (var i = invoffset; i < invoffset + 10 && i < items.length; i++) {
 				if (items[i].cat === I_CAT_FOOD) {
 					if (items[i].type === I_APPLE) {
-						con.drawImage(img2, 0 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+						con.drawImage(img_item, 0 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 					}
 					else {
 						throw new Error('not supported.');
@@ -1790,26 +1790,26 @@ function draw () {
 				}
 				else if (items[i].cat === I_CAT_POTION) {
 					if (items[i].type === I_HEALTH_POTION) {
-						con.drawImage(img2, 7 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+						con.drawImage(img_item, 7 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 					}
 					else if (items[i].type === I_HP_UP_POTION) {
-						con.drawImage(img2, 7 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+						con.drawImage(img_item, 7 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 					}
 					else if (items[i].type === I_POISON_POTION || items[i].type === I_ANTIDOTE_POTION) {
-						con.drawImage(img2, 7 * 32, 3 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+						con.drawImage(img_item, 7 * 32, 3 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 					}
 					else {
 						throw new Error('not supported.');
 					}
 				}
 				else if (items[i].cat === I_CAT_WEAPON) {
-					con.drawImage(img2, 2 * 32, 10 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+					con.drawImage(img_item, 2 * 32, 10 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 				}
 				else if (items[i].cat === I_CAT_ARMOR) {
-					con.drawImage(img2, 10 * 32, 7 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+					con.drawImage(img_item, 10 * 32, 7 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 				}
 				else if (items[i].cat === I_CAT_SCROLL) {
-					con.drawImage(img2, 6 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+					con.drawImage(img_item, 6 * 32, 4 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 				}
 				else {
 					throw new Error('not supported.');
