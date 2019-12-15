@@ -3,6 +3,8 @@ var query = get_query();
 var version = 'dev';
 var debug = query.debug ? true : version.substring(0, 3) === 'dev';
 
+var img_player = new Image();
+img_player.src = '/img/女性b.png';
 var img_field = new Image();
 img_field.src = '/img/Dungeon_B_Freem7.png';
 var img_item = new Image();
@@ -1035,34 +1037,42 @@ async function down_right () {
 }
 
 async function move_up () {
+	player.direction = DIR_UP;
 	return await move_one_block(0, -1);
 }
 
 async function move_down () {
+	player.direction = DIR_DOWN;
 	return await move_one_block(0, 1);
 }
 
 async function move_left () {
+	player.direction = DIR_LEFT;
 	return await move_one_block(-1, 0);
 }
 
 async function move_right () {
+	player.direction = DIR_RIGHT;
 	return await move_one_block(1, 0);
 }
 
 async function move_up_left () {
+	player.direction = DIR_UP_LEFT;
 	return await move_one_block(-1, -1);
 }
 
 async function move_up_right () {
+	player.direction = DIR_UP_RIGHT;
 	return await move_one_block(1, -1);
 }
 
 async function move_down_left () {
+	player.direction = DIR_DOWN_LEFT;
 	return await move_one_block(-1, 1);
 }
 
 async function move_down_right () {
+	player.direction = DIR_DOWN_RIGHT;
 	return await move_one_block(1, 1);
 }
 
@@ -1105,34 +1115,42 @@ async function move (x, y) {
 }
 
 async function attack_up () {
+	player.direction = DIR_UP;
 	return await attack_next(0, -1);
 }
 
 async function attack_down () {
+	player.direction = DIR_DOWN;
 	return await attack_next(0, 1);
 }
 
 async function attack_left () {
+	player.direction = DIR_LEFT;
 	return await attack_next(-1, 0);
 }
 
 async function attack_right () {
+	player.direction = DIR_RIGHT;
 	return await attack_next(1, 0);
 }
 
 async function attack_up_left () {
+	player.direction = DIR_UP_LEFT;
 	return await attack_next(-1, -1);
 }
 
 async function attack_up_right () {
+	player.direction = DIR_UP_RIGHT;
 	return await attack_next(1, -1);
 }
 
 async function attack_down_left () {
+	player.direction = DIR_DOWN_LEFT;
 	return await attack_next(-1, 1);
 }
 
 async function attack_down_right () {
+	player.direction = DIR_DOWN_RIGHT;
 	return await attack_next(1, 1);
 }
 
@@ -1686,11 +1704,30 @@ function draw () {
 		var px = player.x - ox;
 		var py = player.y - oy;
 	
-		con.textBaseline = 'middle';
-		con.textAlign = 'center';
-		con.fillStyle = 'red';
-		con.font = '32px consolas';
-		con.fillText('🚶\uFE0E', px * PX + (PX / 2), py * PY + (PY / 2));
+		if (player.direction === DIR_UP) {
+			con.drawImage(img_player, 24, 120, 24, 40, px * PX + ((PX - 36) /2), py * PY - (60 - PX), 36, 60);
+		}
+		else if (player.direction === DIR_DOWN) {
+			con.drawImage(img_player, 24, 0, 24, 40, px * PX + ((PX - 36) /2), py * PY - (60 - PX), 36, 60);
+		}
+		else if (player.direction === DIR_LEFT) {
+			con.drawImage(img_player, 24, 40, 24, 40, px * PX + ((PX - 36) /2), py * PY - (60 - PX), 36, 60);
+		}
+		else if (player.direction === DIR_RIGHT) {
+			con.drawImage(img_player, 24, 80, 24, 40, px * PX + ((PX - 36) /2), py * PY - (60 - PX), 36, 60);
+		}
+		else if (player.direction === DIR_UP_LEFT) {
+			con.drawImage(img_player, 96, 80, 24, 40, px * PX + ((PX - 36) /2), py * PY - (60 - PX), 36, 60);
+		}
+		else if (player.direction === DIR_UP_RIGHT) {
+			con.drawImage(img_player, 96, 120, 24, 40, px * PX + ((PX - 36) /2), py * PY - (60 - PX), 36, 60);
+		}
+		else if (player.direction === DIR_DOWN_LEFT) {
+			con.drawImage(img_player, 96, 0, 24, 40, px * PX + ((PX - 36) /2), py * PY - (60 - PX), 36, 60);
+		}
+		else if (player.direction === DIR_DOWN_RIGHT) {
+			con.drawImage(img_player, 96, 40, 24, 40, px * PX + ((PX - 36) /2), py * PY - (60 - PX), 36, 60);
+		}
 	
 		if (env.diagonal) {
 			con.save();

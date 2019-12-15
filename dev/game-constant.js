@@ -134,6 +134,10 @@ var DIR_UP = 0;
 var DIR_DOWN = 1;
 var DIR_LEFT = 2;
 var DIR_RIGHT = 3;
+var DIR_UP_LEFT = 4;
+var DIR_UP_RIGHT = 5;
+var DIR_DOWN_LEFT = 6;
+var DIR_DOWN_RIGHT = 7;
 
 var OBJ_ENEMY = 0;
 var OBJ_ITEM = 1;

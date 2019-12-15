@@ -644,6 +644,7 @@ class Player {
 		this.depth = 0;
 		this.x = 7;
 		this.y = 9;
+		this.direction = DIR_UP;
 
 		this.str = 10;
 
