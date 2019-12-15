@@ -72,6 +72,8 @@ var MSG_PUT = ({name}) => `${name}を置きました。`;
 var MSG_EAT_FOOD = ({name, diff}) => `${name}を食べました。満腹度が${diff}回復しました。`;
 var MSG_QUAFF_HPOTION = ({name, diff}) => `${name}を飲みました。HPが${diff}回復しました。`;
 var MSG_QUAFF_HUP_POTION = ({name, diff}) => `${name}を飲みました。最大HPが${diff}上昇しました。`;
+var MSG_QUAFF_POISON_POTION = ({name}) => `${name}を飲みました。毒に侵されました。`;
+var MSG_QUAFF_ANTEDOTE_POTION = ({name}) => `${name}を飲みました。毒が抜けました。`;
 var MSG_EQUIP_WEAPON = ({name, diff}) => `${name}を装備しました。攻撃力が${diff}増加しました。`;
 var MSG_UNEQUIP_WEAPON = ({name, diff}) => `${name}を外しました。攻撃力が${diff}減少しました。`;
 var MSG_EQUIP_ARMOR = ({name, diff}) => `${name}を装備しました。防御力が${diff}増加しました。`;
@@ -95,6 +97,8 @@ var E_GOBLIN_NAME = 'ゴブリン';
 var I_APPLE_NAME = 'リンゴ';
 var I_HEALTH_POTION_NAME = '回復薬';
 var I_HP_UP_POTION_NAME = '命の薬';
+var I_POISON_POTION_NAME = '毒薬';
+var I_ANTIDOTE_POTION_NAME = '解毒薬';
 var I_DAGGER_NAME = 'ダガー';
 var I_SHORT_SWORD_NAME = 'ショートソード';
 var I_RAPIER_NAME = 'レイピア';
@@ -252,6 +256,8 @@ var M_UNKNOWN = 65535;
 var I_APPLE = 0;
 var I_HEALTH_POTION = 100;
 var I_HP_UP_POTION = 150;
+var I_POISON_POTION = 170;
+var I_ANTIDOTE_POTION = 171;
 var I_DAGGER = 200;
 var I_SHORT_SWORD = 201;
 var I_RAPIER = 202;
@@ -276,6 +282,14 @@ I_INFO[I_HEALTH_POTION] = {
 };
 I_INFO[I_HP_UP_POTION] = {
 	dname: I_HP_UP_POTION_NAME, 
+	weight: 0.1
+};
+I_INFO[I_POISON_POTION] = {
+	dname: I_POISON_POTION_NAME, 
+	weight: 0.1
+};
+I_INFO[I_ANTIDOTE_POTION] = {
+	dname: I_ANTIDOTE_POTION_NAME, 
 	weight: 0.1
 };
 I_INFO[I_DAGGER] = {

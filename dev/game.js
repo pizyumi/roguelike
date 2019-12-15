@@ -1355,6 +1355,28 @@ async function quaff (item) {
 			type: 'important'
 		});
 	}
+	else if (item.type === I_POISON_POTION) {
+		player.poison = true;
+		add_message({
+			text: MSG_QUAFF_POISON_POTION({name: item.dname}),
+			type: 'normal'
+		});
+	}
+	else if (item.type === I_ANTIDOTE_POTION) {
+		if (player.poison) {
+			player.poison = false;
+			add_message({
+				text: MSG_QUAFF_ANTEDOTE_POTION({name: item.dname}),
+				type: 'normal'
+			});
+		}
+		else {
+			add_message({
+				text: MSG_NO_EFFECT,
+				type: 'important'
+			});
+		}
+	}
 	else {
 		throw new Error('not supported.');
 	}
@@ -1584,6 +1606,9 @@ function draw () {
 								else if (item.type === I_HP_UP_POTION) {
 									con.drawImage(img2, 7 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
 								}
+								else if (item.type === I_POISON_POTION || item.type === I_ANTIDOTE_POTION) {
+									con.drawImage(img2, 7 * 32, 3 * 32, 32, 32, i * PX, j * PY, PX, PY);
+								}
 								else {
 									throw new Error('not supported.');
 								}
@@ -1759,6 +1784,9 @@ function draw () {
 					}
 					else if (items[i].type === I_HP_UP_POTION) {
 						con.drawImage(img2, 7 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
+					}
+					else if (items[i].type === I_POISON_POTION || items[i].type === I_ANTIDOTE_POTION) {
+						con.drawImage(img2, 7 * 32, 3 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 					}
 					else {
 						throw new Error('not supported.');
