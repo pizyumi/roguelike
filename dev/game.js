@@ -588,7 +588,7 @@ async function execute_turn () {
 				table.set(c.attacks[j].type, c.attacks[j].p);
 			}
 			var type = randomselect(table);
-			var dam = calculate_damage(c.atk, player.def);
+			var dam = calculate_damage(c.atk, 10, player.def);
 			player.hp -= dam;
 			if (type === ATTACK_NORMAL) {
 				add_message({
@@ -731,8 +731,8 @@ async function execute_turn () {
 	player.maps[player.depth].update(player.x, player.y);
 }
 
-function calculate_damage (atk, def) {
-	var dam = Math.ceil((atk * 1.1 - def * 0.4) * Math.random());
+function calculate_damage (atk, str, def) {
+	var dam = Math.ceil((atk * 1.1 - def * 0.4) * Math.random() * (1 + str * 0.01));
 	if (dam <= 0) {
 		dam = 1;
 	}
@@ -1157,7 +1157,7 @@ async function attack_next (xd, yd) {
 async function attack (index) {
 	var npcs = fields[player.depth].npcs;
 	var c = npcs[index];
-	var dam = calculate_damage(player.atk, c.def);
+	var dam = calculate_damage(player.atk, player.str, c.def);
 	c.attacked = true;
 	c.hp -= dam;
 	add_message({

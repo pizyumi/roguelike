@@ -645,6 +645,8 @@ class Player {
 		this.x = 7;
 		this.y = 9;
 
+		this.str = 10;
+
 		this.level = 1;
 		this.hpbase = 16;
 		this.hpext = 0;
@@ -685,7 +687,7 @@ class Player {
 	}
 
 	get weightfull () {
-		return this.weightbase + this.weightext;
+		return (this.weightbase + this.weightext) * (1 + this.str * 0.01);
 	}
 
 	get atkfull () {
@@ -740,7 +742,7 @@ class Player {
 		if (this.exp >= this.expfull) {
 			this.level++;
 			this.hpbase = Math.ceil(this.hpbase * 1.2);
-			this.atkbase = Math.ceil(this.atkbase * 1.1);
+			this.atkbase = Math.ceil(this.atkbase * (1 + this.str * 0.01));
 			this.defbase = Math.ceil(this.defbase * 1.1);
 			this.expfull = Math.ceil(this.expfull * 2.4);
 			return true;
