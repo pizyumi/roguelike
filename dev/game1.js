@@ -736,6 +736,20 @@ class Player {
 		return this.energy === 0;
 	}
 
+	levelup () {
+		if (this.exp >= this.expfull) {
+			this.level++;
+			this.hpbase = Math.ceil(this.hpbase * 1.2);
+			this.atkbase = Math.ceil(this.atkbase * 1.1);
+			this.defbase = Math.ceil(this.defbase * 1.1);
+			this.expfull = Math.ceil(this.expfull * 2.4);
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	next_hp () {
 		if (this.famine) {
 			this.hp_fraction -= this.hpfull * 0.005;

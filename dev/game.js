@@ -1176,12 +1176,7 @@ async function attack (index) {
 		});
 		statistics.add_fight(player.depth, c, STATS_FIGHT_KILLED, 0);
 
-		while (player.exp >= player.expfull) {
-			player.level++;
-			player.hpbase = Math.ceil(player.hpbase * 1.2);
-			player.atkbase = Math.ceil(player.atkbase * 1.1);
-			player.defbase = Math.ceil(player.defbase * 1.1);
-			player.expfull = Math.ceil(player.expfull * 2.4);
+		while (player.levelup()) {
 			add_message({
 				text: MSG_LEVELUP({level: player.level}),
 				type: 'important'
