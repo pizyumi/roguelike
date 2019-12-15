@@ -926,7 +926,22 @@ function find_uncleared_passage (map, x, y) {
 				for (var j = 0; j < room.passages.length; j++) {
 					var passage = room.passages[j];
 					if (x === passage.x && y === passage.y && (!passage.to || !passage.to.clear)) {
-						return true;
+						var block = null;
+						if (passage.direction === DIR_UP) {
+							block = map.blocks[passage.x][passage.y - 1];
+						}
+						else if (passage.direction === DIR_DOWN) {
+							block = map.blocks[passage.x][passage.y + 1];
+						}
+						else if (passage.direction === DIR_LEFT) {
+							block = map.blocks[passage.x - 1][passage.y];
+						}
+						else if (passage.direction === DIR_RIGHT) {
+							block = map.blocks[passage.x + 1][passage.y];
+						}
+						if (block === M_UNKNOWN || B_CAN_STAND[block]) {
+							return true;
+						}
 					}
 				}
 				return false;
