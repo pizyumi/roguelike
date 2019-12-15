@@ -287,7 +287,7 @@ $(function () {
 				}
 			}
 
-			if (e.keyCode === 16) {
+			if (e.keyCode === 17) {
 				if (!env.diagonal) {
 					env.diagonal = true;
 					draw();
@@ -354,7 +354,7 @@ $(function () {
 
 			var p = Promise.resolve(null);
 			if (e.keyCode >= 37 && e.keyCode <= 40) {
-				if (e.shiftKey) {
+				if (e.ctrlKey) {
 					if (keyl && keyu) {
 						p = up_left();
 					}
@@ -488,7 +488,7 @@ $(function () {
 		}
 	});
 	c.on('keyup', function (e) {
-		if (e.keyCode === 16) {
+		if (e.keyCode === 17) {
 			if (env.diagonal) {
 				env.diagonal = false;
 
