@@ -369,49 +369,39 @@ async function rest () {
 }
 
 function get_item_actions (item) {
+	var actions = [];
 	if (item.cat === I_CAT_FOOD) {
-		return [
-			{ name: 'eat', dname: ACTION_EAT, exec: async (i) => await eat(i) },
-			{ name: 'put', dname: ACTION_PUT, exec: async (i) => await put(i) }
-		];
+		actions.push({ name: 'eat', dname: ACTION_EAT, exec: async (i) => await eat(i) });
 	}
 	else if (item.cat === I_CAT_POTION) {
-		return [
-			{ name: 'quaff', dname: ACTION_QUAFF, exec: async (i) => await quaff(i) },
-			{ name: 'put', dname: ACTION_PUT, exec: async (i) => await put(i) }
-		];
+		actions.push({ name: 'quaff', dname: ACTION_QUAFF, exec: async (i) => await quaff(i) });
 	}
 	else if (item.cat === I_CAT_WEAPON) {
-		var actions = [];
 		if (item !== player.weapon) {
 			actions.push({ name: 'equip', dname: ACTION_EQUIP, exec: async (i) => await equip_weapon(i) });
-			actions.push({ name: 'put', dname: ACTION_PUT, exec: async (i) => await put(i) });
 		}
 		else {
 			actions.push({ name: 'unequip', dname: ACTION_UNEQUIP, exec: async (i) => await unequip_weapon(i) });
+			return actions;
 		}
-		return actions;
 	}
 	else if (item.cat === I_CAT_ARMOR) {
-		var actions = [];
 		if (item !== player.armor) {
 			actions.push({ name: 'equip', dname: ACTION_EQUIP, exec: async (i) => await equip_armor(i) });
-			actions.push({ name: 'put', dname: ACTION_PUT, exec: async (i) => await put(i) });
 		}
 		else {
 			actions.push({ name: 'unequip', dname: ACTION_UNEQUIP, exec: async (i) => await unequip_armor(i) });
+			return actions;
 		}
-		return actions;
 	}
 	else if (item.cat === I_CAT_SCROLL) {
-		return [
-			{ name: 'read', dname: ACTION_READ, exec: async (i) => await read(i) },
-			{ name: 'put', dname: ACTION_PUT, exec: async (i) => await put(i) }
-		];
+		actions.push({ name: 'read', dname: ACTION_READ, exec: async (i) => await read(i) });
 	}
 	else {
 		throw new Error('not supported.');
 	}
+	actions.push({ name: 'put', dname: ACTION_PUT, exec: async (i) => await put(i) });
+	return actions;
 }
 
 async function put (item) {
