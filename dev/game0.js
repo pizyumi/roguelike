@@ -311,7 +311,6 @@ async function pickup () {
 	}
 	block.items.shift();
 	player.items.add_item(item);
-	player.weight += item.weight;
 	add_message({
 		text: MSG_PICKUP({name: item.dname}),
 		type: 'normal'
@@ -839,5 +838,4 @@ function get_npc_index (x, y) {
 
 function consume_item (item) {
 	player.items.delete_item(item);
-	player.weight -= item.weight;
 }

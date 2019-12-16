@@ -574,6 +574,8 @@ class Items {
 	constructor () {
 		this.items = [];
 		this.citems = [];
+
+		this.event = new EventEmitter();
 	}
 
 	get_items () {
@@ -608,11 +610,13 @@ class Items {
 			}
 		});
 		this.citems = Items.compress_items(this.items);
+		this.event.trigger('add', [item]);
 	}
 
 	delete_item (item) {
 		this.items = this.items.filter((i) => i !== item);
 		this.citems = Items.compress_items(this.items);
+		this.event.trigger('delete', [item]);
 	}
 
 	get_item_cat (cat) {
@@ -676,6 +680,12 @@ class Player {
 		this.poison_remedy = 0.05;
 
 		this.items = new Items();
+		this.items.event.on('add', (item) => {
+			this.weight += item.weight;
+		});
+		this.items.event.on('delete', (item) => {
+			this.weight -= item.weight;
+		});
 		this.maps = [];
 	}
 
