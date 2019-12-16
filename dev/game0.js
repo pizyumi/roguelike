@@ -404,7 +404,7 @@ function get_item_actions (item) {
 }
 
 async function put (item) {
-	consume_item(item);
+	player.items.delete_item(item);
 	var block = fields[player.depth].blocks[player.x][player.y];
 	if (!block.items) {
 		block.items = [];
@@ -421,7 +421,7 @@ async function put (item) {
 }
 
 async function eat (item) {
-	consume_item(item);
+	player.items.delete_item(item);
 	if (item.type === I_APPLE) {
 		var diff = player.increase_energy(50);
 		add_message({
@@ -439,7 +439,7 @@ async function eat (item) {
 }
 
 async function quaff (item) {
-	consume_item(item);
+	player.items.delete_item(item);
 	if (item.type === I_HEALTH_POTION) {
 		var old = player.hp;
 		player.hp += item.level * 10;
@@ -564,7 +564,7 @@ async function unequip_armor (item) {
 }
 
 async function read (item) {
-	consume_item(item);
+	player.items.delete_item(item);
 	if (item.type === I_WEAPON_SCROLL) {
 		if (player.weapon === null) {
 			add_message({
@@ -834,8 +834,4 @@ function get_npc_index (x, y) {
 		}
 	}
 	return null;
-}
-
-function consume_item (item) {
-	player.items.delete_item(item);
 }
