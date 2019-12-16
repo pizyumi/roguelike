@@ -40,6 +40,54 @@ function add_message (message) {
 	}
 }
 
+async function turn_up () {
+	player.direction = DIR_UP;
+	draw();
+	return true;
+}
+
+async function turn_down () {
+	player.direction = DIR_DOWN;
+	draw();
+	return true;
+}
+
+async function turn_left () {
+	player.direction = DIR_LEFT;
+	draw();
+	return true;
+}
+
+async function turn_right () {
+	player.direction = DIR_RIGHT;
+	draw();
+	return true;
+}
+
+async function turn_up_left () {
+	player.direction = DIR_UP_LEFT;
+	draw();
+	return true;
+}
+
+async function turn_up_right () {
+	player.direction = DIR_UP_RIGHT;
+	draw();
+	return true;
+}
+
+async function turn_down_left () {
+	player.direction = DIR_DOWN_LEFT;
+	draw();
+	return true;
+}
+
+async function turn_down_right () {
+	player.direction = DIR_DOWN_RIGHT;
+	draw();
+	return true;
+}
+
 async function up () {
 	return await attack_up().nullthen((r) => move_up());
 }

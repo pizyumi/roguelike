@@ -356,19 +356,53 @@ $(function () {
 			if (e.keyCode >= 37 && e.keyCode <= 40) {
 				if (e.ctrlKey) {
 					if (keyl && keyu) {
-						p = up_left();
+						if (e.shiftKey) {
+							p = turn_up_left();
+						}
+						else {
+							p = up_left();
+						}
 					}
 					else if (keyr && keyu) {
-						p = up_right();
+						if (e.shiftKey) {
+							p = turn_up_right();
+						}
+						else {
+							p = up_right();
+						}
 					}
 					else if (keyl && keyd) {
-						p = down_left();
+						if (e.shiftKey) {
+							p = turn_down_left();
+						}
+						else {
+							p = down_left();							
+						}
 					}
 					else if (keyr && keyd) {
-						p = down_right();
+						if (e.shiftKey) {
+							p = turn_down_right();
+						}
+						else {
+							p = down_right();
+						}
 					}
 					else {
 						return;
+					}
+				}
+				else if (e.shiftKey) {
+					if (e.keyCode === 37) {
+						p = turn_left();
+					}
+					else if (e.keyCode === 38) {
+						p = turn_up();
+					}
+					else if (e.keyCode === 39) {
+						p = turn_right();
+					}
+					else if (e.keyCode === 40) {
+						p = turn_down();
 					}
 				}
 				else {
