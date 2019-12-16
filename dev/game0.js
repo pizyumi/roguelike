@@ -122,53 +122,54 @@ async function down_right () {
 
 async function move_up () {
 	player.direction = DIR_UP;
-	return await move_one_block(0, -1);
+	return await move_one_block();
 }
 
 async function move_down () {
 	player.direction = DIR_DOWN;
-	return await move_one_block(0, 1);
+	return await move_one_block();
 }
 
 async function move_left () {
 	player.direction = DIR_LEFT;
-	return await move_one_block(-1, 0);
+	return await move_one_block();
 }
 
 async function move_right () {
 	player.direction = DIR_RIGHT;
-	return await move_one_block(1, 0);
+	return await move_one_block();
 }
 
 async function move_up_left () {
 	player.direction = DIR_UP_LEFT;
-	return await move_one_block(-1, -1);
+	return await move_one_block();
 }
 
 async function move_up_right () {
 	player.direction = DIR_UP_RIGHT;
-	return await move_one_block(1, -1);
+	return await move_one_block();
 }
 
 async function move_down_left () {
 	player.direction = DIR_DOWN_LEFT;
-	return await move_one_block(-1, 1);
+	return await move_one_block();
 }
 
 async function move_down_right () {
 	player.direction = DIR_DOWN_RIGHT;
-	return await move_one_block(1, 1);
+	return await move_one_block();
 }
 
-async function move_one_block (xd, yd) {
-	var x = player.x + xd;
-	var y = player.y + yd;
+async function move_one_block () {
+	var { dx, dy } = direction_to_delta(player.direction);
+	var x = player.x + dx;
+	var y = player.y + dy;
 	var nx = fields[player.depth].nx;
 	var ny = fields[player.depth].ny;
 	if (x < 0 || y < 0 || x > nx - 1 || y > ny - 1) {
 		return null;
 	}
-	if ((xd + yd) % 2 === 0) {
+	if ((dx + dy) % 2 === 0) {
 		var block1 = fields[player.depth].blocks[x][player.y];
 		var block2 = fields[player.depth].blocks[player.x][y];
 		if (!B_CAN_STAND[block1.base] || !B_CAN_STAND[block2.base]) {
@@ -200,53 +201,54 @@ async function move (x, y) {
 
 async function attack_up () {
 	player.direction = DIR_UP;
-	return await attack_next(0, -1);
+	return await attack_next();
 }
 
 async function attack_down () {
 	player.direction = DIR_DOWN;
-	return await attack_next(0, 1);
+	return await attack_next();
 }
 
 async function attack_left () {
 	player.direction = DIR_LEFT;
-	return await attack_next(-1, 0);
+	return await attack_next();
 }
 
 async function attack_right () {
 	player.direction = DIR_RIGHT;
-	return await attack_next(1, 0);
+	return await attack_next();
 }
 
 async function attack_up_left () {
 	player.direction = DIR_UP_LEFT;
-	return await attack_next(-1, -1);
+	return await attack_next();
 }
 
 async function attack_up_right () {
 	player.direction = DIR_UP_RIGHT;
-	return await attack_next(1, -1);
+	return await attack_next();
 }
 
 async function attack_down_left () {
 	player.direction = DIR_DOWN_LEFT;
-	return await attack_next(-1, 1);
+	return await attack_next();
 }
 
 async function attack_down_right () {
 	player.direction = DIR_DOWN_RIGHT;
-	return await attack_next(1, 1);
+	return await attack_next();
 }
 
-async function attack_next (xd, yd) {
-	var x = player.x + xd;
-	var y = player.y + yd;
+async function attack_next () {
+	var { dx, dy } = direction_to_delta(player.direction);
+	var x = player.x + dx;
+	var y = player.y + dy;
 	var nx = fields[player.depth].nx;
 	var ny = fields[player.depth].ny;
 	if (x < 0 || y < 0 || x > nx - 1 || y > ny - 1) {
 		return null;
 	}
-	if ((xd + yd) % 2 === 0) {
+	if ((dx + dy) % 2 === 0) {
 		var block1 = fields[player.depth].blocks[x][player.y];
 		var block2 = fields[player.depth].blocks[player.x][y];
 		if (!B_CAN_STAND[block1.base] || !B_CAN_STAND[block2.base]) {
@@ -834,4 +836,22 @@ function get_npc_index (x, y) {
 		}
 	}
 	return null;
+}
+
+function direction_to_delta (dir) {
+	var dx = 0;
+	if (dir === DIR_LEFT || dir === DIR_UP_LEFT || dir === DIR_DOWN_LEFT) {
+		dx = -1;
+	}
+	else if (dir === DIR_RIGHT || dir === DIR_UP_RIGHT || dir === DIR_DOWN_RIGHT) {
+		dx = 1;
+	}
+	var dy = 0;
+	if (dir === DIR_UP || dir === DIR_UP_LEFT || dir === DIR_UP_RIGHT) {
+		dy = -1;
+	}
+	else if (dir === DIR_DOWN || dir === DIR_DOWN_LEFT || dir === DIR_DOWN_RIGHT) {
+		dy = 1;		
+	}
+	return { dx, dy };
 }
