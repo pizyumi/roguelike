@@ -257,13 +257,13 @@ async function attack_next (xd, yd) {
 	if (index === null) {
 		return null;
 	}
-	return await attack(index);
+	return await attack(index, player.atk);
 }
 
-async function attack (index) {
+async function attack (index, atk) {
 	var npcs = fields[player.depth].npcs;
 	var c = npcs[index];
-	var dam = calculate_damage(player.atk, player.str, c.def);
+	var dam = calculate_damage(atk, player.str, c.def);
 	c.attacked = true;
 	c.hp -= dam;
 	add_message({
