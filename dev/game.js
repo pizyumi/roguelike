@@ -452,10 +452,10 @@ $(function () {
 					invactf = !invactf;
 				}
 				else if (e.keyCode === 90) {
-					var p = actions[invactindex].exec(item);
-
 					screen = SCREEN_GAME;
 					invactf = !invactf;
+
+					var p = actions[invactindex].exec(item);
 
 					waiting = true;
 					p.then((r) => {
