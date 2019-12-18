@@ -463,11 +463,19 @@ async function quaff (item) {
 		});
 	}
 	else if (item.type === I_POISON_POTION) {
-		player.poison = true;
-		add_message({
-			text: MSG_QUAFF_POISON_POTION({name: item.dname}),
-			type: 'normal'
-		});
+		if (player.poison) {
+			add_message({
+				text: MSG_NO_EFFECT,
+				type: 'important'
+			});
+		}
+		else {
+			player.poison = true;
+			add_message({
+				text: MSG_QUAFF_POISON_POTION({name: item.dname}),
+				type: 'normal'
+			});	
+		}
 	}
 	else if (item.type === I_ANTIDOTE_POTION) {
 		if (player.poison) {
