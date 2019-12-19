@@ -644,7 +644,9 @@ Items.compress_items = function (items) {
 }
 
 class Player {
-	constructor () {
+	constructor (dname) {
+		this.dname = dname;
+
 		this.depth = 0;
 		this.x = 7;
 		this.y = 9;

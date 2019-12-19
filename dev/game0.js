@@ -12,11 +12,11 @@ function init () {
 
 	fields = [];
 	fields[0] = create_field(0, [], seed);
-	player = new Player();
+	player = new Player(TEXT_PLAYER);
 	player.maps[0] = new FMap(fields[0]);
 	player.maps[0].update(player.x, player.y);
 	messages = [{
-		text: MSG_INIT,
+		text: MSG_INIT({name: player.dname}),
 		type: 'special'
 	}];
 	statistics = new Statistics();
@@ -263,13 +263,17 @@ async function attack_next () {
 }
 
 async function attack (index, atk) {
+	add_message({
+		text: MSG_ATTACK({name: player.dname}),
+		type: 'normal'
+	});
 	var npcs = fields[player.depth].npcs;
 	var c = npcs[index];
 	var dam = calculate_damage(atk, player.str, c.def);
 	c.attacked = true;
 	c.hp -= dam;
 	add_message({
-		text: MSG_PATTACK({name: c.dname, dam}),
+		text: MSG_DAMAGE({name: c.dname, dam}),
 		type: 'pattack'
 	});
 	draw();
@@ -279,14 +283,17 @@ async function attack (index, atk) {
 		npcs.splice(index, 1);
 		player.exp += c.exp;
 		add_message({
-			text: MSG_KILL({name: c.dname, exp: c.exp}),
+			text: MSG_DIE({name: c.dname}),
 			type: 'important'
 		});
+		add_message({
+			text: MSG_EXP({name: player.dname, exp: c.exp}),
+			type: 'normal'
+		});
 		statistics.add_fight(player.depth, c, STATS_FIGHT_KILLED, 0);
-
 		while (player.levelup()) {
 			add_message({
-				text: MSG_LEVELUP({level: player.level}),
+				text: MSG_LEVELUP({name: player.dname, level: player.level}),
 				type: 'important'
 			});
 		}
@@ -305,18 +312,18 @@ async function pickup () {
 	var item = block.items[0];
 	if (player.weight + item.weight > player.weightfull) {
 		add_message({
-			text: MSG_CANT_PICKUP({name: item.dname}),
+			text: MSG_CANT_PICKUP({iname: item.dname}),
 			type: 'important'
 		});
 		draw();
 		return false;
 	}
-	block.items.shift();
-	player.items.add_item(item);
 	add_message({
-		text: MSG_PICKUP({name: item.dname}),
+		text: MSG_PICKUP({name: player.dname, iname: item.dname}),
 		type: 'normal'
 	});
+	block.items.shift();
+	player.items.add_item(item);
 	statistics.add_action(player.depth, STATS_ACTION_PICKUP);
 	await execute_turn();
 	draw();
@@ -328,6 +335,10 @@ async function downstair () {
 	if (block.base !== B_DOWNSTAIR) {
 		return null;
 	}
+	add_message({
+		text: MSG_DOWNSTAIR({name: player.dname}),
+		type: 'normal'
+	});
 	player.depth++;
 	if (!fields[player.depth]) {
 		fields[player.depth] = create_field(player.depth, [{
@@ -339,10 +350,6 @@ async function downstair () {
 		player.maps[player.depth] = new FMap(fields[player.depth]);
 	}
 	player.maps[player.depth].update(player.x, player.y);
-	add_message({
-		text: MSG_DOWNSTAIR,
-		type: 'normal'
-	});
 	statistics.add_action(player.depth, STATS_ACTION_MOVE);
 	await execute_turn();
 	draw();
@@ -353,14 +360,14 @@ async function rest () {
 	var room = player.maps[player.depth].room;
 	if (player.hp >= player.hpfull * 0.9) {
 		add_message({
-			text: MSG_SUFFICIENT_HP,
+			text: MSG_CANT_REST,
 			type: 'important'
 		});
 		draw();
 		return false;
 	}
 	add_message({
-		text: MSG_REST,
+		text: MSG_REST({name: player.dname}),
 		type: 'normal'
 	});
 	statistics.add_action(player.depth, STATS_ACTION_REST);
@@ -406,16 +413,16 @@ function get_item_actions (item) {
 }
 
 async function put (item) {
+	add_message({
+		text: MSG_PUT({name: player.dname, iname: item.dname}),
+		type: 'normal'
+	});
 	player.items.delete_item(item);
 	var block = fields[player.depth].blocks[player.x][player.y];
 	if (!block.items) {
 		block.items = [];
 	}
 	block.items.push(item);
-	add_message({
-		text: MSG_PUT({name: item.dname}),
-		type: 'normal'
-	});
 	statistics.add_action(player.depth, STATS_ACTION_PUT);
 	await execute_turn();
 	draw();
@@ -423,11 +430,15 @@ async function put (item) {
 }
 
 async function eat (item) {
+	add_message({
+		text: MSG_EAT({name: player.dname, iname: item.dname}),
+		type: 'normal'
+	});
 	player.items.delete_item(item);
 	if (item.type === I_APPLE) {
 		var diff = player.increase_energy(50);
 		add_message({
-			text: MSG_EAT_FOOD({name: item.dname, diff}),
+			text: MSG_ENEGY_RECOVERY({name: player.dname, diff}),
 			type: 'normal'
 		});
 	}
@@ -441,6 +452,10 @@ async function eat (item) {
 }
 
 async function quaff (item) {
+	add_message({
+		text: MSG_QUAFF({name: player.dname, iname: item.dname}),
+		type: 'normal'
+	});
 	player.items.delete_item(item);
 	if (item.type === I_HEALTH_POTION) {
 		var old = player.hp;
@@ -450,7 +465,7 @@ async function quaff (item) {
 			player.hp_fraction = 0;
 		}
 		add_message({
-			text: MSG_QUAFF_HPOTION({name: item.dname, diff: player.hp - old}),
+			text: MSG_HP_RECOVERY({name: player.dname, diff: player.hp - old}),
 			type: 'normal'
 		});
 	}
@@ -458,7 +473,7 @@ async function quaff (item) {
 		var old = player.hpfull;
 		player.hpext += Math.ceil(player.hpfull * 0.1);
 		add_message({
-			text: MSG_QUAFF_HUP_POTION({name: item.dname, diff: player.hpfull - old}),
+			text: MSG_HP_UP({name: player.dname, diff: player.hpfull - old}),
 			type: 'important'
 		});
 	}
@@ -472,7 +487,7 @@ async function quaff (item) {
 		else {
 			player.poison = true;
 			add_message({
-				text: MSG_QUAFF_POISON_POTION({name: item.dname}),
+				text: MSG_POISON({name: player.dname}),
 				type: 'normal'
 			});	
 		}
@@ -481,7 +496,7 @@ async function quaff (item) {
 		if (player.poison) {
 			player.poison = false;
 			add_message({
-				text: MSG_QUAFF_ANTEDOTE_POTION({name: item.dname}),
+				text: MSG_POISON_RECOVERY({name: player.dname}),
 				type: 'normal'
 			});
 		}
@@ -504,17 +519,25 @@ async function quaff (item) {
 async function equip_weapon (item) {
 	if (player.weapon !== null) {
 		var old = player.weapon;
+		add_message({
+			text: MSG_UNEQUIP({name: player.dname, iname: old.dname}),
+			type: 'normal'
+		});
 		player.weapon.equipped = false;
 		player.weapon = null;
 		add_message({
-			text: MSG_UNEQUIP_WEAPON({name: old.dname, diff: old.atk}),
+			text: MSG_ATK_DECREASE({name: player.dname, diff: old.atk}),
 			type: 'normal'
 		});
 	}
+	add_message({
+		text: MSG_EQUIP({name: player.dname, iname: item.dname}),
+		type: 'normal'
+	});
 	player.weapon = item;
 	player.weapon.equipped = true;
 	add_message({
-		text: MSG_EQUIP_WEAPON({name: player.weapon.dname, diff: player.weapon.atk}),
+		text: MSG_ATK_INCREASE({name: player.dname, diff: item.atk}),
 		type: 'normal'
 	});
 	statistics.add_action(player.depth, STATS_ACTION_USE);
@@ -525,10 +548,14 @@ async function equip_weapon (item) {
 
 async function unequip_weapon (item) {
 	var old = player.weapon;
+	add_message({
+		text: MSG_UNEQUIP({name: player.dname, iname: old.dname}),
+		type: 'normal'
+	});
 	player.weapon.equipped = false;
 	player.weapon = null;
 	add_message({
-		text: MSG_UNEQUIP_WEAPON({name: old.dname, diff: old.atk}),
+		text: MSG_ATK_DECREASE({name: player.dname, diff: old.atk}),
 		type: 'normal'
 	});
 	statistics.add_action(player.depth, STATS_ACTION_USE);
@@ -540,17 +567,25 @@ async function unequip_weapon (item) {
 async function equip_armor (item) {
 	if (player.armor !== null) {
 		var old = player.armor;
+		add_message({
+			text: MSG_UNEQUIP({name: player.dname, iname: old.dname}),
+			type: 'normal'
+		});	
 		player.armor.equipped = false;
 		player.armor = null;
 		add_message({
-			text: MSG_UNEQUIP_ARMOR({name: old.dname, diff: old.def}),
+			text: MSG_DEF_DECREASE({name: player.dname, diff: old.def}),
 			type: 'normal'
 		});
 	}
+	add_message({
+		text: MSG_EQUIP({name: player.dname, iname: item.dname}),
+		type: 'normal'
+	});
 	player.armor = item;
 	player.armor.equipped = true;
 	add_message({
-		text: MSG_EQUIP_ARMOR({name: player.armor.dname, diff: player.armor.def}),
+		text: MSG_DEF_INCREASE({name: player.dname, diff: item.def}),
 		type: 'normal'
 	});
 	statistics.add_action(player.depth, STATS_ACTION_USE);
@@ -561,10 +596,14 @@ async function equip_armor (item) {
 
 async function unequip_armor (item) {
 	var old = player.armor;
+	add_message({
+		text: MSG_UNEQUIP({name: player.dname, iname: old.dname}),
+		type: 'normal'
+	});	
 	player.armor.equipped = false;
 	player.armor = null;
 	add_message({
-		text: MSG_UNEQUIP_ARMOR({name: old.dname, diff: old.def}),
+		text: MSG_DEF_DECREASE({name: player.dname, diff: old.def}),
 		type: 'normal'
 	});
 	statistics.add_action(player.depth, STATS_ACTION_USE);
@@ -574,6 +613,10 @@ async function unequip_armor (item) {
 }
 
 async function read (item) {
+	add_message({
+		text: MSG_READ({name: player.dname, iname: item.dname}),
+		type: 'normal'
+	});
 	player.items.delete_item(item);
 	if (item.type === I_WEAPON_SCROLL) {
 		if (player.weapon === null) {
@@ -585,7 +628,7 @@ async function read (item) {
 		else {
 			var diff = player.weapon.levelup(1);
 			add_message({
-				text: MSG_READ_WEAPON_SCROLL({name: item.dname, diff}),
+				text: MSG_EQUIPPED_WEAPON_UP({name: player.dname, diff}),
 				type: 'important'
 			});
 		}
@@ -600,7 +643,7 @@ async function read (item) {
 		else {
 			var diff = player.armor.levelup(1);
 			add_message({
-				text: MSG_READ_ARMOR_SCROLL({name: item.dname, diff}),
+				text: MSG_EQUIPPED_ARMOR_UP({name: player.dname, diff}),
 				type: 'important'
 			});
 		}
@@ -659,18 +702,30 @@ async function execute_turn () {
 				table.set(c.attacks[j].type, c.attacks[j].p);
 			}
 			var type = randomselect(table);
-			var dam = calculate_damage(c.atk, 10, player.def);
-			player.hp -= dam;
 			if (type === ATTACK_NORMAL) {
 				add_message({
-					text: MSG_EATTACK({name: c.dname, dam}),
-					type: 'eattack'
+					text: MSG_ATTACK({name: c.dname}),
+					type: 'normal'
 				});
+			}
+			else if (type === ATTACK_POISON) {
+				add_message({
+					text: MSG_POISON_ATTACK({name: c.dname}),
+					type: 'normal'
+				});
+			}
+			var dam = calculate_damage(c.atk, 10, player.def);
+			player.hp -= dam;
+			add_message({
+				text: MSG_DAMAGE({name: player.dname, dam}),
+				type: 'eattack'
+			});
+			if (type === ATTACK_NORMAL) {
 			}
 			else if (type === ATTACK_POISON) {
 				player.poison = true;
 				add_message({
-					text: MSG_EATTACK_POISON({name: c.dname, dam}),
+					text: MSG_POISON({name: player.dname}),
 					type: 'eattack'
 				});
 			}
@@ -681,7 +736,7 @@ async function execute_turn () {
 				player.hp = 0;
 				gameover = true;
 				add_message({
-					text: MSG_DIE,
+					text: MSG_DIE({name: player.dname}),
 					type: 'special'
 				});
 				statistics.add_die(STATS_DIE_KILLED, player);
@@ -761,7 +816,7 @@ async function execute_turn () {
 		player.hp = 0;
 		gameover = true;
 		add_message({
-			text: MSG_DIE,
+			text: MSG_DIE({name: player.dname}),
 			type: 'special'
 		});
 		statistics.add_die(STATS_DIE_FATAL_STATES, player);
@@ -793,7 +848,7 @@ async function execute_turn () {
 		if (Math.random() < player.poison_remedy) {
 			player.poison = false;
 			add_message({
-				text: MSG_POISON_REMEDY,
+				text: MSG_POISON_RECOVERY({name: player.dname}),
 				type: 'normal'
 			});
 		}
