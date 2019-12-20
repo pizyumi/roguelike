@@ -543,7 +543,12 @@ $(function () {
 
 async function auto_forever () {
 	while (autof) {
-		var r = await auto({});
+		var r = await auto({
+			energy: true, 
+			energy_level: 0.2, 
+			rest: true, 
+			rest_level: 0.9
+		});
 		if (r === null || !r || gameover) {
 			autof = !autof;
 			draw();
