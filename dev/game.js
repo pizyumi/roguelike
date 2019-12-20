@@ -158,6 +158,11 @@ async function finish () {
 }
 
 $(function () {
+	axios.get('readme.md', {}).then((res) => {
+		$('#readme').html(marked(res.data));
+	}).catch((err) => {
+	});
+
 	var canvas = document.getElementById('game');
 	con = canvas.getContext('2d');
 
