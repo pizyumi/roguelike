@@ -1,5 +1,6 @@
 var TITLE = 'シンプルローグライク';
 
+var TEXT_VERSION = 'バージョン';
 var TEXT_START = 'はじめる';
 var TEXT_START_AI = 'はじめる（AI）';
 var TEXT_PLAYER = 'あなた';

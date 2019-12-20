@@ -776,6 +776,9 @@ function draw () {
 		con.font = '48px consolas';
 		con.fillText(TITLE, SCREEN_X / 2, SCREEN_Y / 4);
 
+		con.font = '24px consolas';
+		con.fillText(TEXT_VERSION + version, SCREEN_X / 2, SCREEN_Y / 4 + 48);
+
 		con.font = '32px consolas';
 		for (var i = 0; i < title_choices.length; i++) {
 			con.fillText((titleindex === i ? '> ' : '  ') + title_choices[i].text, SCREEN_X / 2, SCREEN_Y / 4 * 3 + (32 + 8) * i);
