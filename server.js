@@ -4,6 +4,7 @@ var bodyparser = require('body-parser');
 var co = require('co');
 var express = require('express');
 var morgan = require('morgan');
+var sanitizefilename = require("sanitize-filename");
 
 var path = require('path');
 
@@ -92,7 +93,10 @@ obj = _.extend(obj, {
         app.post('/add-record', (req, res, next) => {
           co(function* () {
             var record = req.body;
-            var p = path.join('record', record.version, record.name, record.id + '.json');
+            if (record.name === 'anonymous') {
+              record.name = get_ip(req);
+            }
+            var p = path.join('record', record.version, sanitizefilename(record.name), record.id + '.json');
             yield common.save_json_to_path(p, record);
             yield common.send_res_with_json(res, {});
           }).catch(next);
@@ -134,6 +138,22 @@ obj = _.extend(obj, {
     });
   }
 });
+
+function get_ip (req) {
+  if (req.headers['x-forwarded-for']) {
+    return req.headers['x-forwarded-for'];
+  }
+  if (req.connection && req.connection.remoteAddress) {
+    return req.connection.remoteAddress;
+  }
+  if (req.connection.socket && req.connection.socket.remoteAddress) {
+    return req.connection.socket.remoteAddress;
+  }
+  if (req.socket && req.socket.remoteAddress) {
+    return req.socket.remoteAddress;
+  }
+  return '0.0.0.0';
+}
 
 function calculate_stats (ds) {
 	var sum = 0;
