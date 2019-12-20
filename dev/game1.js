@@ -552,10 +552,18 @@ class FMap {
 		this.blocks[x + 1][y] = this.field.blocks[x + 1][y].base;
 		this.blocks[x][y - 1] = this.field.blocks[x][y - 1].base;
 		this.blocks[x][y + 1] = this.field.blocks[x][y + 1].base;
-		this.blocks[x - 1][y - 1] = this.field.blocks[x - 1][y - 1].base;
-		this.blocks[x + 1][y - 1] = this.field.blocks[x + 1][y - 1].base;
-		this.blocks[x - 1][y + 1] = this.field.blocks[x - 1][y + 1].base;
-		this.blocks[x + 1][y + 1] = this.field.blocks[x + 1][y + 1].base;
+		if (B_CAN_STAND[this.blocks[x - 1][y]] || B_CAN_STAND[this.blocks[x][y - 1]]) {
+			this.blocks[x - 1][y - 1] = this.field.blocks[x - 1][y - 1].base;
+		}
+		if (B_CAN_STAND[this.blocks[x + 1][y]] || B_CAN_STAND[this.blocks[x][y - 1]]) {
+			this.blocks[x + 1][y - 1] = this.field.blocks[x + 1][y - 1].base;
+		}
+		if (B_CAN_STAND[this.blocks[x - 1][y]] || B_CAN_STAND[this.blocks[x][y + 1]]) {
+			this.blocks[x - 1][y + 1] = this.field.blocks[x - 1][y + 1].base;
+		}
+		if (B_CAN_STAND[this.blocks[x + 1][y]] || B_CAN_STAND[this.blocks[x][y + 1]]) {
+			this.blocks[x + 1][y + 1] = this.field.blocks[x + 1][y + 1].base;
+		}
 		this.room = null;
 	}
 
