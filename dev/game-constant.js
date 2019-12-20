@@ -204,8 +204,8 @@ E_INFO[E_SPIDER] = {
 	def: 4,
 	exp: 4, 
 	attacks: [
-		{ type: ATTACK_NORMAL, p: 70 }, 
-		{ type: ATTACK_POISON, p: 30 }
+		{ type: ATTACK_NORMAL, p: 90 }, 
+		{ type: ATTACK_POISON, p: 10 }
 	]
 };
 E_INFO[E_SNAKE] = {
@@ -216,8 +216,8 @@ E_INFO[E_SNAKE] = {
 	def: 5,
 	exp: 5, 
 	attacks: [
-		{ type: ATTACK_NORMAL, p: 50 }, 
-		{ type: ATTACK_POISON, p: 50 }
+		{ type: ATTACK_NORMAL, p: 80 }, 
+		{ type: ATTACK_POISON, p: 20 }
 	]
 };
 E_INFO[E_CARACAL] = {
