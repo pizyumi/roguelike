@@ -175,7 +175,7 @@ $(function () {
 		diagonal: false
 	};
 
-	var c = $('body');
+	var c = $(canvas);
 	c.on('keydown', function (e) {
 		if (e.keyCode === 37) {
 			keyl = true;
@@ -211,6 +211,7 @@ $(function () {
 		}
 	});
 	c.on('keydown', function (e) {
+		e.preventDefault();
 		if (screen === SCREEN_TITLE) {
 			if (e.keyCode === 38) {
 				titleindex--;
@@ -535,7 +536,7 @@ $(function () {
 			}
 		}
 	});
-	$(window).on('blur', function (e) {
+	c.on('blur', function (e) {
 		if (env.diagonal) {
 			env.diagonal = false;
 
