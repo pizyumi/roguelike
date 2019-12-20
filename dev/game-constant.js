@@ -58,6 +58,7 @@ var MSG_INIT = ({name}) => `${name}は目覚めました。`;
 var MSG_DIE = ({name}) => `${name}は倒れました。`;
 var MSG_NO_EFFECT = '何も起きませんでした。';
 var MSG_DAMAGE = ({name, dam}) => `${name}は${dam}のダメージを受けました。`;
+var MSG_POISON_DAMAGE = ({name, dam}) => `${name}は毒で${dam}のダメージを受けました。`;
 var MSG_HP_RECOVERY = ({name, diff}) => `${name}はHPが${diff}回復しました。`;
 var MSG_HP_UP = ({name, diff}) => `${name}は最大HPが${diff}上昇しました。`;
 var MSG_ENEGY_RECOVERY = ({name, diff}) => `${name}は満腹度が${diff}回復しました。`;
@@ -79,6 +80,7 @@ var MSG_CANT_PICKUP = ({iname}) => `${iname}を拾おうとしましたが、持
 var MSG_DOWNSTAIR = ({name}) => `${name}は下り階段を降りました。`;
 var MSG_REST = ({name}) => `${name}はほんの少しの間休憩しました。`;
 var MSG_CANT_REST = '休憩の必要はなさそうです。';
+var MSG_HURL = ({name, iname}) => `${name}は${iname}を投げました。`;
 var MSG_PUT = ({name, iname}) => `${name}は${iname}を置きました。`;
 var MSG_EAT = ({name, iname}) => `${name}は${iname}を食べました。`;
 var MSG_QUAFF = ({name, iname}) => `${name}は${iname}を飲みました。`;
@@ -122,6 +124,7 @@ var ACTION_QUAFF = '飲む';
 var ACTION_EQUIP = '装備する';
 var ACTION_UNEQUIP = '外す';
 var ACTION_READ = '読む';
+var ACTION_HURL = '投げる';
 var ACTION_PUT = '置く';
 
 var SCREEN_X = 1600;

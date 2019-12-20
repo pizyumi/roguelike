@@ -408,8 +408,120 @@ function get_item_actions (item) {
 	else {
 		throw new Error('not supported.');
 	}
+	actions.push({ name: 'hurl', dname: ACTION_HURL, exec: async (i) => await hurl(i) });	
 	actions.push({ name: 'put', dname: ACTION_PUT, exec: async (i) => await put(i) });
 	return actions;
+}
+
+async function hurl (item) {
+	add_message({
+		text: MSG_HURL({name: player.dname, iname: item.dname}),
+		type: 'normal'
+	});
+	player.items.delete_item(item);
+	var blocks = fields[player.depth].blocks;
+	var max = Math.floor(5 * (1 + player.str * 0.02));
+	var { dx, dy } = direction_to_delta(player.direction);
+	var x = player.x;
+	var y = player.y;
+	for (var i = 1; i <= max; i++) {
+		if (B_CAN_STAND[blocks[x + dx][y + dy].base]) {
+			var index = get_npc_index(x + dx, y + dy);
+			if (index === null) {
+				x += dx;
+				y += dy;
+			}
+			else {
+				if (item.cat === I_CAT_FOOD) {
+					return await attack(index, item.weight * 10 + 4);
+				}
+				else if (item.cat === I_CAT_POTION) {
+					var c = fields[player.depth].npcs[index];				
+					if (item.type === I_HEALTH_POTION) {
+						var old = c.hp;
+						c.hp += item.level * 10;
+						if (c.hp >= c.hpfull) {
+							c.hp = c.hpfull;
+							c.hp_fraction = 0;
+						}
+						add_message({
+							text: MSG_HP_RECOVERY({name: c.dname, diff: c.hp - old}),
+							type: 'normal'
+						});
+					}
+					else if (item.type === I_HP_UP_POTION) {
+						var old = c.hpfull;
+						c.hpext += Math.ceil(c.hpfull * 0.1);
+						add_message({
+							text: MSG_HP_UP({name: c.dname, diff: c.hpfull - old}),
+							type: 'normal'
+						});
+					}
+					else if (item.type === I_POISON_POTION) {
+						if (c.poison) {
+							add_message({
+								text: MSG_NO_EFFECT,
+								type: 'important'
+							});
+						}
+						else {
+							c.poison = true;
+							add_message({
+								text: MSG_POISON({name: c.dname}),
+								type: 'normal'
+							});	
+						}				
+					}
+					else if (item.type === I_ANTIDOTE_POTION) {
+						if (c.poison) {
+							c.poison = false;
+							add_message({
+								text: MSG_POISON_RECOVERY({name: c.dname}),
+								type: 'normal'
+							});
+						}
+						else {
+							add_message({
+								text: MSG_NO_EFFECT,
+								type: 'important'
+							});
+						}				
+					}
+					else {
+						throw new Error('not supported.');
+					}
+					statistics.add_action(player.depth, STATS_ACTION_USE);
+					await execute_turn();
+					draw();
+					return true;
+				}
+				else if (item.cat === I_CAT_WEAPON) {
+					return await attack(index, item.atk + 4);
+				}
+				else if (item.cat === I_CAT_ARMOR) {
+					return await attack(index, item.def + 4);
+				}
+				else if (item.cat === I_CAT_SCROLL) {
+					return await attack(index, item.weight * 10 + 4);
+				}
+				else {
+					throw new Error('not supported.');
+				}
+			}
+		}
+		else {
+			break;
+		}
+	}
+	var block = blocks[x][y];
+	if (!block.items) {
+		block.items = [];
+	}
+	block.items.push(item);
+	statistics.add_action(player.depth, STATS_ACTION_HURL);
+	await execute_turn();
+	draw();
+	return true;
 }
 
 async function put (item) {
@@ -855,6 +967,50 @@ async function execute_turn () {
 	}
 
 	player.maps[player.depth].update(player.x, player.y);
+
+	var dies = [];
+	for (var i = 0; i < npcs.length; i++) {
+		var c = npcs[i];
+		var damages = c.next_hp();
+		if (damages.poison > 0) {
+			add_message({
+				text: MSG_POISON_DAMAGE({name: c.dname, dam: damages.poison}),
+				type: 'normal'
+			});
+		}
+		if (c.hp <= 0) {
+			dies.push(c);
+			player.exp += c.exp;
+			add_message({
+				text: MSG_DIE({name: c.dname}),
+				type: 'important'
+			});
+			add_message({
+				text: MSG_EXP({name: player.dname, exp: c.exp}),
+				type: 'normal'
+			});
+			statistics.add_fight(player.depth, c, STATS_FIGHT_KILLED, 0);	
+			while (player.levelup()) {
+				add_message({
+					text: MSG_LEVELUP({level: player.level}),
+					type: 'important'
+				});
+			}
+			continue;
+		}
+		if (c.poison) {
+			if (Math.random() < c.poison_remedy) {
+				c.poison = false;
+				add_message({
+					text: MSG_POISON_RECOVERY({name: c.dname}),
+					type: 'normal'
+				});
+			}
+		}
+	}
+	for (var i = 0; i < dies.length; i++) {
+		npcs.splice(npcs.indexOf(dies[i]), 1);
+	}
 }
 
 function calculate_damage (atk, str, def) {

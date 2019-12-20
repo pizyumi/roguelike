@@ -849,8 +849,13 @@ class Enemy {
 		}
 
 		this.hp = this.hpfull;
+		this.hp_fraction = 0;
 		this.atk = this.atkfull;
 		this.def = this.deffull;
+
+		this.poison = false;
+		this.poison_strength = 1;
+		this.poison_remedy = 0.05;
 	}
 
 	get hpfull () {
@@ -863,6 +868,20 @@ class Enemy {
 
 	get deffull () {
 		return this.defbase + this.defext;
+	}
+
+	next_hp () {
+		var damages = {};
+		if (this.poison) {
+			var old = this.hp;
+			this.hp_fraction -= this.hpfull * 0.01 * this.poison_strength;
+			while (this.hp_fraction <= -1) {
+				this.hp--;
+				this.hp_fraction += 1;
+			}
+			damages.poison = old - this.hp;
+		}
+		return damages;
 	}
 }
 
