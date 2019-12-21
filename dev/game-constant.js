@@ -60,9 +60,12 @@ var MSG_DIE = ({name}) => `${name}は倒れました。`;
 var MSG_NO_EFFECT = '何も起きませんでした。';
 var MSG_DAMAGE = ({name, dam}) => `${name}は${dam}のダメージを受けました。`;
 var MSG_POISON_DAMAGE = ({name, dam}) => `${name}は毒で${dam}のダメージを受けました。`;
+var MSG_TRAP = ({name, tname}) => `${name}は${tname}を踏みました。`;
+var MSG_TRAP_BREAK = ({tname}) => `${tname}は壊れました。`;
 var MSG_HP_RECOVERY = ({name, diff}) => `${name}はHPが${diff}回復しました。`;
 var MSG_HP_UP = ({name, diff}) => `${name}は最大HPが${diff}上昇しました。`;
 var MSG_ENEGY_RECOVERY = ({name, diff}) => `${name}は満腹度が${diff}回復しました。`;
+var MSG_ENEGY_DECREASE = ({name, diff}) => `${name}は満腹度が${diff}減少しました。`;
 var MSG_ATK_INCREASE = ({name, diff}) => `${name}は攻撃力が${diff}増加しました。`;
 var MSG_ATK_DECREASE = ({name, diff}) => `${name}は攻撃力が${diff}減少しました。`;
 var MSG_DEF_INCREASE = ({name, diff}) => `${name}は防御力が${diff}増加しました。`;
@@ -101,6 +104,10 @@ var E_SNAKE_NAME = 'ヘビ';
 var E_CARACAL_NAME = 'カラカル';
 var E_WOLF_NAME = 'オオカミ';
 var E_GOBLIN_NAME = 'ゴブリン';
+
+var T_HP_RECOVERY_NAME = '回復の罠';
+var T_DAMAGE_NAME = 'ダメージの罠';
+var T_ENERGY_DECREASE_NAME = '腹減りの罠';
 
 var I_APPLE_NAME = 'リンゴ';
 var I_HEALTH_POTION_NAME = '回復薬';
@@ -253,6 +260,24 @@ E_INFO[E_GOBLIN] = {
 	attacks: [
 		{ type: ATTACK_NORMAL, p: 100 }
 	]
+};
+
+var T_HP_RECOVERY = 0;
+var T_DAMAGE = 1;
+var T_ENERGY_DECREASE = 2;
+
+var T_INFO = [];
+T_INFO[T_HP_RECOVERY] = {
+	dname: T_HP_RECOVERY_NAME, 
+	break: 1.0
+};
+T_INFO[T_DAMAGE] = {
+	dname: T_DAMAGE_NAME, 
+	break: 0.3
+};
+T_INFO[T_ENERGY_DECREASE] = {
+	dname: T_ENERGY_DECREASE_NAME, 
+	break: 0.3
 };
 
 var B_FLOOR = 0;

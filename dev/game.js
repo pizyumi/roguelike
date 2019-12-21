@@ -861,6 +861,20 @@ function draw () {
 					else if (block.base === B_DOWNSTAIR) {
 						con.drawImage(img_field, 4 * 32, 5 * 32, 32, 32, i * PX, j * PY, PX, PY);
 					}
+
+					con.fillStyle = 'red';
+					con.strokeStyle = 'red';
+					if (block.trap) {
+						if (block.trap.activated) {
+							con.beginPath();
+							con.moveTo(i * PX + (PX / 8 * 3), j * PY + (PY / 8 * 3));
+							con.lineTo(i * PX + (PY / 8 * 5), j * PY + (PY / 8 * 5));
+							con.moveTo(i * PX + (PY / 8 * 5), j * PY + (PY / 8 * 3));
+							con.lineTo(i * PX + (PX / 8 * 3), j * PY + (PY / 8 * 5));
+							con.closePath();
+							con.stroke();
+						}
+					}
 	
 					if (block.items) {
 						for (var k = 0; k < block.items.length; k++) {

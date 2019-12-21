@@ -767,6 +767,55 @@ async function read (item) {
 async function execute_turn () {
 	statistics.add_turn(player.depth);
 
+	var block = fields[player.depth].blocks[player.x][player.y];
+	if (block.trap) {
+		block.trap.activated = true;
+		add_message({
+			text: MSG_TRAP({name: player.dname, tname: block.trap.dname}),
+			type: 'normal'
+		});
+		if (block.trap.type === T_HP_RECOVERY) {
+			var diff = player.increase_hp(Math.floor(Math.random() * 30) + 1);
+			add_message({
+				text: MSG_HP_RECOVERY({name: player.dname, diff}),
+				type: 'normal'
+			});
+		}
+		else if (block.trap.type === T_DAMAGE) {
+			var dam = Math.floor(Math.random() * 10) + 1;
+			player.hp -= dam;
+			add_message({
+				text: MSG_DAMAGE({name: player.dname, dam}),
+				type: 'eattack'
+			});
+			if (player.hp <= 0) {
+				player.hp = 0;
+				gameover = true;
+				add_message({
+					text: MSG_DIE({name: player.dname}),
+					type: 'special'
+				});
+				statistics.add_die(STATS_DIE_TRAP, player);
+				return;
+			}
+		}
+		else if (block.trap.type === T_ENERGY_DECREASE) {
+			var diff = player.decrease_energy(Math.floor(Math.random() * 30) + 1);
+			add_message({
+				text: MSG_ENEGY_DECREASE({name: player.dname, diff}),
+				type: 'normal'
+			});
+		}
+		if (Math.random() < block.trap.break) {
+			var old = block.trap.dname;
+			block.trap = undefined;
+			add_message({
+				text: MSG_TRAP_BREAK({tname: old}),
+				type: 'normal'
+			});
+		}
+	}
+
 	var npcs = fields[player.depth].npcs;
 	for (var i = 0; i < npcs.length; i++) {
 		var c = npcs[i];

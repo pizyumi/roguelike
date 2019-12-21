@@ -12,6 +12,7 @@ var STATS_ACTION_USE = 6;
 
 var STATS_DIE_KILLED = 0;
 var STATS_DIE_FATAL_STATES = 1;
+var STATS_DIE_TRAP = 2;
 
 class Statistics {
 	constructor () {

@@ -122,6 +122,28 @@ function create_field (depth, upstairs, base_seed) {
 			}
 		}
 
+		var ntable = new Map();
+		ntable.set(0, 60);
+		ntable.set(1, 30);
+		ntable.set(2, 10);
+		var num_trap = random.select(ntable);
+		for (var j = 0; j < num_trap; j++) {
+			var x = random.num(rooms[i].x2 - rooms[i].x1) + rooms[i].x1;
+			var y = random.num(rooms[i].y2 - rooms[i].y1) + rooms[i].y1;
+			var ttable = new Map();
+			ttable.set(T_HP_RECOVERY, 20);
+			ttable.set(T_DAMAGE, 60);
+			ttable.set(T_ENERGY_DECREASE, 20);
+			var type = random.select(ttable);
+			var info = T_INFO[type];
+			blocks[x][y].trap = {
+				type: type, 
+				dname: info.dname, 
+				break: info.break, 
+				activated: false
+			};
+		}
+
 		var num_item = Math.floor(random.fraction() + 0.5);
 		for (var j = 0; j < num_item; j++) {
 			var x = random.num(rooms[i].x2 - rooms[i].x1) + rooms[i].x1;
@@ -833,6 +855,16 @@ class Player {
 			this.energy_turn = 0;
 		}
 		return this.energy - old;
+	}
+
+	decrease_energy (max) {
+		var old = this.energy;
+		this.energy -= max;
+		if (this.energy <= 0) {
+			this.energy = 0;
+			this.energy_turn = 0;
+		}
+		return old - this.energy;
 	}
 }
 
