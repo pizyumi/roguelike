@@ -815,6 +815,16 @@ class Player {
 		}
 	}
 
+	increase_hp (max) {
+		var old = this.hp;
+		this.hp += max;
+		if (this.hp >= this.hpfull) {
+			this.hp = this.hpfull;
+			this.hp_fraction = 0;
+		}
+		return this.hp - old;
+	}
+
 	increase_energy (max) {
 		var old = this.energy;
 		this.energy += max;

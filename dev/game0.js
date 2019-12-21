@@ -570,14 +570,9 @@ async function quaff (item) {
 	});
 	player.items.delete_item(item);
 	if (item.type === I_HEALTH_POTION) {
-		var old = player.hp;
-		player.hp += item.level * 10;
-		if (player.hp >= player.hpfull) {
-			player.hp = player.hpfull;
-			player.hp_fraction = 0;
-		}
+		var diff = player.increase_hp(item.level * 10);
 		add_message({
-			text: MSG_HP_RECOVERY({name: player.dname, diff: player.hp - old}),
+			text: MSG_HP_RECOVERY({name: player.dname, diff}),
 			type: 'normal'
 		});
 	}
