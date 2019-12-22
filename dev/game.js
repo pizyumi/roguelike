@@ -1174,7 +1174,10 @@ function draw () {
 					con.fillStyle = 'gray';
 				}
 				else if (mblock === B_FLOOR) {
-					if (block.items && block.items.length > 0) {
+					if (block.trap && block.trap.activated) {
+						con.fillStyle = 'gray';
+					}
+					else if (block.items && block.items.length > 0) {
 						con.fillStyle = 'yellow';
 					}
 					else if (room !== null && within_room_surrounding(i, j, room)) {
