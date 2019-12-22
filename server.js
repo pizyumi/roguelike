@@ -21,8 +21,9 @@ obj = _.extend(obj, {
         app.set('case sensitive routing', true);
         app.set('strict routing', true);
         app.use(morgan('dev'));
-        app.use('/', express.static('release'));
-        app.use('/', express.static('release/0.1pre1'));
+        app.use('/roguelike', express.static('web'));
+        app.use('/roguelike', express.static('release'));
+        app.use('/roguelike', express.static('release/0.1'));
         app.use('/lib', express.static('lib'));
         app.use('/img', express.static('img'));
         app.use('/mp3', express.static('mp3'));
