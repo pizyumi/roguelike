@@ -1,17 +1,13 @@
 var _ = require('underscore');
 var co = require('co');
 
-var path = require('path');
-
-var common = require('./common');
+var config = require('./config');
 var db = require('./db');
 var server = require('./server');
 
 module.exports = async () => {
-  var configp = path.join('config', 'config.json');
-  var config = await common.load_json_from_path(configp);
-
-  var d = await db.connect(config);
+  var c = await config.get();
+  var d = await db.connect(c);
   var s = await server.start();
   var end_server_once = _.once(server.end);
   var disconnect_db_once = _.once(db.disconnect);
