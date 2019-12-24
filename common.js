@@ -46,4 +46,12 @@ obj = _.extend(obj, {
     }
 });
 
+obj = _.extend(obj, {
+    execute_sql: async (db, sql) => {
+        console.log(sql.yellow);
+
+        return await db.query(sql);
+    }
+});
+
 module.exports = obj;
