@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="/lib/bootstrap.min.css" rel="stylesheet">
+	<title>シンプルローグライク</title>
+	<style>
+	</style>
+</head>
+<script src="/lib/jquery.min.js"></script>
+<script src="/lib/vue.min.js"></script>
+<script src="/lib/popper.min.js"></script>
+<script src="/lib/bootstrap.min.js"></script>
+<body>
+	<div class="container">
+		<div class="row">
+			<h1>シンプルローグライク</h1>
+		</div>
+		<div class="row">
+			<div class="col-sm">
+				<h2>新規登録</h2>
+			</div>
+			<div class="col-sm">
+				<h2>ログイン</h2>
+				<form action="/login" method="post">
+					<p>
+					  <label for="name">ID</label>
+					  <input type="text" id="name" class="form-control" name="name" size="20">
+					</p>
+					<p>
+					  <label for="password">パスワード</label>
+					  <input type="password" id="password" class="form-control" name="password" size="20">
+					</p>
+					<p>
+					  <button type="submit" class="btn btn-primary" name="login" value="login">ログイン</button>
+					</p>
+					<% for (var i = 0; i < errors.length; i++) { -%>
+						<p class="text-danger"><%- errors[i] %></p>
+					<% } -%>				  
+				  </form>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

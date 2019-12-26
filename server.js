@@ -2,25 +2,146 @@ var _ = require('underscore');
 var bluebird = require('bluebird');
 var bodyparser = require('body-parser');
 var co = require('co');
+var connectflash = require('connect-flash');
+var connectredis = require('connect-redis');
 var express = require('express');
+var expresssession = require('express-session');
 var morgan = require('morgan');
+var passport = require('passport');
+var passportlocal = require('passport-local');
+var redis = require('redis');
 var sanitizefilename = require("sanitize-filename");
 
 var path = require('path');
 
 var common = require('./common');
 
+var MSG_NAME = 'ユーザーIDを入力してください。';
+var MSG_PASSWORD = 'パスワードを入力してください。';
+var MSG_WRONG_ID_PASSWORD = 'ユーザーIDかパスワードが間違っています。';
+
 var obj = {};
 
 obj = _.extend(obj, {
-    start: () => {
+    start: (c, d) => {
         return new bluebird((resolve, reject) => {
             co(function* () {
+                passport.use(new passportlocal.Strategy({
+                    usernameField: 'name',
+                    passwordField: 'password',
+                    passReqToCallback: true
+                }, (req, name, password, done) => {
+                    if (name === '') {
+                        done(null, false, { message: MSG_NAME });
+                    }
+                    else if (password === '') {
+                        done(null, false, { message: MSG_PASSWORD });
+                    }
+                    else {
+                        co(function* () {
+                            var user = yield common.get_item(d, 't_user', { name });
+                            if (user === null) {
+                                done(null, false, { message: MSG_WRONG_ID_PASSWORD });
+                            }
+                            else {
+                                if (password !== user.password) {
+                                    done(null, false, { message: MSG_WRONG_ID_PASSWORD });
+                                }
+                                else {
+                                    done(null, user);
+                                }
+                            }
+                        }).catch(done);
+                    }
+                }));
+                passport.serializeUser((user, done) => {
+                    done(null, user.id);
+                });
+                passport.deserializeUser((id, done) => {
+                    co(function* () {
+                        var user = yield common.get_item(d, 't_user', { id });
+                        if (user === null) {
+                            done(null, {});
+                        }
+                        else {
+                            done(null, user);
+                        }
+                    }).catch(done);
+                });
+
+                var RedisStore = connectredis(expresssession);
+
                 var app = express();
                 app.set('x-powered-by', false);
                 app.set('case sensitive routing', true);
                 app.set('strict routing', true);
                 app.use(morgan('dev'));
+                app.use(expresssession({
+                    store: new RedisStore({ client: redis.createClient() }),
+                    secret: c.session.secret,
+                    resave: false,
+                    saveUninitialized: false
+                }));
+                app.use(connectflash());
+                app.use(passport.initialize());
+                app.use(passport.session());
+                app.use((req, res, next) => {
+                    req.roles = [];
+                    if (req.user) {
+                        req.roles.push('login');
+                        if (req.user.id === 1) {
+                            req.roles.push('administrator');
+                        }
+                    }
+                    next();
+                });
+
+                var loginpage = '/roguelike';
+
+                app.post('/login', bodyparser.urlencoded({ extended: true }), (req, res, next) => {
+                    co(function* () {
+                        if (req.body.name === '') {
+                            req.flash('error', MSG_NAME);
+                            res.redirect(loginpage);
+                        }
+                        else if (req.body.password === '') {
+                            req.flash('error', MSG_PASSWORD);
+                            res.redirect(loginpage);
+                        }
+                        else {
+                            next();
+                        }
+                    }).catch(next);
+                }, passport.authenticate('local', {
+                    successRedirect: '/dashboard',
+                    successFlash: '',
+                    failureRedirect: loginpage,
+                    failureFlash: true
+                }));
+                app.get('/logout', (req, res, next) => {
+                    req.logout();
+                    res.redirect(loginpage);
+                });
+                app.get(loginpage, (req, res, next) => {
+                    co(function* () {
+                        var p = path.join('server', 'roguelike.ejs');
+                        var data = {
+                            errors: req.flash('error')
+                        };
+                        yield common.send_res_with_html_ejs_from_path(res, p, data);
+                    }).catch(next);
+                });
+                app.get('/dashboard', (req, res, next) => {
+                    co(function* () {
+                        if (req.roles.includes('login')) {
+                            var p = path.join('server', 'dashboard.ejs');
+                            yield common.send_res_with_html_ejs_from_path(res, p, {});    
+                        }
+                        else {
+                            res.redirect(loginpage);
+                        }
+                    }).catch(next);
+                });
                 app.use('/roguelike', express.static('web'));
                 app.use('/roguelike', express.static('release'));
                 app.use('/roguelike', express.static('release/0.1'));

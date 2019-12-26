@@ -8,7 +8,7 @@ var server = require('./server');
 module.exports = async () => {
   var c = await config.get();
   var d = await db.connect(c);
-  var s = await server.start();
+  var s = await server.start(c, d);
   var end_server_once = _.once(server.end);
   var disconnect_db_once = _.once(db.disconnect);
 
