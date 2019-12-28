@@ -238,7 +238,7 @@ obj = _.extend(obj, {
                         }
                     }).catch(next);
                 });
-                var server = app.listen(process.env.PORT || 80, () => {
+                var server = app.listen(process.env.PORT || 3000, () => {
                     resolve(server);
                 });
                 server.on('error', (err) => {
