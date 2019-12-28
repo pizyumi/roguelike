@@ -285,7 +285,7 @@ $(function () {
 				return;
 			}
 			else {
-				if (e.keyCode === 65) {
+				if (debug && e.keyCode === 65) {
 					autof = !autof;
 					auto_forever();
 					draw();
