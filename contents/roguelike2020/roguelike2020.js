@@ -16,7 +16,7 @@ obj = _.extend(obj, {
         app.use('/lib', express.static(path.join(__dirname, 'lib')));
         app.use('/img', express.static(path.join(__dirname, 'img')));
         app.use('/mp3', express.static(path.join(__dirname, 'mp3')));
-        app.use('/dev', express.static(path.join(__dirname, 'dev')));
+        app.use('/', express.static(path.join(__dirname, 'main')));
         app.get('/get-versions', (req, res, next) => {
             co(function* () {
                 var p = path.join(__dirname, 'record');
