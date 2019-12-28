@@ -6,38 +6,37 @@ var db = require('./db');
 var server = require('./server');
 
 module.exports = async () => {
-  var c = await config.get();
-  var d = await db.connect(c);
-  var s = await server.start(c, d);
-  var end_server_once = _.once(server.end);
-  var disconnect_db_once = _.once(db.disconnect);
-
-  console.log('http server is running...press enter key to exit.');
-  process.on('SIGTERM', () => {
-    co(function* () {
-      yield end_server_once(s);
-      yield disconnect_db_once(d);
-      process.exit(0);
+    var c = await config.get();
+    var d = await db.connect(c);
+    var s = await server.start(c, d);
+    var end_server_once = _.once(server.end);
+    var disconnect_db_once = _.once(db.disconnect);
+    console.log('http server is running...press enter key to exit.');
+    process.on('SIGTERM', () => {
+        co(function* () {
+            yield end_server_once(s);
+            yield disconnect_db_once(d);
+            process.exit(0);
+        });
     });
-  });
-  process.stdin.on('data', (data) => {
-    if (data.indexOf('\n') !== -1) {
-      co(function* () {
-        yield end_server_once(s);
-        yield disconnect_db_once(d);
-        process.exit(0);
-      });
-    }
-  });
+    process.stdin.on('data', (data) => {
+        if (data.indexOf('\n') !== -1) {
+            co(function* () {
+                yield end_server_once(s);
+                yield disconnect_db_once(d);
+                process.exit(0);
+            });
+        }
+    });
 };
 
 async function main() {
-  await module.exports();
+    await module.exports();
 }
 
 if (module.parent === null) {
-  main().catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+    main().catch((err) => {
+        console.error(err);
+        process.exit(1);
+    });
 }
