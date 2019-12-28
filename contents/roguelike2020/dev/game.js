@@ -1,6 +1,6 @@
 var query = get_query();
 
-var version = '0.1pre1';
+var version = 'dev-0.1';
 var debug = query.debug ? true : version.substring(0, 3) === 'dev';
 
 var img_player = new Image();
