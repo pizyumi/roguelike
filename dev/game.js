@@ -263,7 +263,6 @@ $(function () {
 
 			if (gameover) {
 				if (e.keyCode === 90) {
-					finish();
 					screen = SCREEN_TITLE;
 					titleindex = 0;
 					draw();

@@ -790,12 +790,13 @@ async function execute_turn () {
 			});
 			if (player.hp <= 0) {
 				player.hp = 0;
-				gameover = true;
 				add_message({
 					text: MSG_DIE({name: player.dname}),
 					type: 'special'
 				});
 				statistics.add_die(STATS_DIE_TRAP, player);
+				gameover = true;
+				finish();
 				return;
 			}
 		}
@@ -890,12 +891,13 @@ async function execute_turn () {
 			statistics.add_fight(player.depth, c, STATS_FIGHT_INBOUND, dam);
 			if (player.hp <= 0) {
 				player.hp = 0;
-				gameover = true;
 				add_message({
 					text: MSG_DIE({name: player.dname}),
 					type: 'special'
 				});
 				statistics.add_die(STATS_DIE_KILLED, player);
+				gameover = true;
+				finish();
 				return;
 			}
 		}
@@ -970,12 +972,13 @@ async function execute_turn () {
 	player.next_hp();
 	if (player.hp <= 0) {
 		player.hp = 0;
-		gameover = true;
 		add_message({
 			text: MSG_DIE({name: player.dname}),
 			type: 'special'
 		});
 		statistics.add_die(STATS_DIE_FATAL_STATES, player);
+		gameover = true;
+		finish();
 		return;
 	}
 
