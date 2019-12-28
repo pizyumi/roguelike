@@ -3,13 +3,16 @@ var co = require('co');
 
 var config = require('./config');
 var db = require('./db');
+var roguelike2020 = require('./contents/roguelike2020/roguelike2020');
 var web = require('./web');
 var server = require('./server');
 
 module.exports = async () => {
     var c = await config.get();
     var d = await db.connect(c);
-    var w = await web.get(c, []);
+    var w = await web.get(c, [
+        await roguelike2020.get()
+    ]);
     var s = await server.start(c, w);
     var end_server_once = _.once(server.end);
     var disconnect_db_once = _.once(db.disconnect);
