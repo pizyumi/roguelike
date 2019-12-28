@@ -3,15 +3,18 @@ var co = require('co');
 
 var config = require('./config');
 var db = require('./db');
+var web = require('./web');
 var server = require('./server');
 
 module.exports = async () => {
     var c = await config.get();
     var d = await db.connect(c);
-    var s = await server.start(c, d);
+    var w = await web.get([]);
+    var s = await server.start(c, w);
     var end_server_once = _.once(server.end);
     var disconnect_db_once = _.once(db.disconnect);
-    console.log('http server is running...press enter key to exit.');
+
+    console.log('press enter key to exit.');
     process.on('SIGTERM', () => {
         co(function* () {
             yield end_server_once(s);
