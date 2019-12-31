@@ -106,19 +106,7 @@ function create_field (depth, upstairs, base_seed) {
 				}
 			}
 			if (f) {
-				var ltable = new Map();
-				ltable.set(random.num(depth), 3);
-				ltable.set(depth, 60);
-				ltable.set(depth + 1, 30);
-				ltable.set(depth + 2, 4);
-				ltable.set(depth + 3, 3);
-				var baselevel = random.select(ltable);
-				var type = Math.floor(random.num(depth + 1) / 2);
-				if (type > 7) {
-					type = 7;
-				}
-				var level = baselevel - type;
-				npcs.push(new Enemy(type, x, y, level));
+				put_enemy(depth, x, y, npcs, random);
 			}
 		}
 
@@ -130,125 +118,14 @@ function create_field (depth, upstairs, base_seed) {
 		for (var j = 0; j < num_trap; j++) {
 			var x = random.num(rooms[i].x2 - rooms[i].x1) + rooms[i].x1;
 			var y = random.num(rooms[i].y2 - rooms[i].y1) + rooms[i].y1;
-			var ttable = new Map();
-			ttable.set(T_HP_RECOVERY, 20);
-			ttable.set(T_DAMAGE, 60);
-			ttable.set(T_ENERGY_DECREASE, 20);
-			var type = random.select(ttable);
-			var info = T_INFO[type];
-			blocks[x][y].trap = {
-				type: type, 
-				dname: info.dname, 
-				break: info.break, 
-				activated: false
-			};
+			put_trap(depth, x, y, blocks, random);
 		}
 
 		var num_item = Math.floor(random.fraction() + 0.5);
 		for (var j = 0; j < num_item; j++) {
 			var x = random.num(rooms[i].x2 - rooms[i].x1) + rooms[i].x1;
 			var y = random.num(rooms[i].y2 - rooms[i].y1) + rooms[i].y1;
-			if (!blocks[x][y].items) {
-				blocks[x][y].items = [];
-			}
-
-			var ctable = new Map();
-			ctable.set(I_CAT_FOOD, 25);
-			ctable.set(I_CAT_POTION, 45);
-			if (depth >= 2) {
-				ctable.set(I_CAT_WEAPON, 10);
-				ctable.set(I_CAT_ARMOR, 10);
-				ctable.set(I_CAT_SCROLL, 10);
-			}
-			var cat = random.select(ctable);
-			if (cat === I_CAT_FOOD) {
-				var itable = new Map();
-				itable.set(I_APPLE, 100);
-				var type = random.select(itable);
-				blocks[x][y].items.push(new Item(type, cat));
-			}
-			else if (cat === I_CAT_POTION) {
-				var itable = new Map();
-				itable.set(I_HEALTH_POTION, 70);
-				if (depth >= 3) {
-					itable.set(I_HP_UP_POTION, 10);
-				}
-				if (depth >= 4) {
-					itable.set(I_POISON_POTION, 10);
-					itable.set(I_ANTIDOTE_POTION, 10);
-				}
-				var type = random.select(itable);
-				if (type === I_HEALTH_POTION) {
-					var e = I_INFO[type];
-					var baselevel = Math.ceil(depth / 4);
-					var ltable = new Map();
-					ltable.set(random.num(baselevel) + 1, 75);
-					ltable.set(baselevel + 1, 20);
-					ltable.set(baselevel + 2, 5);
-					var level = random.select(ltable);
-					blocks[x][y].items.push(new HealthPotion(type, cat, level));	
-				}
-				else {
-					blocks[x][y].items.push(new Item(type, cat));
-				}
-			}
-			else if (cat === I_CAT_WEAPON) {
-				var itable = new Map();
-				itable.set(I_DAGGER, 1);
-				if (depth >= 5) {
-					itable.set(I_SHORT_SWORD, 1);
-				}
-				if (depth >= 7) {
-					itable.set(I_RAPIER, 1);
-				}
-				if (depth >= 9) {
-					itable.set(I_FALCHION, 1);
-				}
-				if (depth >= 11) {
-					itable.set(I_LONG_SWORD, 1);
-				}
-				var type = random.select(itable);
-				var e = I_INFO[type];
-				var baselevel = Math.ceil(depth / 2);
-				var ltable = new Map();
-				ltable.set(random.num(baselevel) + 1, 75);
-				ltable.set(baselevel + 1, 20);
-				ltable.set(baselevel + 2, 5);
-				var level = Math.max(random.select(ltable) - e.level, 0);
-				blocks[x][y].items.push(new Weapon(type, cat, level));
-			}
-			else if (cat === I_CAT_ARMOR) {
-				var itable = new Map();
-				itable.set(I_LEATHER_ARMOR, 1);
-				if (depth >= 5) {
-					itable.set(I_RIVET_ARMOR, 1);
-				}
-				if (depth >= 7) {
-					itable.set(I_SCALE_ARMOR, 1);
-				}
-				if (depth >= 9) {
-					itable.set(I_CHAIN_MAIL, 1);
-				}
-				if (depth >= 11) {
-					itable.set(I_PLATE_ARMOR, 1);
-				}
-				var type = random.select(itable);
-				var e = I_INFO[type];
-				var baselevel = Math.ceil(depth / 2);
-				var ltable = new Map();
-				ltable.set(random.num(baselevel) + 1, 75);
-				ltable.set(baselevel + 1, 20);
-				ltable.set(baselevel + 2, 5);
-				var level = Math.max(random.select(ltable) - e.level, 0);
-				blocks[x][y].items.push(new Armor(type, cat, level));
-			}
-			else if (cat === I_CAT_SCROLL) {
-				var itable = new Map();
-				itable.set(I_WEAPON_SCROLL, 1);
-				itable.set(I_ARMOR_SCROLL, 1);
-				var type = random.select(itable);
-				blocks[x][y].items.push(new Item(type, cat));
-			}
+			put_item(depth, x, y, blocks, random);
 		}
 	}
 
@@ -265,6 +142,140 @@ function create_field (depth, upstairs, base_seed) {
 		rooms: rooms,
 		npcs: npcs
 	};
+}
+
+function put_enemy (depth, x, y, npcs, random) {
+	var ltable = new Map();
+	ltable.set(random.num(depth), 3);
+	ltable.set(depth, 60);
+	ltable.set(depth + 1, 30);
+	ltable.set(depth + 2, 4);
+	ltable.set(depth + 3, 3);
+	var baselevel = random.select(ltable);
+	var type = Math.floor(random.num(depth + 1) / 2);
+	if (type > 7) {
+		type = 7;
+	}
+	var level = baselevel - type;
+	npcs.push(new Enemy(type, x, y, level));
+}
+
+function put_trap (depth, x, y, blocks, random) {
+	var ttable = new Map();
+	ttable.set(T_HP_RECOVERY, 20);
+	ttable.set(T_DAMAGE, 60);
+	ttable.set(T_ENERGY_DECREASE, 20);
+	var type = random.select(ttable);
+	var info = T_INFO[type];
+	blocks[x][y].trap = {
+		type: type, 
+		dname: info.dname, 
+		break: info.break, 
+		activated: false
+	};
+}
+
+function put_item (depth, x, y, blocks, random) {
+	if (!blocks[x][y].items) {
+		blocks[x][y].items = [];
+	}
+	var ctable = new Map();
+	ctable.set(I_CAT_FOOD, 25);
+	ctable.set(I_CAT_POTION, 45);
+	if (depth >= 2) {
+		ctable.set(I_CAT_WEAPON, 10);
+		ctable.set(I_CAT_ARMOR, 10);
+		ctable.set(I_CAT_SCROLL, 10);
+	}
+	var cat = random.select(ctable);
+	if (cat === I_CAT_FOOD) {
+		var itable = new Map();
+		itable.set(I_APPLE, 100);
+		var type = random.select(itable);
+		blocks[x][y].items.push(new Item(type, cat));
+	}
+	else if (cat === I_CAT_POTION) {
+		var itable = new Map();
+		itable.set(I_HEALTH_POTION, 70);
+		if (depth >= 3) {
+			itable.set(I_HP_UP_POTION, 10);
+		}
+		if (depth >= 4) {
+			itable.set(I_POISON_POTION, 10);
+			itable.set(I_ANTIDOTE_POTION, 10);
+		}
+		var type = random.select(itable);
+		if (type === I_HEALTH_POTION) {
+			var e = I_INFO[type];
+			var baselevel = Math.ceil(depth / 4);
+			var ltable = new Map();
+			ltable.set(random.num(baselevel) + 1, 75);
+			ltable.set(baselevel + 1, 20);
+			ltable.set(baselevel + 2, 5);
+			var level = random.select(ltable);
+			blocks[x][y].items.push(new HealthPotion(type, cat, level));	
+		}
+		else {
+			blocks[x][y].items.push(new Item(type, cat));
+		}
+	}
+	else if (cat === I_CAT_WEAPON) {
+		var itable = new Map();
+		itable.set(I_DAGGER, 1);
+		if (depth >= 5) {
+			itable.set(I_SHORT_SWORD, 1);
+		}
+		if (depth >= 7) {
+			itable.set(I_RAPIER, 1);
+		}
+		if (depth >= 9) {
+			itable.set(I_FALCHION, 1);
+		}
+		if (depth >= 11) {
+			itable.set(I_LONG_SWORD, 1);
+		}
+		var type = random.select(itable);
+		var e = I_INFO[type];
+		var baselevel = Math.ceil(depth / 2);
+		var ltable = new Map();
+		ltable.set(random.num(baselevel) + 1, 75);
+		ltable.set(baselevel + 1, 20);
+		ltable.set(baselevel + 2, 5);
+		var level = Math.max(random.select(ltable) - e.level, 0);
+		blocks[x][y].items.push(new Weapon(type, cat, level));
+	}
+	else if (cat === I_CAT_ARMOR) {
+		var itable = new Map();
+		itable.set(I_LEATHER_ARMOR, 1);
+		if (depth >= 5) {
+			itable.set(I_RIVET_ARMOR, 1);
+		}
+		if (depth >= 7) {
+			itable.set(I_SCALE_ARMOR, 1);
+		}
+		if (depth >= 9) {
+			itable.set(I_CHAIN_MAIL, 1);
+		}
+		if (depth >= 11) {
+			itable.set(I_PLATE_ARMOR, 1);
+		}
+		var type = random.select(itable);
+		var e = I_INFO[type];
+		var baselevel = Math.ceil(depth / 2);
+		var ltable = new Map();
+		ltable.set(random.num(baselevel) + 1, 75);
+		ltable.set(baselevel + 1, 20);
+		ltable.set(baselevel + 2, 5);
+		var level = Math.max(random.select(ltable) - e.level, 0);
+		blocks[x][y].items.push(new Armor(type, cat, level));
+	}
+	else if (cat === I_CAT_SCROLL) {
+		var itable = new Map();
+		itable.set(I_WEAPON_SCROLL, 1);
+		itable.set(I_ARMOR_SCROLL, 1);
+		var type = random.select(itable);
+		blocks[x][y].items.push(new Item(type, cat));
+	}
 }
 
 function split_room (blocks, r, dp, random) {
