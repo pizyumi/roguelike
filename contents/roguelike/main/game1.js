@@ -96,17 +96,16 @@ function create_field (depth, upstairs, base_seed) {
 	for (var i = 0; i < rooms.length; i++) {
 		var num = random.num(3);
 		for (var j = 0; j < num; j++) {
-			var x = random.num(rooms[i].x2 - rooms[i].x1) + rooms[i].x1;
-			var y = random.num(rooms[i].y2 - rooms[i].y1) + rooms[i].y1;
+			var p = get_random_room_position(rooms[i], random);
 			var f = true;
 			for (var k = 0; k < upstairs.length; k++) {
-				if (x === upstairs[k].x && y === upstairs[k].y) {
+				if (p.x === upstairs[k].x && p.y === upstairs[k].y) {
 					f = false;
 					break;
 				}
 			}
 			if (f) {
-				put_enemy(depth, x, y, npcs, random);
+				put_enemy(depth, p.x, p.y, npcs, random);
 			}
 		}
 
@@ -116,16 +115,14 @@ function create_field (depth, upstairs, base_seed) {
 		ntable.set(2, 10);
 		var num_trap = random.select(ntable);
 		for (var j = 0; j < num_trap; j++) {
-			var x = random.num(rooms[i].x2 - rooms[i].x1) + rooms[i].x1;
-			var y = random.num(rooms[i].y2 - rooms[i].y1) + rooms[i].y1;
-			put_trap(depth, x, y, blocks, random);
+			var p = get_random_room_position(rooms[i], random);
+			put_trap(depth, p.x, p.y, blocks, random);
 		}
 
 		var num_item = Math.floor(random.fraction() + 0.5);
 		for (var j = 0; j < num_item; j++) {
-			var x = random.num(rooms[i].x2 - rooms[i].x1) + rooms[i].x1;
-			var y = random.num(rooms[i].y2 - rooms[i].y1) + rooms[i].y1;
-			put_item(depth, x, y, blocks, random);
+			var p = get_random_room_position(rooms[i], random);
+			put_item(depth, p.x, p.y, blocks, random);
 		}
 	}
 
@@ -142,6 +139,12 @@ function create_field (depth, upstairs, base_seed) {
 		rooms: rooms,
 		npcs: npcs
 	};
+}
+
+function get_random_room_position (room, random) {
+	var x = random.num(room.x2 - room.x1) + room.x1;
+	var y = random.num(room.y2 - room.y1) + room.y1;
+	return { x, y };
 }
 
 function put_enemy (depth, x, y, npcs, random) {
