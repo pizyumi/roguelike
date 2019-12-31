@@ -1,4 +1,4 @@
-function create_field (depth, upstairs, base_seed) {
+function create_field (depth, base_seed) {
 	var random = new Random(base_seed + ',' + depth.toString(10));
 
 	var nx = 15;

@@ -11,7 +11,7 @@ function init () {
 	waiting = false;
 
 	fields = [];
-	fields[0] = create_field(0, [], seed);
+	fields[0] = create_field(0, seed);
 	player = new Player(TEXT_PLAYER);
 	player.x = fields[0].x;
 	player.y = fields[0].y;
@@ -343,10 +343,7 @@ async function downstair () {
 	});
 	player.depth++;
 	if (!fields[player.depth]) {
-		fields[player.depth] = create_field(player.depth, [{
-			x: player.x,
-			y: player.y
-		}], seed);
+		fields[player.depth] = create_field(player.depth, seed);
 	}
 	if (!player.maps[player.depth]) {
 		player.maps[player.depth] = new FMap(fields[player.depth]);
