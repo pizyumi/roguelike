@@ -81,17 +81,8 @@ function create_field (depth, upstairs, base_seed) {
 	while (nds > 0) {
 		var x = random.num(nx - 2) + 1;
 		var y = random.num(ny - 2) + 1;
-		var f = true;
-		for (var i = 0; i < upstairs.length; i++) {
-			if (x === upstairs[i].x && y === upstairs[i].y) {
-				f = false;
-				break;
-			}
-		}
-		if (f) {
-			blocks[x][y].base = B_DOWNSTAIR;
-			nds--;
-		}
+		blocks[x][y].base = B_DOWNSTAIR;
+		nds--;
 	}
 
 	var npcs = [];
@@ -99,16 +90,7 @@ function create_field (depth, upstairs, base_seed) {
 		var num = random.num(3);
 		for (var j = 0; j < num; j++) {
 			var p = get_random_room_position(rooms[i], random);
-			var f = true;
-			for (var k = 0; k < upstairs.length; k++) {
-				if (p.x === upstairs[k].x && p.y === upstairs[k].y) {
-					f = false;
-					break;
-				}
-			}
-			if (f) {
-				put_enemy(depth, p.x, p.y, npcs, random);
-			}
+			put_enemy(depth, p.x, p.y, npcs, random);
 		}
 
 		var ntable = new Map();
@@ -125,12 +107,6 @@ function create_field (depth, upstairs, base_seed) {
 		for (var j = 0; j < num_item; j++) {
 			var p = get_random_room_position(rooms[i], random);
 			put_item(depth, p.x, p.y, blocks, random);
-		}
-	}
-
-	for (var i = 0; i < upstairs.length; i++) {
-		if (blocks[upstairs[i].x][upstairs[i].y].base = B_WALL) {
-			blocks[upstairs[i].x][upstairs[i].y].base = B_FLOOR;
 		}
 	}
 
