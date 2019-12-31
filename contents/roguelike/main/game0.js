@@ -13,6 +13,8 @@ function init () {
 	fields = [];
 	fields[0] = create_field(0, [], seed);
 	player = new Player(TEXT_PLAYER);
+	player.x = fields[0].x;
+	player.y = fields[0].y;
 	player.maps[0] = new FMap(fields[0]);
 	player.maps[0].update(player.x, player.y);
 	messages = [{
@@ -349,6 +351,8 @@ async function downstair () {
 	if (!player.maps[player.depth]) {
 		player.maps[player.depth] = new FMap(fields[player.depth]);
 	}
+	player.x = fields[player.depth].x;
+	player.y = fields[player.depth].y;
 	player.maps[player.depth].update(player.x, player.y);
 	statistics.add_action(player.depth, STATS_ACTION_MOVE);
 	await execute_turn();

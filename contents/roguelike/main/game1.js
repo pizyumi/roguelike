@@ -49,7 +49,9 @@ function create_field (depth, upstairs, base_seed) {
 				y1: 1,
 				y2: ny - 2
 			}],
-			npcs: []
+			npcs: [], 
+			x: 7, 
+			y: 9
 		};
 	}
 
@@ -132,12 +134,17 @@ function create_field (depth, upstairs, base_seed) {
 		}
 	}
 
+	var proom = rooms[random.num(rooms.length)];
+	var pp = get_random_room_position(proom, random);
+
 	return {
 		nx: nx,
 		ny: ny,
 		blocks: blocks,
 		rooms: rooms,
-		npcs: npcs
+		npcs: npcs, 
+		x: pp.x, 
+		y: pp.y
 	};
 }
 
