@@ -25,34 +25,22 @@ function create_field (depth, base_seed) {
 		}
 	}
 
+	var field = {
+		nx: nx,
+		ny: ny,
+		blocks: blocks,
+		rooms: [{
+			x1: 1,
+			x2: nx - 2,
+			y1: 1,
+			y2: ny - 2
+		}],
+		npcs: []
+	};
+
 	if (depth === 0) {
-		blocks[7][5] = {
-			base: B_DOWNSTAIR
-		};
-
-		for (var i = 0; i < 2; i++) {
-			var x = random.num(nx - 2 - 1) + 1;
-			var y = random.num(ny - 2 - 1) + 1;
-			if (!blocks[x][y].items) {
-				blocks[x][y].items = [];
-			}
-			blocks[x][y].items.push(new Item(I_APPLE, I_CAT_FOOD));
-		}
-
-		return {
-			nx: nx,
-			ny: ny,
-			blocks: blocks,
-			rooms: [{
-				x1: 1,
-				x2: nx - 2,
-				y1: 1,
-				y2: ny - 2
-			}],
-			npcs: [], 
-			x: 7, 
-			y: 9
-		};
+		create_field_0(field, random);
+		return field;
 	}
 
 	var workings = [{
@@ -122,6 +110,24 @@ function create_field (depth, base_seed) {
 		x: pp.x, 
 		y: pp.y
 	};
+}
+
+function create_field_0 (field, random) {
+	field.blocks[7][5] = {
+		base: B_DOWNSTAIR
+	};
+
+	for (var i = 0; i < 2; i++) {
+		var x = random.num(field.nx - 2 - 1) + 1;
+		var y = random.num(field.ny - 2 - 1) + 1;
+		if (!field.blocks[x][y].items) {
+			field.blocks[x][y].items = [];
+		}
+		field.blocks[x][y].items.push(new Item(I_APPLE, I_CAT_FOOD));
+	}
+
+	field.x = 7;
+	field.y = 9;
 }
 
 function get_random_room_position (room, random) {
