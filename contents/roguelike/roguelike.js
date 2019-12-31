@@ -11,12 +11,12 @@ var common = require('../../common');
 var obj = {};
 
 obj = _.extend(obj, {
-    get: async () => {
+    get: async (p) => {
         var app = express.Router();
         app.use('/lib', express.static(path.join(__dirname, 'lib')));
         app.use('/img', express.static(path.join(__dirname, 'img')));
         app.use('/mp3', express.static(path.join(__dirname, 'mp3')));
-        app.use('/', express.static(path.join(__dirname, 'main')));
+        app.use(p + '/', express.static(path.join(__dirname, 'main')));
         app.get('/get-versions', (req, res, next) => {
             co(function* () {
                 var p = path.join(__dirname, 'record');

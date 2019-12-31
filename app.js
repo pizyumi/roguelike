@@ -11,7 +11,7 @@ module.exports = async () => {
     var c = await config.get();
     var d = await db.connect(c);
     var w = await web.get(c, [
-        await roguelike.get()
+        await roguelike.get('')
     ]);
     var s = await server.start(c, w);
     var end_server_once = _.once(server.end);
