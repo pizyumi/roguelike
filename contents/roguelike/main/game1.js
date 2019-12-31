@@ -118,12 +118,11 @@ function create_field_0 (field, random) {
 	};
 
 	for (var i = 0; i < 2; i++) {
-		var x = random.num(field.nx - 2 - 1) + 1;
-		var y = random.num(field.ny - 2 - 1) + 1;
-		if (!field.blocks[x][y].items) {
-			field.blocks[x][y].items = [];
+		var p = get_random_room_position(field.rooms[0], random);
+		if (!field.blocks[p.x][p.y].items) {
+			field.blocks[p.x][p.y].items = [];
 		}
-		field.blocks[x][y].items.push(new Item(I_APPLE, I_CAT_FOOD));
+		field.blocks[p.x][p.y].items.push(new Item(I_APPLE, I_CAT_FOOD));
 	}
 
 	field.x = 7;
