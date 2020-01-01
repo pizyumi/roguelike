@@ -164,6 +164,9 @@ $(function () {
 	});
 
 	var canvas = document.getElementById('game');
+	var c = $(canvas);
+	c.focus();
+
 	con = canvas.getContext('2d');
 
 	var keyl = false;
@@ -175,7 +178,6 @@ $(function () {
 		diagonal: false
 	};
 
-	var c = $(canvas);
 	c.on('keydown', function (e) {
 		if (e.keyCode === 37) {
 			keyl = true;
