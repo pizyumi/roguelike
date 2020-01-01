@@ -67,11 +67,10 @@ function create_field_0 (field, random) {
 
 function create_field_n (depth, field, random) {
 	var workings = [field.rooms[0]];
-	var ps = [1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5];
 	var rooms = [];
-	while (workings.length > 0 && ps.length > 0) {
+	while (workings.length > 0) {
 		var w = workings.shift();
-		var news = split_room(field.blocks, w, ps.shift(), random);
+		var news = split_room(field.blocks, w, random);
 		for (var i = 0; i < news.length; i++) {
 			workings.push(news[i]);
 		}
@@ -259,11 +258,10 @@ function put_item (depth, x, y, blocks, random) {
 	}
 }
 
-function split_room (blocks, r, dp, random) {
+function split_room (blocks, r, random) {
 	var rx = r.x2 - r.x1 + 1;
 	var ry = r.y2 - r.y1 + 1;
-	var ap = random.fraction();
-	if (ap <= dp) {
+	if (rx * ry > 100) {
 		var dir = random.num(2);
 		if (rx > ry * 2) {
 			dir = 0;
@@ -351,7 +349,9 @@ function split_room (blocks, r, dp, random) {
 			}
 		}
 	}
-	return [];
+	else {
+		return [];
+	}
 }
 
 var MODE_MANUAL = 0;
