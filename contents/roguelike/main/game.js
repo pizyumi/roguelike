@@ -214,6 +214,11 @@ $(function () {
 	});
 	c.on('keydown', function (e) {
 		e.preventDefault();
+
+		if (e.keyCode === 116) {
+			window.location.reload();
+		}
+
 		if (screen === SCREEN_TITLE) {
 			if (e.keyCode === 38) {
 				titleindex--;
