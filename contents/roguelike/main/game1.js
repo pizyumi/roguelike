@@ -83,13 +83,9 @@ function create_field_n (depth, field, random) {
 		rooms.push(workings.shift());
 	}
 
-	var nds = 1;
-	while (nds > 0) {
-		var x = random.num(field.nx - 2) + 1;
-		var y = random.num(field.ny - 2) + 1;
-		field.blocks[x][y].base = B_DOWNSTAIR;
-		nds--;
-	}
+	var droom = rooms[random.num(rooms.length)];
+	var dp = get_random_room_position(droom, random);
+	field.blocks[dp.x][dp.y].base = B_DOWNSTAIR;
 
 	for (var i = 0; i < rooms.length; i++) {
 		var num = random.num(3);
