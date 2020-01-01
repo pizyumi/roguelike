@@ -40,76 +40,12 @@ function create_field (depth, base_seed) {
 
 	if (depth === 0) {
 		create_field_0(field, random);
-		return field;
+	}
+	else {
+		create_field_n(depth, field, random);
 	}
 
-	var workings = [{
-		x1: 1,
-		x2: nx - 2,
-		y1: 1,
-		y2: ny - 2
-	}];
-	var ps = [1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5];
-	var rooms = [];
-	while (workings.length > 0 && ps.length > 0) {
-		var w = workings.shift();
-		var news = split_room(blocks, w, ps.shift(), random);
-		for (var i = 0; i < news.length; i++) {
-			workings.push(news[i]);
-		}
-		if (news.length === 0) {
-			rooms.push(w);
-		}
-	}
-	while (workings.length > 0) {
-		rooms.push(workings.shift());
-	}
-
-	var nds = 1;
-	while (nds > 0) {
-		var x = random.num(nx - 2) + 1;
-		var y = random.num(ny - 2) + 1;
-		blocks[x][y].base = B_DOWNSTAIR;
-		nds--;
-	}
-
-	var npcs = [];
-	for (var i = 0; i < rooms.length; i++) {
-		var num = random.num(3);
-		for (var j = 0; j < num; j++) {
-			var p = get_random_room_position(rooms[i], random);
-			put_enemy(depth, p.x, p.y, npcs, random);
-		}
-
-		var ntable = new Map();
-		ntable.set(0, 60);
-		ntable.set(1, 30);
-		ntable.set(2, 10);
-		var num_trap = random.select(ntable);
-		for (var j = 0; j < num_trap; j++) {
-			var p = get_random_room_position(rooms[i], random);
-			put_trap(depth, p.x, p.y, blocks, random);
-		}
-
-		var num_item = Math.floor(random.fraction() + 0.5);
-		for (var j = 0; j < num_item; j++) {
-			var p = get_random_room_position(rooms[i], random);
-			put_item(depth, p.x, p.y, blocks, random);
-		}
-	}
-
-	var proom = rooms[random.num(rooms.length)];
-	var pp = get_random_room_position(proom, random);
-
-	return {
-		nx: nx,
-		ny: ny,
-		blocks: blocks,
-		rooms: rooms,
-		npcs: npcs, 
-		x: pp.x, 
-		y: pp.y
-	};
+	return field;
 }
 
 function create_field_0 (field, random) {
@@ -127,6 +63,64 @@ function create_field_0 (field, random) {
 
 	field.x = 7;
 	field.y = 9;
+}
+
+function create_field_n (depth, field, random) {
+	var workings = [field.rooms[0]];
+	var ps = [1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5];
+	var rooms = [];
+	while (workings.length > 0 && ps.length > 0) {
+		var w = workings.shift();
+		var news = split_room(field.blocks, w, ps.shift(), random);
+		for (var i = 0; i < news.length; i++) {
+			workings.push(news[i]);
+		}
+		if (news.length === 0) {
+			rooms.push(w);
+		}
+	}
+	while (workings.length > 0) {
+		rooms.push(workings.shift());
+	}
+
+	var nds = 1;
+	while (nds > 0) {
+		var x = random.num(field.nx - 2) + 1;
+		var y = random.num(field.ny - 2) + 1;
+		field.blocks[x][y].base = B_DOWNSTAIR;
+		nds--;
+	}
+
+	for (var i = 0; i < rooms.length; i++) {
+		var num = random.num(3);
+		for (var j = 0; j < num; j++) {
+			var p = get_random_room_position(rooms[i], random);
+			put_enemy(depth, p.x, p.y, field.npcs, random);
+		}
+
+		var ntable = new Map();
+		ntable.set(0, 60);
+		ntable.set(1, 30);
+		ntable.set(2, 10);
+		var num_trap = random.select(ntable);
+		for (var j = 0; j < num_trap; j++) {
+			var p = get_random_room_position(rooms[i], random);
+			put_trap(depth, p.x, p.y, field.blocks, random);
+		}
+
+		var num_item = Math.floor(random.fraction() + 0.5);
+		for (var j = 0; j < num_item; j++) {
+			var p = get_random_room_position(rooms[i], random);
+			put_item(depth, p.x, p.y, field.blocks, random);
+		}
+	}
+
+	var proom = rooms[random.num(rooms.length)];
+	var pp = get_random_room_position(proom, random);
+	field.x = pp.x;
+	field.y = pp.y;
+
+	field.rooms = rooms;
 }
 
 function get_random_room_position (room, random) {
