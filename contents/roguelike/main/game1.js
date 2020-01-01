@@ -260,29 +260,31 @@ function put_item (depth, x, y, blocks, random) {
 }
 
 function split_room (blocks, r, dp, random) {
+	var rx = r.x2 - r.x1 + 1;
+	var ry = r.y2 - r.y1 + 1;
 	var ap = random.fraction();
 	if (ap <= dp) {
 		var dir = random.num(2);
-		if (r.x2 - r.x1 > (r.y2 - r.y1) * 2) {
+		if (rx > ry * 2) {
 			dir = 0;
 		}
-		else if ((r.x2 - r.x1) * 2 < r.y2 - r.y1) {
+		else if (rx * 2 < ry) {
 			dir = 1;
 		}
 
 		if (dir === 0) {
-			if (r.x2 - r.x1 <= 6) {
+			if (rx <= 7) {
 				return [];
 			}
 
-			var x = random.num(r.x2 - r.x1 - 6) + 3 + r.x1;
+			var x = random.num(rx - 7) + 3 + r.x1;
 			if (blocks[x][r.y1 - 1].base !== B_WALL) {
 				return [];
 			}
 			if (blocks[x][r.y2 + 1].base !== B_WALL) {
 				return [];
 			}
-			var y = random.num(r.y2 - r.y1) + r.y1;
+			var y = random.num(ry - 1) + r.y1;
 			for (var i = r.y1; i <= r.y2; i++) {
 				if (i !== y) {
 					blocks[x][i].base = B_WALL;
@@ -310,18 +312,18 @@ function split_room (blocks, r, dp, random) {
 			}
 		}
 		else if (dir === 1) {
-			if (r.y2 - r.y1 <= 6) {
+			if (ry <= 7) {
 				return [];
 			}
 
-			var y = random.num(r.y2 - r.y1 - 6) + 3 + r.y1;
+			var y = random.num(ry - 7) + 3 + r.y1;
 			if (blocks[r.x1 - 1][y].base !== B_WALL) {
 				return [];
 			}
 			if (blocks[r.x2 + 1][y].base !== B_WALL) {
 				return [];
 			}
-			var x = random.num(r.x2 - r.x1) + r.x1;
+			var x = random.num(rx - 1) + r.x1;
 			for (var i = r.x1; i <= r.x2; i++) {
 				if (i !== x) {
 					blocks[i][y].base = B_WALL;
