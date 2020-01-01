@@ -82,6 +82,37 @@ function create_field_n (depth, field, random) {
 		rooms.push(workings.shift());
 	}
 
+	for (var i = 0; i < 20; i++) {
+		var r = rooms[random.num(rooms.length)];
+		var rx = r.x2 - r.x1 + 1;
+		var ry = r.y2 - r.y1 + 1;	
+		var d = random.num(4);
+		if (d === DIR_UP) {
+			var x = random.num(rx) + r.x1;
+			if (r.y1 - 1 !== 0 && field.blocks[x][r.y1 - 2].base !== B_WALL) {
+				field.blocks[x][r.y1 - 1].base = B_FLOOR;
+			}
+		}
+		else if (d === DIR_DOWN) {
+			var x = random.num(rx) + r.x1;
+			if (r.y2 + 1 !== field.ny - 1 && field.blocks[x][r.y2 + 2].base !== B_WALL) {
+				field.blocks[x][r.y2 + 1].base = B_FLOOR;
+			}
+		}
+		else if (d === DIR_LEFT) {
+			var y = random.num(ry) + r.y1;
+			if (r.x1 - 1 !== 0 && field.blocks[r.x1 - 2][y].base !== B_WALL) {
+				field.blocks[r.x1 - 1][y].base = B_FLOOR;
+			}
+		}
+		else if (d === DIR_RIGHT) {
+			var y = random.num(ry) + r.y1;
+			if (r.x2 + 1 !== field.nx - 1 && field.blocks[r.x2 + 2][y].base !== B_WALL) {
+				field.blocks[r.x2 + 1][y].base = B_FLOOR;
+			}
+		}
+	}
+
 	var droom = rooms[random.num(rooms.length)];
 	var dp = get_random_room_position(droom, random);
 	field.blocks[dp.x][dp.y].base = B_DOWNSTAIR;
