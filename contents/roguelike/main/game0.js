@@ -765,6 +765,12 @@ async function read (item) {
 	return true;
 }
 
+async function enemy_move (c, x, y) {
+	c.x = x;
+	c.y = y;
+	return true;
+}
+
 async function enemy_attack (c) {
 	var table = new Map();
 	for (var i = 0; i < c.attacks.length; i++) {
@@ -969,8 +975,7 @@ async function execute_turn () {
 			for (var j = 0; j < ps.length; j++) {
 				if (get_npc_index(ps[j].x, ps[j].y) === null && (ps[j].x !== player.x || ps[j].y !== player.y)) {
 					if (Math.random() < ps[j].p) {
-						c.x = ps[j].x;
-						c.y = ps[j].y;
+						await enemy_move(c, ps[j].x, ps[j].y);
 					}
 					break;
 				}
