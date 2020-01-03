@@ -884,7 +884,7 @@ async function execute_turn () {
 				player.poison = true;
 				add_message({
 					text: MSG_POISON({name: player.dname}),
-					type: 'eattack'
+					type: 'normal'
 				});
 			}
 			draw();
