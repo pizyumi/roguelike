@@ -765,6 +765,56 @@ async function read (item) {
 	return true;
 }
 
+async function enemy_attack (c) {
+	var table = new Map();
+	for (var i = 0; i < c.attacks.length; i++) {
+		table.set(c.attacks[i].type, c.attacks[i].p);
+	}
+	var type = randomselect(table);
+	if (type === ATTACK_NORMAL) {
+		add_message({
+			text: MSG_ATTACK({name: c.dname}),
+			type: 'normal'
+		});
+	}
+	else if (type === ATTACK_POISON) {
+		add_message({
+			text: MSG_POISON_ATTACK({name: c.dname}),
+			type: 'normal'
+		});
+	}
+	var dam = calculate_damage(c.atk, 10, player.def);
+	player.hp -= dam;
+	add_message({
+		text: MSG_DAMAGE({name: player.dname, dam}),
+		type: 'eattack'
+	});
+	if (type === ATTACK_NORMAL) {
+	}
+	else if (type === ATTACK_POISON) {
+		player.poison = true;
+		add_message({
+			text: MSG_POISON({name: player.dname}),
+			type: 'normal'
+		});
+	}
+	draw();
+	await play_sound('eattack');
+	statistics.add_fight(player.depth, c, STATS_FIGHT_INBOUND, dam);
+	if (player.hp <= 0) {
+		player.hp = 0;
+		add_message({
+			text: MSG_DIE({name: player.dname}),
+			type: 'special'
+		});
+		statistics.add_die(STATS_DIE_KILLED, player);
+		gameover = true;
+		finish();
+		return false;
+	}
+	return true;
+}
+
 async function execute_turn () {
 	statistics.add_turn(player.depth);
 
@@ -855,50 +905,8 @@ async function execute_turn () {
 		var ld = player.x === c.x - 1 && player.y === c.y + 1;
 		var rd = player.x === c.x + 1 && player.y === c.y + 1;
 		if (attack && (l || u || r || d || (lu && cl && cu) || (ru && cr && cu) || (ld && cl && cd) || (rd && cr && cd))) {
-			var table = new Map();
-			for (var j = 0; j < c.attacks.length; j++) {
-				table.set(c.attacks[j].type, c.attacks[j].p);
-			}
-			var type = randomselect(table);
-			if (type === ATTACK_NORMAL) {
-				add_message({
-					text: MSG_ATTACK({name: c.dname}),
-					type: 'normal'
-				});
-			}
-			else if (type === ATTACK_POISON) {
-				add_message({
-					text: MSG_POISON_ATTACK({name: c.dname}),
-					type: 'normal'
-				});
-			}
-			var dam = calculate_damage(c.atk, 10, player.def);
-			player.hp -= dam;
-			add_message({
-				text: MSG_DAMAGE({name: player.dname, dam}),
-				type: 'eattack'
-			});
-			if (type === ATTACK_NORMAL) {
-			}
-			else if (type === ATTACK_POISON) {
-				player.poison = true;
-				add_message({
-					text: MSG_POISON({name: player.dname}),
-					type: 'normal'
-				});
-			}
-			draw();
-			await play_sound('eattack');
-			statistics.add_fight(player.depth, c, STATS_FIGHT_INBOUND, dam);
-			if (player.hp <= 0) {
-				player.hp = 0;
-				add_message({
-					text: MSG_DIE({name: player.dname}),
-					type: 'special'
-				});
-				statistics.add_die(STATS_DIE_KILLED, player);
-				gameover = true;
-				finish();
+			var r = await enemy_attack(c);
+			if (!r) {
 				return;
 			}
 		}
