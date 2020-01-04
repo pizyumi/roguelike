@@ -763,7 +763,11 @@ async function enemy_action (c) {
 		return await enemy_attack(c);
 	}
 	if (!route || !c.discovered) {
+		var room = get_room(c.x, c.y);
 		route = find_route(fields[player.depth], c.x, c.y, (field, x, y) => {
+			if (room && !within_room(x, y, room)) {
+				return false;
+			}
 			return B_CAN_STAND[field.blocks[x][y].base] && get_npc_index(x, y) === null;
 		}, (field, x, y) => {
 			return x !== c.x || y !== c.y;
@@ -1033,6 +1037,16 @@ function is_room_surrounding (x, y, room) {
 
 function within_player_surrounding (x, y) {
 	return x >= player.x - 1 && x <= player.x + 1 && y >= player.y - 1 && y <= player.y + 1;
+}
+
+function get_room (x, y) {
+	var rooms = fields[player.depth].rooms;
+	for (var i = 0; i < rooms.length; i++) {
+		if (within_room(x, y, rooms[i])) {
+			return rooms[i];
+		}
+	}
+	return null;
 }
 
 function npcs_within_room (room) {
