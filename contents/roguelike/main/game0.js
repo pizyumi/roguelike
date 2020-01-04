@@ -357,7 +357,6 @@ async function downstair () {
 }
 
 async function rest () {
-	var room = player.maps[player.depth].room;
 	if (player.hp >= player.hpfull * 0.9) {
 		add_message({
 			text: MSG_CANT_REST,
