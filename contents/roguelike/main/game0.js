@@ -357,14 +357,6 @@ async function downstair () {
 }
 
 async function rest () {
-	if (player.hp >= player.hpfull * 0.9) {
-		add_message({
-			text: MSG_CANT_REST,
-			type: 'important'
-		});
-		draw();
-		return false;
-	}
 	add_message({
 		text: MSG_REST({name: player.dname}),
 		type: 'normal'

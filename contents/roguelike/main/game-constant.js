@@ -83,7 +83,6 @@ var MSG_PICKUP = ({name, iname}) => `${name}は${iname}を拾いました。`;
 var MSG_CANT_PICKUP = ({iname}) => `${iname}を拾おうとしましたが、持ちきれませんでした。`;
 var MSG_DOWNSTAIR = ({name}) => `${name}は下り階段を降りました。`;
 var MSG_REST = ({name}) => `${name}はほんの少しの間休憩しました。`;
-var MSG_CANT_REST = '休憩の必要はなさそうです。';
 var MSG_HURL = ({name, iname}) => `${name}は${iname}を投げました。`;
 var MSG_PUT = ({name, iname}) => `${name}は${iname}を置きました。`;
 var MSG_EAT = ({name, iname}) => `${name}は${iname}を食べました。`;
