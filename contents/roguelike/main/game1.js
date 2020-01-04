@@ -105,6 +105,11 @@ function create_field_n (depth, field, random) {
 		}
 	}
 
+	var proom = rooms[random.num(rooms.length)];
+	var pp = get_random_room_position(proom, random);
+	field.x = pp.x;
+	field.y = pp.y;
+
 	var droom = rooms[random.num(rooms.length)];
 	var dp = get_random_room_position(droom, random);
 	field.blocks[dp.x][dp.y].base = B_DOWNSTAIR;
@@ -113,7 +118,9 @@ function create_field_n (depth, field, random) {
 		var num = random.num(3);
 		for (var j = 0; j < num; j++) {
 			var p = get_random_room_position(rooms[i], random);
-			put_enemy(depth, p.x, p.y, field.npcs, random);
+			if (p.x !== field.x || p.y !== field.y) {
+				put_enemy(depth, p.x, p.y, field.npcs, random);
+			}
 		}
 
 		var ntable = new Map();
@@ -123,20 +130,19 @@ function create_field_n (depth, field, random) {
 		var num_trap = random.select(ntable);
 		for (var j = 0; j < num_trap; j++) {
 			var p = get_random_room_position(rooms[i], random);
-			put_trap(depth, p.x, p.y, field.blocks, random);
+			if (p.x !== field.x || p.y !== field.y) {
+				put_trap(depth, p.x, p.y, field.blocks, random);
+			}
 		}
 
 		var num_item = Math.floor(random.fraction() + 0.5);
 		for (var j = 0; j < num_item; j++) {
 			var p = get_random_room_position(rooms[i], random);
-			put_item(depth, p.x, p.y, field.blocks, random);
+			if (p.x !== field.x || p.y !== field.y) {
+				put_item(depth, p.x, p.y, field.blocks, random);
+			}
 		}
 	}
-
-	var proom = rooms[random.num(rooms.length)];
-	var pp = get_random_room_position(proom, random);
-	field.x = pp.x;
-	field.y = pp.y;
 
 	field.rooms = rooms;
 }
