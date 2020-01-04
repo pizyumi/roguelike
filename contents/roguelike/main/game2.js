@@ -412,7 +412,7 @@ function create_table (columns, data) {
 	return table;
 }
 
-function find_route (map, x, y, range, condition) {
+function find_route (map, x, y, range, condition, move, diagonal) {
 	var checked = initialize_2d_array(map.nx, map.ny, (x, y) => false);
 	checked[x][y] = true;
 	var queue = [{
@@ -425,11 +425,35 @@ function find_route (map, x, y, range, condition) {
 		if (condition(map, p.x, p.y)) {
 			return p.route;
 		}
-		var ns = [];
-		ns.pushrandom({ x: p.x, y: p.y - 1 });
-		ns.pushrandom({ x: p.x, y: p.y + 1 });
-		ns.pushrandom({ x: p.x - 1, y: p.y });
-		ns.pushrandom({ x: p.x + 1, y: p.y });
+		var ns1 = [];
+		if (move(map, p.x, p.y - 1, p.x, p.y)) {
+			ns1.pushrandom({ x: p.x, y: p.y - 1 });
+		}
+		if (move(map, p.x, p.y + 1, p.x, p.y)) {
+			ns1.pushrandom({ x: p.x, y: p.y + 1 });
+		}
+		if (move(map, p.x - 1, p.y, p.x, p.y)) {
+			ns1.pushrandom({ x: p.x - 1, y: p.y });
+		}
+		if (move(map, p.x + 1, p.y, p.x, p.y)) {
+			ns1.pushrandom({ x: p.x + 1, y: p.y });
+		}
+		var ns2 = [];
+		if (diagonal) {
+			if (move(map, p.x - 1, p.y - 1, p.x, p.y)) {
+				ns2.pushrandom({ x: p.x - 1, y: p.y - 1 });
+			}
+			if (move(map, p.x - 1, p.y + 1, p.x, p.y)) {
+				ns2.pushrandom({ x: p.x - 1, y: p.y + 1 });
+			}
+			if (move(map, p.x + 1, p.y - 1, p.x, p.y)) {
+				ns2.pushrandom({ x: p.x + 1, y: p.y - 1 });
+			}
+			if (move(map, p.x + 1, p.y + 1, p.x, p.y)) {
+				ns2.pushrandom({ x: p.x + 1, y: p.y + 1 });	
+			}
+		}
+		var ns = ns1.concat(ns2);
 		for (var i = 0; i < ns.length; i++) {
 			if (range(map, ns[i].x, ns[i].y) && !checked[ns[i].x][ns[i].y]) {
 				checked[ns[i].x][ns[i].y] = true;

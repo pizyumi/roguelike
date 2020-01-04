@@ -905,14 +905,18 @@ async function execute_turn () {
 					return B_CAN_STAND[field.blocks[x][y].base] && get_npc_index(x, y) === null;
 				}, (field, x, y) => {
 					return x === player.x && y === player.y;
-				});
+				}, (field, x, y, px, py) => {
+					return can_action_diagonal(px, py, x - px, y - py);
+				}, true);
 			}
 			else {
 				route = find_route(fields[player.depth], c.x, c.y, (field, x, y) => {
 					return B_CAN_STAND[field.blocks[x][y].base] && get_npc_index(x, y) === null;
 				}, (field, x, y) => {
 					return x !== c.x || y !== c.y;
-				});
+				}, (field, x, y, px, py) => {
+					return can_action_diagonal(px, py, x - px, y - py);
+				}, true);
 			}
 			if (route !== null) {
 				var r = await enemy_move_one_block(c, route[0].x - c.x, route[0].y - c.y);
