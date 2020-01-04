@@ -272,7 +272,6 @@ async function attack (index, atk) {
 	var npcs = fields[player.depth].npcs;
 	var c = npcs[index];
 	var dam = calculate_damage(atk, player.str, c.def);
-	c.attacked = true;
 	c.hp -= dam;
 	add_message({
 		text: MSG_DAMAGE({name: c.dname, dam}),
@@ -878,21 +877,6 @@ async function execute_turn () {
 	for (var i = 0; i < npcs.length; i++) {
 		var c = npcs[i];
 
-		var attack = true;
-		if (c.type === 0) {
-			if (c.attacked) {
-				c.attacked = false;
-			}
-			else {
-				attack = false;
-			}
-		}
-		else if (c.type === 1) {
-			if (!c.attacked) {
-				attack = false;
-			}
-		}
-
 		var cl = B_CAN_STAND[fields[player.depth].blocks[c.x - 1][c.y].base];
 		var cu = B_CAN_STAND[fields[player.depth].blocks[c.x][c.y - 1].base];
 		var cr = B_CAN_STAND[fields[player.depth].blocks[c.x + 1][c.y].base];
@@ -910,7 +894,7 @@ async function execute_turn () {
 		var ru = player.x === c.x + 1 && player.y === c.y - 1;
 		var ld = player.x === c.x - 1 && player.y === c.y + 1;
 		var rd = player.x === c.x + 1 && player.y === c.y + 1;
-		if (attack && (l || u || r || d || (lu && cl && cu) || (ru && cr && cu) || (ld && cl && cd) || (rd && cr && cd))) {
+		if (l || u || r || d || (lu && cl && cu) || (ru && cr && cu) || (ld && cl && cd) || (rd && cr && cd)) {
 			var r = await enemy_attack(c);
 			if (!r) {
 				return;
