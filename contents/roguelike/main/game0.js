@@ -747,6 +747,60 @@ async function read (item) {
 	return true;
 }
 
+async function enemy_action (c) {
+	var room = player.maps[player.depth].room;
+	if (room && within_room(c.x, c.y, room)) {
+		c.discovered = true;
+	}
+
+	var cl = B_CAN_STAND[fields[player.depth].blocks[c.x - 1][c.y].base];
+	var cu = B_CAN_STAND[fields[player.depth].blocks[c.x][c.y - 1].base];
+	var cr = B_CAN_STAND[fields[player.depth].blocks[c.x + 1][c.y].base];
+	var cd = B_CAN_STAND[fields[player.depth].blocks[c.x][c.y + 1].base];
+
+	var l = player.x === c.x - 1 && player.y === c.y;
+	var u = player.x === c.x && player.y === c.y - 1;
+	var r = player.x === c.x + 1 && player.y === c.y;
+	var d = player.x === c.x && player.y === c.y + 1;
+	var lu = player.x === c.x - 1 && player.y === c.y - 1;
+	var ru = player.x === c.x + 1 && player.y === c.y - 1;
+	var ld = player.x === c.x - 1 && player.y === c.y + 1;
+	var rd = player.x === c.x + 1 && player.y === c.y + 1;
+	if (l || u || r || d || (lu && cl && cu) || (ru && cr && cu) || (ld && cl && cd) || (rd && cr && cd)) {
+		var r = await enemy_attack(c);
+		if (!r) {
+			return;
+		}
+	}
+	else {
+		var route = null;
+		if (c.discovered) {
+			route = find_route(fields[player.depth], c.x, c.y, (field, x, y) => {
+				return B_CAN_STAND[field.blocks[x][y].base] && get_npc_index(x, y) === null;
+			}, (field, x, y) => {
+				return x === player.x && y === player.y;
+			}, (field, x, y, px, py) => {
+				return can_action_diagonal(px, py, x - px, y - py);
+			}, true);
+		}
+		else {
+			route = find_route(fields[player.depth], c.x, c.y, (field, x, y) => {
+				return B_CAN_STAND[field.blocks[x][y].base] && get_npc_index(x, y) === null;
+			}, (field, x, y) => {
+				return x !== c.x || y !== c.y;
+			}, (field, x, y, px, py) => {
+				return can_action_diagonal(px, py, x - px, y - py);
+			}, true);
+		}
+		if (route !== null) {
+			var r = await enemy_move_one_block(c, route[0].x - c.x, route[0].y - c.y);
+			if (!r) {
+				throw new Error('enemy cant move.');
+			}
+		}
+	}
+}
+
 async function enemy_move_one_block (c, dx, dy) {
 	var x = c.x + dx;
 	var y = c.y + dy;
@@ -872,59 +926,7 @@ async function execute_turn () {
 
 	var npcs = fields[player.depth].npcs;
 	for (var i = 0; i < npcs.length; i++) {
-		var c = npcs[i];
-		
-		var room = player.maps[player.depth].room;
-		if (room && within_room(c.x, c.y, room)) {
-			c.discovered = true;
-		}
-
-		var cl = B_CAN_STAND[fields[player.depth].blocks[c.x - 1][c.y].base];
-		var cu = B_CAN_STAND[fields[player.depth].blocks[c.x][c.y - 1].base];
-		var cr = B_CAN_STAND[fields[player.depth].blocks[c.x + 1][c.y].base];
-		var cd = B_CAN_STAND[fields[player.depth].blocks[c.x][c.y + 1].base];
-
-		var l = player.x === c.x - 1 && player.y === c.y;
-		var u = player.x === c.x && player.y === c.y - 1;
-		var r = player.x === c.x + 1 && player.y === c.y;
-		var d = player.x === c.x && player.y === c.y + 1;
-		var lu = player.x === c.x - 1 && player.y === c.y - 1;
-		var ru = player.x === c.x + 1 && player.y === c.y - 1;
-		var ld = player.x === c.x - 1 && player.y === c.y + 1;
-		var rd = player.x === c.x + 1 && player.y === c.y + 1;
-		if (l || u || r || d || (lu && cl && cu) || (ru && cr && cu) || (ld && cl && cd) || (rd && cr && cd)) {
-			var r = await enemy_attack(c);
-			if (!r) {
-				return;
-			}
-		}
-		else {
-			var route = null;
-			if (c.discovered) {
-				route = find_route(fields[player.depth], c.x, c.y, (field, x, y) => {
-					return B_CAN_STAND[field.blocks[x][y].base] && get_npc_index(x, y) === null;
-				}, (field, x, y) => {
-					return x === player.x && y === player.y;
-				}, (field, x, y, px, py) => {
-					return can_action_diagonal(px, py, x - px, y - py);
-				}, true);
-			}
-			else {
-				route = find_route(fields[player.depth], c.x, c.y, (field, x, y) => {
-					return B_CAN_STAND[field.blocks[x][y].base] && get_npc_index(x, y) === null;
-				}, (field, x, y) => {
-					return x !== c.x || y !== c.y;
-				}, (field, x, y, px, py) => {
-					return can_action_diagonal(px, py, x - px, y - py);
-				}, true);
-			}
-			if (route !== null) {
-				var r = await enemy_move_one_block(c, route[0].x - c.x, route[0].y - c.y);
-				if (!r) {
-					throw new Error('enemy cant move.');
-				}
-			}
-		}
+		await enemy_action(npcs[i]);
 	}
 
 	player.next_hp();
