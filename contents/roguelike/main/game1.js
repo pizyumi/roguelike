@@ -681,8 +681,8 @@ class Player {
 		this.dname = dname;
 
 		this.depth = 0;
-		this.x = 7;
-		this.y = 9;
+		this.x = 0;
+		this.y = 0;
 		this.direction = DIR_UP;
 
 		this.str = 10;
