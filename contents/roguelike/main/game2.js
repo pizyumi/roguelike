@@ -412,6 +412,38 @@ function create_table (columns, data) {
 	return table;
 }
 
+function find_route (map, x, y, range, condition) {
+	var checked = initialize_2d_array(map.nx, map.ny, (x, y) => false);
+	checked[x][y] = true;
+	var queue = [{
+		x: x, 
+		y: y, 
+		route: []
+	}];
+	while (queue.length > 0) {
+		var p = queue.shift();
+		if (condition(map, p.x, p.y)) {
+			return p.route;
+		}
+		var ns = [];
+		ns.pushrandom({ x: p.x, y: p.y - 1 });
+		ns.pushrandom({ x: p.x, y: p.y + 1 });
+		ns.pushrandom({ x: p.x - 1, y: p.y });
+		ns.pushrandom({ x: p.x + 1, y: p.y });
+		for (var i = 0; i < ns.length; i++) {
+			if (range(map, ns[i].x, ns[i].y) && !checked[ns[i].x][ns[i].y]) {
+				checked[ns[i].x][ns[i].y] = true;
+				queue.push({
+					x: ns[i].x, 
+					y: ns[i].y, 
+					route: p.route.concat([{ x: ns[i].x, y: ns[i].y }])
+				});
+			}
+		}
+	}
+	return null;
+}
+
 function initialize_2d_array (nx, ny, initializer) {
 	var array = [];
 	for (var i = 0; i < nx; i++) {
