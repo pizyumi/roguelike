@@ -8,22 +8,14 @@ function create_field (depth, base_seed) {
 		ny = 25;
 	}
 
-	var blocks = [];
-	for (var i = 0; i < nx; i++) {
-		blocks[i] = [];
-		for (var j = 0; j < ny; j++) {
-			if ((i === 0 || j === 0) || (i === nx - 1 || j === ny - 1)) {
-				blocks[i][j] = {
-					base: B_WALL
-				};
-			}
-			else {
-				blocks[i][j] = {
-					base: B_FLOOR
-				};
-			}
+	var blocks = initialize_2d_array(nx, ny, (x, y) => {
+		if ((x === 0 || y === 0) || (x === nx - 1 || y === ny - 1)) {
+			return { base: B_WALL };
 		}
-	}
+		else {
+			return { base: B_FLOOR };
+		}
+	});
 
 	var field = {
 		nx: nx,
@@ -446,17 +438,10 @@ class Settings {
 
 class FMap {
 	constructor (field) {
-		var blocks = [];
-		for (var i = 0; i < field.nx; i++) {
-			blocks[i] = [];
-			for (var j = 0; j < field.ny; j++) {
-				blocks[i][j] = M_UNKNOWN;
-			}
-		}
 		this.field = field;
 		this.nx = field.nx;
 		this.ny = field.ny;
-		this.blocks = blocks;
+		this.blocks = initialize_2d_array(field.nx, field.ny, (x, y) => M_UNKNOWN);
 		this.room = null;
 		this.rooms = [];
 		this.downstair = null;

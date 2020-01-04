@@ -738,13 +738,7 @@ function find_downstair (map, x, y) {
 }
 
 function find_route (map, x, y, range, condition) {
-	var checked = [];
-	for (var i = 0; i < map.nx; i++) {
-		checked[i] = [];
-		for (var j = 0; j < map.ny; j++) {
-			checked[i][j] = false;
-		}
-	}
+	var checked = initialize_2d_array(map.nx, map.ny, (x, y) => false);
 	checked[x][y] = true;
 	var queue = [{
 		x: x, 

@@ -412,6 +412,17 @@ function create_table (columns, data) {
 	return table;
 }
 
+function initialize_2d_array (nx, ny, initializer) {
+	var array = [];
+	for (var i = 0; i < nx; i++) {
+		array[i] = [];
+		for (var j = 0; j < ny; j++) {
+			array[i][j] = initializer(i, j);
+		}
+	}
+	return array;
+}
+
 function round (val, level) {
 	var n = 10 ** level;
 	return Math.round(val * n) / n;
