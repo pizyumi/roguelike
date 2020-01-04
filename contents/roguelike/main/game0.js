@@ -755,6 +755,24 @@ async function read (item) {
 	return true;
 }
 
+async function enemy_move_one_block (c, dx, dy) {
+	var x = c.x + dx;
+	var y = c.y + dy;
+	var nx = fields[player.depth].nx;
+	var ny = fields[player.depth].ny;
+	if (x < 0 || y < 0 || x > nx - 1 || y > ny - 1) {
+		return null;
+	}
+	if ((dx + dy) % 2 === 0) {
+		var block1 = fields[player.depth].blocks[x][c.y];
+		var block2 = fields[player.depth].blocks[c.x][y];
+		if (!B_CAN_STAND[block1.base] || !B_CAN_STAND[block2.base]) {
+			return null;
+		}
+	}
+	return await enemy_move(c, x, y);
+}
+
 async function enemy_move (c, x, y) {
 	c.x = x;
 	c.y = y;
@@ -867,15 +885,16 @@ async function execute_turn () {
 	var npcs = fields[player.depth].npcs;
 	for (var i = 0; i < npcs.length; i++) {
 		var c = npcs[i];
+		
+		var room = player.maps[player.depth].room;
+		if (room && within_room(c.x, c.y, room)) {
+			c.discovered = true;
+		}
 
 		var cl = B_CAN_STAND[fields[player.depth].blocks[c.x - 1][c.y].base];
 		var cu = B_CAN_STAND[fields[player.depth].blocks[c.x][c.y - 1].base];
 		var cr = B_CAN_STAND[fields[player.depth].blocks[c.x + 1][c.y].base];
 		var cd = B_CAN_STAND[fields[player.depth].blocks[c.x][c.y + 1].base];
-		var clu = B_CAN_STAND[fields[player.depth].blocks[c.x - 1][c.y - 1].base];
-		var cru = B_CAN_STAND[fields[player.depth].blocks[c.x + 1][c.y - 1].base];
-		var cld = B_CAN_STAND[fields[player.depth].blocks[c.x - 1][c.y + 1].base];
-		var crd = B_CAN_STAND[fields[player.depth].blocks[c.x + 1][c.y + 1].base];
 
 		var l = player.x === c.x - 1 && player.y === c.y;
 		var u = player.x === c.x && player.y === c.y - 1;
@@ -892,67 +911,25 @@ async function execute_turn () {
 			}
 		}
 		else {
-			var ps = [];
-			var room = player.maps[player.depth].room;
-			var same = room && within_room(c.x, c.y, room);
-			if (same && c.type >= 3) {
-				if (c.x > player.x && cl) {
-					ps.pushrandom({ x: c.x - 1, y: c.y, p: 1.0 });
-				}
-				else if (c.x < player.x && cr) {
-					ps.pushrandom({ x: c.x + 1, y: c.y, p: 1.0 });
-				}
-				if (c.y > player.y && cu) {
-					ps.pushrandom({ x: c.x, y: c.y - 1, p: 1.0 });
-				}
-				else if (c.y < player.y && cd) {
-					ps.pushrandom({ x: c.x, y: c.y + 1, p: 1.0 });
-				}
-				if (c.x > player.x && c.y > player.y && cl && cu && clu) {
-					ps.unshift({ x: c.x - 1, y: c.y - 1, p: 1.0 });
-				}
-				else if (c.x < player.x && c.y > player.y && cr && cu && cru) {
-					ps.unshift({ x: c.x + 1, y: c.y - 1, p: 1.0 });
-				}
-				else if (c.x > player.x && c.y < player.y && cl && cd && cld) {
-					ps.unshift({ x: c.x - 1, y: c.y + 1, p: 1.0 });
-				}
-				else if (c.x < player.x && c.y < player.y && cr && cd && crd) {
-					ps.unshift({ x: c.x + 1, y: c.y + 1, p: 1.0 });
-				}
+			var route = null;
+			if (c.discovered) {
+				route = find_route(fields[player.depth], c.x, c.y, (field, x, y) => {
+					return B_CAN_STAND[field.blocks[x][y].base] && get_npc_index(x, y) === null;
+				}, (field, x, y) => {
+					return x === player.x && y === player.y;
+				});
 			}
 			else {
-				if (cl) {
-					ps.pushrandom({ x: c.x - 1, y: c.y, p: 0.5 });
-				}
-				if (cu) {
-					ps.pushrandom({ x: c.x, y: c.y - 1, p: 0.5 });
-				}
-				if (cr) {
-					ps.pushrandom({ x: c.x + 1, y: c.y, p: 0.5 });
-				}
-				if (cd) {
-					ps.pushrandom({ x: c.x, y: c.y + 1, p: 0.5 });
-				}
-				if (clu && cl && cu) {
-					ps.pushrandom({ x: c.x - 1, y: c.y - 1, p: 0.5 });
-				}
-				if (cru && cr && cu) {
-					ps.pushrandom({ x: c.x + 1, y: c.y - 1, p: 0.5 });
-				}
-				if (cld && cl && cd) {
-					ps.pushrandom({ x: c.x - 1, y: c.y + 1, p: 0.5 });
-				}
-				if (crd && cr && cd) {
-					ps.pushrandom({ x: c.x + 1, y: c.y + 1, p: 0.5 });
-				}
+				route = find_route(fields[player.depth], c.x, c.y, (field, x, y) => {
+					return B_CAN_STAND[field.blocks[x][y].base] && get_npc_index(x, y) === null;
+				}, (field, x, y) => {
+					return x !== c.x || y !== c.y;
+				});
 			}
-			for (var j = 0; j < ps.length; j++) {
-				if (get_npc_index(ps[j].x, ps[j].y) === null && (ps[j].x !== player.x || ps[j].y !== player.y)) {
-					if (Math.random() < ps[j].p) {
-						await enemy_move(c, ps[j].x, ps[j].y);
-					}
-					break;
+			if (route !== null) {
+				var r = await enemy_move_one_block(c, route[0].x - c.x, route[0].y - c.y);
+				if (!r) {
+					throw new Error('enemy cant move.');
 				}
 			}
 		}
