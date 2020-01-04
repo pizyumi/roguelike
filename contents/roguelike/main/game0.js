@@ -171,12 +171,8 @@ async function move_one_block () {
 	if (x < 0 || y < 0 || x > nx - 1 || y > ny - 1) {
 		return null;
 	}
-	if ((dx + dy) % 2 === 0) {
-		var block1 = fields[player.depth].blocks[x][player.y];
-		var block2 = fields[player.depth].blocks[player.x][y];
-		if (!B_CAN_STAND[block1.base] || !B_CAN_STAND[block2.base]) {
-			return null;
-		}
+	if (!can_action_diagonal(player.x, player.y, dx, dy)) {
+		return null;
 	}
 	return await move(x, y);
 }
@@ -250,12 +246,8 @@ async function attack_next () {
 	if (x < 0 || y < 0 || x > nx - 1 || y > ny - 1) {
 		return null;
 	}
-	if ((dx + dy) % 2 === 0) {
-		var block1 = fields[player.depth].blocks[x][player.y];
-		var block2 = fields[player.depth].blocks[player.x][y];
-		if (!B_CAN_STAND[block1.base] || !B_CAN_STAND[block2.base]) {
-			return null;
-		}
+	if (!can_action_diagonal(player.x, player.y, dx, dy)) {
+		return null;
 	}
 	var index = get_npc_index(x, y);
 	if (index === null) {
@@ -763,12 +755,8 @@ async function enemy_move_one_block (c, dx, dy) {
 	if (x < 0 || y < 0 || x > nx - 1 || y > ny - 1) {
 		return null;
 	}
-	if ((dx + dy) % 2 === 0) {
-		var block1 = fields[player.depth].blocks[x][c.y];
-		var block2 = fields[player.depth].blocks[c.x][y];
-		if (!B_CAN_STAND[block1.base] || !B_CAN_STAND[block2.base]) {
-			return null;
-		}
+	if (!can_action_diagonal(c.x, c.y, dx, dy)) {
+		return null;
 	}
 	return await enemy_move(c, x, y);
 }
@@ -1032,6 +1020,17 @@ function calculate_damage (atk, str, def) {
 		dam = 1;
 	}
 	return dam;
+}
+
+function can_action_diagonal (cx, cy, dx, dy) {
+	if ((dx + dy) % 2 === 0) {
+		var block1 = fields[player.depth].blocks[cx + dx][cy];
+		var block2 = fields[player.depth].blocks[cx][cy + dy];
+		if (!B_CAN_STAND[block1.base] || !B_CAN_STAND[block2.base]) {
+			return false;
+		}
+	}
+	return true;
 }
 
 function within_room (x, y, room) {
