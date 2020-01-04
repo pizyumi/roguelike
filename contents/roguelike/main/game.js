@@ -764,11 +764,10 @@ function find_route (map, x, y, range, condition) {
 		for (var i = 0; i < ns.length; i++) {
 			if (range(map, ns[i].x, ns[i].y) && !checked[ns[i].x][ns[i].y]) {
 				checked[ns[i].x][ns[i].y] = true;
-				var route = p.route.concat([{ x: ns[i].x, y: ns[i].y }])
 				queue.push({
 					x: ns[i].x, 
 					y: ns[i].y, 
-					route: route
+					route: p.route.concat([{ x: ns[i].x, y: ns[i].y }])
 				});
 			}
 		}
