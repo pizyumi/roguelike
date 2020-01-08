@@ -8,7 +8,7 @@ var web = require('./web');
 var server = require('./server');
 
 module.exports = async () => {
-    var c = await config.get();
+    // var c = await config.get();
     //var d = await db.connect(c);
     // var w = await web.get(c, [
     //     await roguelike.get('')
