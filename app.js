@@ -19,13 +19,13 @@ module.exports = async () => {
     ]);
     var s = await server.start({}, w);
     var end_server_once = _.once(server.end);
-    var disconnect_db_once = _.once(db.disconnect);
+    // var disconnect_db_once = _.once(db.disconnect);
 
     console.log('press enter key to exit.');
     process.on('SIGTERM', () => {
         co(function* () {
             yield end_server_once(s);
-            yield disconnect_db_once(d);
+            // yield disconnect_db_once(d);
             process.exit(0);
         });
     });
@@ -33,7 +33,7 @@ module.exports = async () => {
         if (data.indexOf('\n') !== -1) {
             co(function* () {
                 yield end_server_once(s);
-                yield disconnect_db_once(d);
+                // yield disconnect_db_once(d);
                 process.exit(0);
             });
         }
