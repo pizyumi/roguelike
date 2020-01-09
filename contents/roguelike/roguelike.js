@@ -17,6 +17,11 @@ obj = _.extend(obj, {
         app.use('/img', express.static(path.join(__dirname, 'img')));
         app.use('/mp3', express.static(path.join(__dirname, 'mp3')));
         app.use(p + '/', express.static(path.join(__dirname, 'main')));
+        app.get(p + '/', (req, res, next) => {
+            co(function* () {
+                yield common.send_res_with_html(res, '<a href="/srl.html">roguelike</a>');
+            }).catch(next);
+        });
         app.get('/get-versions', (req, res, next) => {
             co(function* () {
                 var p = path.join(__dirname, 'record');
