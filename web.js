@@ -1,7 +1,9 @@
 var _ = require('underscore');
 var co = require('co');
+var colors = require('colors');
 var connectflash = require('connect-flash');
 var connectredis = require('connect-redis');
+var dateformat = require('dateformat');
 var expresssession = require('express-session');
 var express = require('express');
 var morgan = require('morgan');
@@ -68,6 +70,16 @@ obj = _.extend(obj, {
         app.set('x-powered-by', false);
         app.set('case sensitive routing', true);
         app.set('strict routing', true);
+        var datetime = '';
+        app.use((req, res, next) => {
+            var now = dateformat(new Date(), 'yyyy/mm/dd HH:MM');
+            if (now !== datetime) {
+                datetime = now;
+
+                console.log(datetime.brightCyan);
+            }
+            next();
+        });
         app.use(morgan('dev'));
         // app.use(expresssession({
         //     store: new RedisStore({ client: redis.createClient() }),
