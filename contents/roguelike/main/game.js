@@ -1009,11 +1009,11 @@ function draw () {
 			states.push(TEXT_HUNGRY);
 			color = 'yellow';
 		}
-		else if (player.famine) {
+		if (player.famine) {
 			states.push(TEXT_FAMINE);
 			color = 'red';
 		}
-		else if (player.poison) {
+		if (player.poison) {
 			states.push(TEXT_POISON);
 			color = 'red';
 		}
