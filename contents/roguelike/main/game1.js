@@ -210,8 +210,9 @@ function put_item (depth, x, y, blocks, random) {
 			itable.set(I_HP_UP_POTION, 10);
 		}
 		if (depth >= 4) {
-			itable.set(I_POISON_POTION, 10);
+			itable.set(I_POISON_POTION, 5);
 			itable.set(I_ANTIDOTE_POTION, 10);
+			itable.set(I_EYE_POTION, 5);
 		}
 		var type = random.select(itable);
 		if (type === I_HEALTH_POTION) {
@@ -713,6 +714,7 @@ class Player {
 		this.poison = false;
 		this.poison_strength = 1;
 		this.poison_remedy = 0.05;
+		this.eye = false;
 
 		this.items = new Items();
 		this.items.event.on('add', (item) => {

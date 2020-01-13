@@ -333,6 +333,13 @@ async function downstair () {
 		type: 'normal'
 	});
 	player.depth++;
+	if (player.eye) {
+		player.eye = false;
+		add_message({
+			text: MSG_EYE_DISAPPEARANCE({name: player.dname}),
+			type: 'normal'
+		});
+	}
 	if (!fields[player.depth]) {
 		fields[player.depth] = create_field(player.depth, seed);
 	}
@@ -597,6 +604,21 @@ async function quaff (item) {
 			});
 		}
 	}
+	else if (item.type === I_EYE_POTION) {
+		if (player.eye) {
+			add_message({
+				text: MSG_NO_EFFECT,
+				type: 'important'
+			});
+		}
+		else {
+			player.eye = true;
+			add_message({
+				text: MSG_EYE({name: player.dname}),
+				type: 'normal'
+			});
+		}
+	}
 	else {
 		throw new Error('not supported.');
 	}
@@ -858,6 +880,8 @@ async function enemy_attack (c) {
 async function execute_turn () {
 	statistics.add_turn(player.depth);
 
+	player.maps[player.depth].update(player.x, player.y);
+
 	var block = fields[player.depth].blocks[player.x][player.y];
 	if (block.trap) {
 		block.trap.activated = true;
@@ -957,7 +981,19 @@ async function execute_turn () {
 		}
 	}
 
-	player.maps[player.depth].update(player.x, player.y);
+	if (player.eye) {
+		var room = player.maps[player.depth].room;
+		if (room !== null) {
+			for (var i = room.x1; i <= room.x2; i++) {
+				for (var j = room.y1; j <= room.y2; j++) {
+					var block = fields[player.depth].blocks[i][j];
+					if (block.trap) {
+						block.trap.activated = true;
+					}			
+				}
+			}
+		}	
+	}
 
 	var dies = [];
 	for (var i = 0; i < npcs.length; i++) {

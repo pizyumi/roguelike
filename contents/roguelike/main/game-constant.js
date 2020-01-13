@@ -16,6 +16,7 @@ var TEXT_STATES = '状態';
 var TEXT_HUNGRY = '空腹';
 var TEXT_FAMINE = '飢餓';
 var TEXT_POISON = '毒';
+var TEXT_EYE = '罠見え';
 var TEXT_EQUIPPED = '装備中';
 var TEXT_AUTO = '自動';
 var TEXT_AI = 'AI';
@@ -74,6 +75,8 @@ var MSG_EXP = ({name, exp}) => `${name}は${exp}の経験値を得ました。`;
 var MSG_LEVELUP = ({name, level}) => `${name}はレベル${level}になりました。`;
 var MSG_POISON = ({name}) => `${name}は毒に侵されました。`;
 var MSG_POISON_RECOVERY = ({name}) => `${name}は毒が抜けました。`;
+var MSG_EYE = ({name}) => `${name}は罠が見えるようになりました。`;
+var MSG_EYE_DISAPPEARANCE = ({name}) => `${name}は罠が見えなくなりました。`;
 var MSG_EQUIPPED_WEAPON_UP = ({name, diff}) => `${name}が装備している武器の攻撃力が${diff}上昇しました。`;
 var MSG_EQUIPPED_ARMOR_UP = ({name, diff}) => `${name}が装備している防具の防御力が${diff}上昇しました。`;
 var MSG_WALL = '壁に阻まれました。';
@@ -113,6 +116,7 @@ var I_HEALTH_POTION_NAME = '回復薬';
 var I_HP_UP_POTION_NAME = '命の薬';
 var I_POISON_POTION_NAME = '毒薬';
 var I_ANTIDOTE_POTION_NAME = '解毒薬';
+var I_EYE_POTION_NAME = '目薬';
 var I_DAGGER_NAME = 'ダガー';
 var I_SHORT_SWORD_NAME = 'ショートソード';
 var I_RAPIER_NAME = 'レイピア';
@@ -295,6 +299,7 @@ var I_HEALTH_POTION = 100;
 var I_HP_UP_POTION = 150;
 var I_POISON_POTION = 170;
 var I_ANTIDOTE_POTION = 171;
+var I_EYE_POTION = 172;
 var I_DAGGER = 200;
 var I_SHORT_SWORD = 201;
 var I_RAPIER = 202;
@@ -327,6 +332,10 @@ I_INFO[I_POISON_POTION] = {
 };
 I_INFO[I_ANTIDOTE_POTION] = {
 	dname: I_ANTIDOTE_POTION_NAME, 
+	weight: 0.1
+};
+I_INFO[I_EYE_POTION] = {
+	dname: I_EYE_POTION_NAME, 
 	weight: 0.1
 };
 I_INFO[I_DAGGER] = {

@@ -861,7 +861,7 @@ function draw () {
 								else if (item.type === I_HP_UP_POTION) {
 									con.drawImage(img_item, 7 * 32, 0 * 32, 32, 32, i * PX, j * PY, PX, PY);
 								}
-								else if (item.type === I_POISON_POTION || item.type === I_ANTIDOTE_POTION) {
+								else if (item.type === I_POISON_POTION || item.type === I_ANTIDOTE_POTION || item.type === I_EYE_POTION) {
 									con.drawImage(img_item, 7 * 32, 3 * 32, 32, 32, i * PX, j * PY, PX, PY);
 								}
 								else {
@@ -1017,6 +1017,9 @@ function draw () {
 			states.push(TEXT_POISON);
 			color = 'red';
 		}
+		if (player.eye) {
+			states.push(TEXT_EYE);
+		}
 	
 		con.save();
 		con.textBaseline = 'top';
@@ -1059,7 +1062,7 @@ function draw () {
 					else if (items[i].type === I_HP_UP_POTION) {
 						con.drawImage(img_item, 7 * 32, 0 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 					}
-					else if (items[i].type === I_POISON_POTION || items[i].type === I_ANTIDOTE_POTION) {
+					else if (items[i].type === I_POISON_POTION || items[i].type === I_ANTIDOTE_POTION || items[i].type === I_EYE_POTION) {
 						con.drawImage(img_item, 7 * 32, 3 * 32, 32, 32, 8 + 12, (24 + 6) * (i - invoffset) - (32 / 2) - 2, 32, 32);
 					}
 					else {
